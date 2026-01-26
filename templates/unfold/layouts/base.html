@@ -1,0 +1,42 @@
+{% extends "unfold/layouts/base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --font-primary: 'Cairo', sans-serif;
+        --primary-500: #4f46e5;
+        --primary-600: #4338ca;
+        --bg-body-light: #f1f5f9;
+        --text-main: #0f172a;
+    }
+
+    /* إجبار الخط على جميع العناصر */
+    body, html, .font-sans, .prose {
+        font-family: var(--font-primary) !important;
+    }
+
+    /* إصلاح اتجاه النصوص للأرقام والمدخلات */
+    input, textarea {
+        text-align: right;
+    }
+    
+    /* تنسيق شريط التمرير */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
+{% endblock %}

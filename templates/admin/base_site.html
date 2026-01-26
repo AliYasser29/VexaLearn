@@ -1,0 +1,23 @@
+{% extends "unfold/layouts/base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    /* تطبيق الخط على كامل الموقع */
+    body, .font-sans {
+        font-family: 'Cairo', sans-serif !important;
+    }
+    
+    /* إصلاح بسيط لاتجاه النصوص في الحقول */
+    input, textarea, select {
+        text-align: right; 
+    }
+    
+    /* (اختياري) تحسين شكل شريط التمرير */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+</style>
+{% endblock %}

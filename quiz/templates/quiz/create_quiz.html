@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء اختبار جديد | VexaLearn</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        /* Card Design */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1e293b 100%);
+            padding: 30px;
+            color: white;
+            text-align: center;
+        }
+
+        .card-header h2 { margin: 0 0 10px; font-size: 1.5rem; font-weight: 800; }
+        .card-header .course-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .card-body { padding: 40px; }
+
+        /* Form Styling */
+        .form-group { margin-bottom: 20px; }
+        .form-label {
+            display: block; margin-bottom: 8px; font-weight: 700; color: var(--secondary);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        select, 
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: 0.3s ease;
+            background-color: #fcfcfc;
+            color: var(--text-main);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--white);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea { resize: vertical; min-height: 100px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .help-text {
+            display: block; margin-top: 5px; font-size: 0.85rem; color: var(--text-light);
+        }
+
+        /* تخصيص Select2 ليتناسب مع الثيم */
+        .select2-container--default .select2-selection--multiple {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            min-height: 48px;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            background-color: var(--white);
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: white;
+            margin-right: 5px;
+            border-right: 1px solid rgba(255,255,255,0.3);
+            padding-right: 5px;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #e2e8f0;
+            background: transparent;
+        }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 15px; margin-top: 30px; }
+        
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary); color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        .btn-secondary {
+            background: white; color: var(--text-light); border: 2px solid var(--border);
+            width: auto; padding: 14px 25px;
+        }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: #f8fafc; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-file-signature"></i> إنشاء اختبار جديد</h2>
+                <div class="course-badge">
+                    <i class="fas fa-book"></i> الكورس: {{ course.name }}
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">عنوان الاختبار</label>
+                        {{ form.title }}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">الوصف والتعليمات</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><i class="far fa-clock"></i> المدة (دقائق)</label>
+                            {{ form.duration }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-percent"></i> درجة النجاح</label>
+                            {{ form.pass_score }}
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px dashed var(--border);">
+                        <label class="form-label">
+                            <i class="fas fa-users-cog" style="color: var(--primary);"></i> تخصيص لطلاب محددين (اختياري)
+                        </label>
+                        
+                        {{ form.specific_students }}
+
+                        <span class="help-text">
+                            <i class="fas fa-info-circle"></i> يمكنك اختيار أكثر من طالب. اترك الحقل فارغاً ليظهر الاختبار <b>لجميع</b> طلاب الكورس.
+                        </span>
+                    </div>
+
+                    <div class="btn-group">
+                        <a href="{% url 'profile_view' %}" class="btn btn-secondary">
+                            إلغاء
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            التالي: إضافة الأسئلة <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // تفعيل Select2
+            $('.select2').select2({
+                dir: "rtl",
+                width: '100%',
+                placeholder: "اضغط هنا لاختيار الطلاب...",
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا يوجد طلاب بهذا الاسم";
+                    }
+                }
+            });
+
+            // تحسينات إضافية لحقول العنوان والوصف
+            $('input[name="title"]').attr('placeholder', 'مثال: اختبار الوحدة الأولى...');
+            $('textarea[name="description"]').attr('placeholder', 'اكتب تعليمات الاختبار هنا...');
+        });
+    </script>
+
+</body>
+</html>

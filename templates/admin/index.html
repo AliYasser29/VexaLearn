@@ -1,0 +1,159 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<style>
+    /* 1. متغيرات الألوان (تتغير تلقائياً حسب الوضع) */
+    :root {
+        --card-bg: #ffffff;
+        --card-border: #e2e8f0;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --hover-bg: #f8fafc;
+    }
+
+    /* تغيير المتغيرات عند تفعيل الوضع الداكن */
+    html.dark {
+        --card-bg: #1e293b;       /* لون خلفية الكارت في الداكن */
+        --card-border: #334155;   /* لون الحدود في الداكن */
+        --text-primary: #f1f5f9;  /* النص الأساسي أبيض */
+        --text-secondary: #94a3b8;
+        --hover-bg: #0f172a;
+    }
+
+    .dashboard-container { padding: 20px 0; }
+
+    /* شبكة الكروت */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    /* تصميم الكارت المتجاوب مع الوضعين */
+    .stat-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 24px;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, border-color 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: #6366f1; /* لون التمييز */
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .stat-title {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        color: var(--text-primary);
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .stat-icon {
+        font-size: 24px;
+        color: #6366f1;
+        background: rgba(99, 102, 241, 0.1);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    /* قسم التطبيقات */
+    .app-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .app-header {
+        padding: 15px 20px;
+        background-color: var(--hover-bg);
+        border-bottom: 1px solid var(--card-border);
+        color: var(--text-primary);
+        font-weight: 700;
+    }
+
+    .app-body {
+        padding: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .quick-link {
+        padding: 8px 16px;
+        background-color: var(--hover-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .quick-link:hover {
+        border-color: #6366f1;
+        color: #6366f1;
+    }
+</style>
+
+<div class="dashboard-container">
+    
+    <div class="dashboard-grid">
+        {% if kpi %}
+            {% for card in kpi %}
+            <a href="{{ card.link|default:'#' }}" class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">{{ card.title }}</span>
+                    <span class="material-symbols-outlined stat-icon">{{ card.icon|default:'analytics' }}</span>
+                </div>
+                <div class="stat-value">{{ card.metric }}</div>
+            </a>
+            {% endfor %}
+        {% else %}
+             <div class="stat-card">
+                <p style="color: var(--text-secondary);">لا توجد بيانات للعرض.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if app_list %}
+    <div class="apps-section">
+        {% for app in app_list %}
+        <div class="app-card">
+            <div class="app-header">{{ app.name }}</div>
+            <div class="app-body">
+                {% for model in app.models %}
+                <a href="{{ model.admin_url }}" class="quick-link">
+                    {{ model.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

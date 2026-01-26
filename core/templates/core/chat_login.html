@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دخول المحادثة | VexaChat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --white: #ffffff;
+        }
+
+        /* إخفاء أيقونة العين الافتراضية للمتصفحات */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Mascot Styles --- */
+        .mascot-container {
+            width: 120px;
+            height: 120px;
+            margin: -90px auto 10px auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .mascot-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .hand {
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transform-origin: center bottom;
+        }
+
+        .mascot-svg.covering .hand-left {
+            transform: translateY(-45px) translateX(10px) rotate(15deg);
+        }
+        .mascot-svg.covering .hand-right {
+            transform: translateY(-45px) translateX(-10px) rotate(-15deg);
+        }
+        
+        .eye-ball { transition: transform 0.1s; }
+
+        .login-container h2 {
+            color: var(--text-main);
+            margin: 10px 0 5px 0;
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            transition: 0.3s;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: pointer;
+            z-index: 5;
+            padding: 5px;
+            transition: 0.3s;
+        }
+        .toggle-password:hover { color: #4f46e5; }
+
+        input {
+            width: 100%;
+            padding: 14px 45px 14px 45px; 
+            border: 2px solid #f3f4f6;
+            background: #f9fafb;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+            color: var(--text-main);
+        }
+
+        input:focus {
+            border-color: #6366f1;
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        input:focus ~ .input-icon { color: #4f46e5; }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+
+        .footer-text {
+            margin-top: 25px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .error-msg {
+            background-color: #fef2f2;
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border: 1px solid #fee2e2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        
+        <div class="mascot-container">
+            <svg class="mascot-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="60" r="50" fill="#4f46e5" />
+                <circle cx="60" cy="60" r="45" fill="#ffffff" opacity="0.1" />
+                
+                <circle cx="20" cy="30" r="15" fill="#4f46e5" />
+                <circle cx="100" cy="30" r="15" fill="#4f46e5" />
+                <circle cx="20" cy="30" r="8" fill="#312e81" opacity="0.3" />
+                <circle cx="100" cy="30" r="8" fill="#312e81" opacity="0.3" />
+
+                <g class="eyes">
+                    <circle cx="40" cy="55" r="12" fill="white" />
+                    <circle class="eye-ball" cx="40" cy="55" r="5" fill="#1f2937" />
+                    <circle cx="80" cy="55" r="12" fill="white" />
+                    <circle class="eye-ball" cx="80" cy="55" r="5" fill="#1f2937" />
+                </g>
+
+                <path d="M 50 80 Q 60 88 70 80" stroke="#1f2937" stroke-width="3" fill="none" stroke-linecap="round" />
+                <circle cx="60" cy="70" r="6" fill="#1f2937" />
+
+                <g class="hands">
+                    <path class="hand hand-left" d="M 10 110 C 10 90 30 80 40 100 C 45 110 30 130 10 130 Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2" />
+                    <path class="hand hand-right" d="M 110 110 C 110 90 90 80 80 100 C 75 110 90 130 110 130 Z" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2" />
+                </g>
+            </svg>
+        </div>
+
+        <h2>VexaChat</h2>
+        <div class="subtitle">سجل دخولك لبدء التواصل</div>
+        
+        {% if form.errors %}
+            <div class="error-msg">
+                <i class="fas fa-exclamation-circle"></i>
+                اسم المستخدم أو كلمة المرور غير صحيحة
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <input type="text" id="username" name="username" placeholder="اسم المستخدم" required autocomplete="off">
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="كلمة المرور" required>
+                <i class="fas fa-lock input-icon"></i>
+                <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+
+            <button type="submit">
+                تسجيل الدخول <i class="fas fa-arrow-left" style="margin-right: 5px; font-size: 0.9rem;"></i>
+            </button>
+        </form>
+
+        <div class="footer-text">
+            نظام التواصل الأكاديمي الآمن &copy; 2026
+        </div>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('togglePassword');
+        const mascotSvg = document.querySelector('.mascot-svg');
+        const eyeBalls = document.querySelectorAll('.eye-ball');
+        const usernameInput = document.getElementById('username');
+
+        // 1. منطق زر الإظهار/الإخفاء (المتحكم الرئيسي)
+        toggleIcon.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+
+            // إذا أخفينا الباسوورد -> غطِ العينين
+            if (type === 'password') {
+                mascotSvg.classList.add('covering');
+            } else {
+                // إذا أظهرناه -> اكشف العينين
+                mascotSvg.classList.remove('covering');
+            }
+        });
+
+        // 2. عند التركيز على حقل الباسوورد
+        // (نتأكد فقط من تغطية العينين إذا كان النوع password)
+        passwordInput.addEventListener('focus', () => {
+            if (passwordInput.getAttribute('type') === 'password') {
+                mascotSvg.classList.add('covering');
+            }
+        });
+
+        // 3. (هام) عند التركيز على اسم المستخدم
+        // يجب كشف العينين لكي تعمل حركة التتبع (Tracking)
+        usernameInput.addEventListener('focus', () => {
+            mascotSvg.classList.remove('covering');
+        });
+
+        // 4. (هام) عند العودة من اسم المستخدم (Blur)
+        // نتحقق إذا كان الباسوورد مخفياً، نعيد تغطية العينين
+        usernameInput.addEventListener('blur', () => {
+            if (passwordInput.getAttribute('type') === 'password') {
+                mascotSvg.classList.add('covering');
+            }
+            // إعادة العيون للوسط
+            eyeBalls.forEach(eye => {
+                eye.style.transform = `translateX(0px)`;
+            });
+        });
+
+        // 5. حركة العيون مع الكتابة
+        usernameInput.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            const maxMove = 5;
+            const moveX = Math.min((length / 20) * maxMove, maxMove);
+            
+            eyeBalls.forEach(eye => {
+                eye.style.transform = `translateX(${moveX}px)`;
+            });
+        });
+
+    </script>
+
+</body>
+</html>

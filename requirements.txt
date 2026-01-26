@@ -1,0 +1,9 @@
+Django>=5.0
+django-unfold
+django-filter
+django-import-export
+Pillow
+whitenoise>=6.6.0
+gunicorn>=21.2.0
+python-dotenv
+agora-token-builder

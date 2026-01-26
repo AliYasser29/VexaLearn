@@ -1,0 +1,18 @@
+/* core/static/css/admin_fix.css */
+
+/* إصلاح مشكلة اختفاء القوائم في الوضع العربي */
+.absolute {
+    z-index: 99999 !important; /* إجبار القائمة أن تكون فوق الجميع */
+}
+
+/* إذا كانت القائمة تخرج يسار الشاشة، نجبرها تدخل لليمين قليلاً */
+[dir="rtl"] .origin-top-right {
+    left: 0 !important;
+    right: auto !important;
+    transform-origin: top left !important;
+}
+
+/* منع الـ Container من قص القائمة */
+header, nav, aside {
+    overflow: visible !important;
+}

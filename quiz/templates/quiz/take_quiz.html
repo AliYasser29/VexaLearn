@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quiz.title }} | VexaLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            user-select: none; /* منع النسخ للحماية */
+            padding-bottom: 80px; /* مساحة للزر العائم */
+        }
+
+        /* --- Sticky Timer Header --- */
+        .timer-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 5%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .quiz-info h1 { margin: 0; font-size: 1.1rem; color: var(--secondary); font-weight: 800; }
+        .quiz-info p { margin: 0; font-size: 0.85rem; color: var(--text-light); }
+
+        .timer-badge {
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #fecaca;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+        }
+        .timer-badge i { animation: pulse 2s infinite; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* --- Container --- */
+        .container {
+            max-width: 800px;
+            margin: 100px auto 40px; /* Top margin for sticky header */
+            padding: 0 20px;
+        }
+
+        /* --- Question Card --- */
+        .question-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* شريط جانبي ملون للبطاقة */
+        .question-card::before {
+            content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 5px; background: var(--primary);
+        }
+
+        .question-header {
+            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;
+        }
+        .question-text {
+            font-size: 1.2rem; font-weight: 700; color: var(--secondary); line-height: 1.5; margin: 0;
+        }
+        .question-marks {
+            background: #eff6ff; color: var(--primary); padding: 5px 12px;
+            border-radius: 8px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;
+            margin-right: 15px;
+        }
+
+        /* --- Choices (Radio Options) --- */
+        .choices-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .choice-label {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px;
+            background: var(--bg-light);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .choice-label:hover {
+            background: #e2e8f0;
+        }
+
+        /* تنسيق خاص عند اختيار العنصر */
+        .choice-radio:checked + .choice-text-wrapper {
+            /* يتم تطبيق التنسيق عبر الـ Parent باستخدام JS أو :has في المتصفحات الحديثة */
+        }
+        
+        /* دعم المتصفحات الحديثة لتلوين الحاوية عند التحديد */
+        .choice-label:has(.choice-radio:checked) {
+            background: #eff6ff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Custom Radio */
+        .choice-radio {
+            appearance: none;
+            width: 22px; height: 22px;
+            border: 2px solid #cbd5e1; border-radius: 50%;
+            display: grid; place-content: center;
+            transition: 0.2s; flex-shrink: 0;
+        }
+        .choice-radio::before {
+            content: ""; width: 10px; height: 10px; border-radius: 50%;
+            transform: scale(0); transition: 0.2s;
+            box-shadow: inset 1em 1em var(--primary);
+        }
+        .choice-radio:checked { border-color: var(--primary); background: white; }
+        .choice-radio:checked::before { transform: scale(1); }
+
+        .choice-text { font-size: 1rem; font-weight: 600; color: var(--text-main); }
+
+        /* --- Submit Button --- */
+        .submit-container {
+            text-align: center; margin-top: 40px;
+        }
+        .btn-submit {
+            background: var(--success); color: white;
+            padding: 15px 50px; font-size: 1.1rem; font-weight: 800;
+            border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            transition: 0.3s; width: 100%; max-width: 400px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-submit:hover {
+            background: #059669; transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(16, 185, 129, 0.4);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="timer-header">
+        <div class="quiz-info">
+            <h1><i class="fas fa-file-alt" style="color: var(--primary);"></i> {{ quiz.title }}</h1>
+            <p>{{ quiz.questions.count }} أسئلة | الدرجة النهائية: {{ quiz.questions.count|add:quiz.questions.count }} (مثال)</p>
+        </div>
+        <div id="timer" class="timer-badge">
+            <span id="time-left">00:00</span> <i class="fas fa-hourglass-half"></i>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <form method="post" id="quizForm">
+            {% csrf_token %}
+            
+            {% for question in questions %}
+            <div class="question-card">
+                <div class="question-header">
+                    <h3 class="question-text">
+                        <span style="color: var(--primary);">{{ forloop.counter }}.</span> 
+                        {{ question.text }}
+                    </h3>
+                    <span class="question-marks">{{ question.marks }} درجات</span>
+                </div>
+                
+                <div class="choices-list">
+                    {% for choice in question.choices.all %}
+                    <label class="choice-label">
+                        <input class="choice-radio" type="radio" name="question_{{ question.id }}" value="{{ choice.id }}">
+                        <span class="choice-text">{{ choice.text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="submit-container">
+                <button type="submit" class="btn-submit">
+                    تسليم الإجابات وإنهاء الاختبار <i class="fas fa-check-circle"></i>
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+        // --- كود العداد التنازلي ---
+        let durationMinutes = {{ quiz.duration }};
+        let time = durationMinutes * 60;
+        const timerElement = document.getElementById('time-left');
+        const form = document.getElementById('quizForm');
+        const timerBadge = document.getElementById('timer');
+
+        const interval = setInterval(() => {
+            const minutes = Math.floor(time / 60);
+            let seconds = time % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            
+            timerElement.innerHTML = `${minutes}:${seconds}`;
+            
+            // تغيير لون العداد عند اقتراب الوقت من الانتهاء (أقل من دقيقة)
+            if (time < 60) {
+                timerBadge.style.backgroundColor = '#ef4444';
+                timerBadge.style.color = 'white';
+                timerBadge.style.borderColor = '#ef4444';
+            }
+
+            time--;
+
+            if (time < 0) {
+                clearInterval(interval);
+                alert("انتهى الوقت المحدد للاختبار! سيتم تسليم إجاباتك تلقائياً الآن.");
+                form.submit();
+            }
+        }, 1000);
+
+        // --- كود إضافي لتحسين التفاعل (للمتصفحات القديمة التي لا تدعم :has) ---
+        const radios = document.querySelectorAll('.choice-radio');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // إزالة التحديد عن كل الخيارات في نفس السؤال
+                const name = this.name;
+                document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+                    input.parentElement.style.borderColor = 'transparent';
+                    input.parentElement.style.backgroundColor = 'var(--bg-light)';
+                });
+                
+                // تحديد الخيار المختار
+                if(this.checked) {
+                    this.parentElement.style.borderColor = 'var(--primary)';
+                    this.parentElement.style.backgroundColor = '#eff6ff';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

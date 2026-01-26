@@ -1,0 +1,534 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملاهي الأذكياء الشاملة 🎮 | VexaLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --c-primary: #FF9F1C;
+            --c-secondary: #2EC4B6;
+            --c-accent: #FFBF69;
+            --c-bg: #CBF3F0;
+            --c-text: #2D3436;
+        }
+
+        body {
+            font-family: 'Baloo Bhaijaan 2', cursive;
+            margin: 0;
+            background-color: var(--c-bg);
+            /* نمط خلفية منقط */
+            background-image: radial-gradient(#2EC4B6 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: var(--c-text);
+            user-select: none;
+            padding-bottom: 50px;
+            overflow-x: hidden;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; background: rgba(255,255,255,0.95);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1); border-radius: 0 0 30px 30px;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--c-primary); }
+        .back-btn {
+            background: var(--c-secondary); color: white; padding: 8px 20px;
+            border-radius: 50px; text-decoration: none; font-weight: bold;
+            box-shadow: 0 4px 0 #1B9C8E; transition: 0.2s;
+            cursor: pointer;
+        }
+        .back-btn:hover { transform: translateY(2px); box-shadow: 0 2px 0 #1B9C8E; }
+
+        /* --- Container --- */
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; text-align: center; }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 5px; color: #2D3436; text-shadow: 2px 2px 0 white; }
+        .subtitle { color: #636e72; margin-bottom: 40px; }
+
+        .level-section { margin-bottom: 50px; }
+        .level-title {
+            background: white; display: inline-block; padding: 10px 30px;
+            border-radius: 50px; font-size: 1.5rem; color: var(--c-primary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 25px;
+            border: 2px solid var(--c-primary);
+        }
+        
+        .games-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        /* --- Game Card --- */
+        .game-card {
+            background: white; border-radius: 25px; padding: 20px;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.05); border: 4px solid white;
+            cursor: pointer; transition: 0.3s; position: relative;
+        }
+        .game-card:hover { transform: translateY(-8px); border-color: var(--c-accent); }
+        
+        .icon-box {
+            font-size: 3rem; width: 70px; height: 70px; margin: 0 auto 15px;
+            background: #f1f2f6; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+        .game-card h3 { margin: 0; font-size: 1.2rem; }
+        .play-tag {
+            margin-top: 10px; display: inline-block; font-size: 0.9rem;
+            color: var(--c-secondary); font-weight: bold;
+        }
+
+        /* --- Game Modal --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            z-index: 2000; display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .game-board-container {
+            background: white; width: 95%; max-width: 500px;
+            border-radius: 25px; padding: 25px; position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4); text-align: center;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .close-modal {
+            position: absolute; top: 15px; left: 15px;
+            background: #FF7675; color: white; width: 35px; height: 35px;
+            border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer;
+        }
+
+        /* --- Confetti Canvas --- */
+        #confetti {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 3000;
+        }
+
+        /* Game Specific CSS */
+        .game-btn {
+            background: var(--c-primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 10px; font-size: 1.1rem; cursor: pointer; margin: 5px;
+            box-shadow: 0 4px 0 #E58E19;
+        }
+        .game-btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        .ttt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 250px; margin: 0 auto; }
+        .ttt-cell {
+            background: #f1f2f6; height: 80px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: bold; cursor: pointer; border-radius: 10px;
+        }
+        
+        /* Memory Game */
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .card { height: 60px; background: var(--c-primary); border-radius: 8px; cursor: pointer; position: relative; transform-style: preserve-3d; transition: 0.3s; }
+        .card.flip { transform: rotateY(180deg); background: white; border: 2px solid var(--c-primary); }
+        .front-face, .back-face { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; backface-visibility: hidden; font-size: 1.8rem; }
+        .front-face { transform: rotateY(180deg); }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <nav class="navbar">
+        <div class="logo">🎮 عالم الألعاب</div>
+        <a href="{% url 'landing_page' %}" class="back-btn">خروج</a>
+    </nav>
+
+    <div class="container">
+        <h1>ملاهي الأذكياء 🎡</h1>
+        <p class="subtitle">اختر مستوى الصعوبة وابدأ التحدي!</p>
+
+        <div class="level-section">
+            <div class="level-title">🟢 المستوى السهل (للمبتدئين)</div>
+            <div class="games-grid">
+                <div class="game-card" onclick="openGame('colors')">
+                    <div class="icon-box" style="background: #FFD3E0;">🎨</div>
+                    <h3>ميّز اللون</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('shapes')">
+                    <div class="icon-box" style="background: #D1F2EB;">🔺</div>
+                    <h3>الأشكال الهندسية</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('clicker')">
+                    <div class="icon-box" style="background: #FFF3CD;">⭐</div>
+                    <h3>صيد النجوم</h3><span class="play-tag">العب الآن</span>
+                </div>
+                 <div class="game-card" onclick="openGame('memory')">
+                    <div class="icon-box" style="background: #E1F5FE;">🐶</div>
+                    <h3>ذاكرة الحيوانات</h3><span class="play-tag">العب الآن</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-section">
+            <div class="level-title">🟡 المستوى المتوسط (للأبطال)</div>
+            <div class="games-grid">
+                <div class="game-card" onclick="openGame('rps')">
+                    <div class="icon-box" style="background: #F0E68C;">✌️</div>
+                    <h3>حجرة ورقة مقص</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('ttt')">
+                    <div class="icon-box" style="background: #E6E6FA;">❌</div>
+                    <h3>إكس أو (X-O)</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('math')">
+                    <div class="icon-box" style="background: #FFDAB9;">🔢</div>
+                    <h3>تحدي الجمع</h3><span class="play-tag">العب الآن</span>
+                </div>
+                 <div class="game-card" onclick="openGame('oddeven')">
+                    <div class="icon-box" style="background: #E0FFFF;">⚖️</div>
+                    <h3>زوجي أم فردي؟</h3><span class="play-tag">العب الآن</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-section">
+            <div class="level-title">🔴 المستوى الصعب (للعباقرة)</div>
+            <div class="games-grid">
+                <div class="game-card" onclick="openGame('snake')">
+                    <div class="icon-box" style="background: #98FB98;">🐍</div>
+                    <h3>الثعبان الجائع</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('guess')">
+                    <div class="icon-box" style="background: #FFB6C1;">❓</div>
+                    <h3>خمن الرقم السري</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('simon')">
+                    <div class="icon-box" style="background: #B0E0E6;">💡</div>
+                    <h3>الذاكرة المتسلسلة</h3><span class="play-tag">العب الآن</span>
+                </div>
+                <div class="game-card" onclick="openGame('typing')">
+                    <div class="icon-box" style="background: #D8BFD8;">⌨️</div>
+                    <h3>سرعة الكتابة</h3><span class="play-tag">العب الآن</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="gameModal">
+        <div class="game-board-container">
+            <button class="close-modal" onclick="closeGame()">×</button>
+            <div id="gameContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- تهيئة عامة ---
+        const gameContent = document.getElementById('gameContent');
+        let activeInterval = null; 
+
+        // --- Confetti Effect ---
+        // استخدام أسماء متغيرات فريدة لمنع التضارب
+        const confCanvas = document.getElementById('confetti');
+        const confCtx = confCanvas.getContext('2d');
+        confCanvas.width = window.innerWidth; 
+        confCanvas.height = window.innerHeight;
+        let confetti = [];
+
+        function launchConfetti() {
+            for(let i=0; i<80; i++) confetti.push({
+                x: Math.random()*confCanvas.width, 
+                y: Math.random()*confCanvas.height-confCanvas.height, 
+                color: `hsl(${Math.random()*360},100%,50%)`, 
+                size: Math.random()*10+5, 
+                speed: Math.random()*5+2
+            });
+            animateConfetti();
+        }
+        function animateConfetti() {
+            confCtx.clearRect(0,0,confCanvas.width,confCanvas.height);
+            confetti.forEach((p,i)=>{
+                p.y+=p.speed;
+                confCtx.fillStyle=p.color;
+                confCtx.fillRect(p.x,p.y,p.size,p.size);
+                if(p.y>confCanvas.height) confetti.splice(i,1)
+            });
+            if(confetti.length>0) requestAnimationFrame(animateConfetti);
+        }
+
+        // --- Game Management ---
+        function closeGame() {
+            document.getElementById('gameModal').style.display = 'none';
+            gameContent.innerHTML = '';
+            if(activeInterval) clearInterval(activeInterval);
+            document.onkeydown = null;
+        }
+
+        function openGame(gameType) {
+            document.getElementById('gameModal').style.display = 'flex';
+            gameContent.innerHTML = '';
+            if(activeInterval) clearInterval(activeInterval);
+
+            // Load Game
+            if (gameType === 'colors') initColors();
+            else if (gameType === 'shapes') initShapes();
+            else if (gameType === 'clicker') initClicker();
+            else if (gameType === 'memory') initMemory();
+            else if (gameType === 'rps') initRPS();
+            else if (gameType === 'ttt') initTTT();
+            else if (gameType === 'math') initMath();
+            else if (gameType === 'oddeven') initOddEven();
+            else if (gameType === 'snake') initSnake();
+            else if (gameType === 'guess') initGuess();
+            else if (gameType === 'simon') initSimon();
+            else if (gameType === 'typing') initTyping();
+        }
+
+        // --- 1. Colors ---
+        function initColors() {
+            let score = 0;
+            const colors = [{name:'أحمر', c:'red'}, {name:'أزرق', c:'blue'}, {name:'أخضر', c:'green'}, {name:'أصفر', c:'gold'}];
+            function nextRound() {
+                const target = colors[Math.floor(Math.random() * colors.length)];
+                let html = `<h2>🎨 اختر اللون: <span style="color:${target.c}">${target.name}</span></h2>
+                            <div style="font-weight:bold;margin:10px;">النقاط: ${score}</div>
+                            <div style="display:flex;gap:10px;justify-content:center;">`;
+                colors.forEach(col => {
+                    html += `<button class="game-btn" style="background:${col.c};width:60px;height:60px;" onclick="checkColor('${col.c}', '${target.c}')"></button>`;
+                });
+                gameContent.innerHTML = html + `</div>`;
+            }
+            window.checkColor = (selected, correct) => {
+                if(selected === correct) { score++; launchConfetti(); nextRound(); } 
+                else { alert('خطأ! حاول مرة أخرى'); score=0; nextRound(); }
+            };
+            nextRound();
+        }
+
+        // --- 2. Shapes ---
+        function initShapes() {
+            let score = 0;
+            const shapes = [{n:'دائرة', s:'50%'}, {n:'مربع', s:'0'}, {n:'كبسولة', s:'20px'}];
+            function next() {
+                const target = shapes[Math.floor(Math.random()*shapes.length)];
+                let html = `<h2>🔺 اختر الشكل: ${target.n}</h2><div>النقاط: ${score}</div><div style="display:flex;gap:10px;justify-content:center;">`;
+                shapes.sort(()=>Math.random()-0.5).forEach(s => {
+                    html += `<div onclick="checkShape('${s.n}','${target.n}')" style="width:60px;height:60px;background:var(--c-primary);border-radius:${s.s};cursor:pointer;margin:10px;"></div>`;
+                });
+                gameContent.innerHTML = html + `</div>`;
+            }
+            window.checkShape = (s, t) => { if(s===t){score++;launchConfetti();next();} else alert('حاول مجدداً') };
+            next();
+        }
+
+        // --- 3. Clicker ---
+        function initClicker() {
+            let score = 0;
+            gameContent.innerHTML = `<h2>⭐ اصطد النجمة!</h2><div>النقاط: <span id="cScore">0</span></div>
+            <div id="starField" style="width:100%;height:300px;background:#f0f0f0;position:relative;margin:10px auto;border-radius:10px;overflow:hidden;">
+                <div id="star" onclick="clickStar()" style="font-size:30px;position:absolute;cursor:pointer;user-select:none;">⭐</div>
+            </div>`;
+            window.clickStar = () => {
+                score++; document.getElementById('cScore').innerText = score;
+                const star = document.getElementById('star');
+                star.style.left = Math.random() * 80 + '%';
+                star.style.top = Math.random() * 80 + '%';
+                launchConfetti();
+            };
+        }
+
+        // --- 4. Memory ---
+        function initMemory() {
+            const emojis = ['🦁','🦁','🐼','🐼','🐸','🐸','🐙','🐙'];
+            emojis.sort(() => 0.5 - Math.random());
+            let html = `<h2>🐶 الذاكرة</h2><div class="memory-grid">`;
+            emojis.forEach((e,i) => html += `<div class="card" id="c${i}" onclick="flip(${i}, '${e}')"><div class="front-face">${e}</div><div class="back-face">❓</div></div>`);
+            gameContent.innerHTML = html + `</div>`;
+            
+            let first = null, lock = false, matches = 0;
+            window.flip = (i, val) => {
+                let card = document.getElementById(`c${i}`);
+                if(lock || card.classList.contains('flip')) return;
+                card.classList.add('flip');
+                if(!first) first = {i, val};
+                else {
+                    lock = true;
+                    if(first.val === val) { matches++; first = null; lock = false; if(matches===4) launchConfetti(); }
+                    else { setTimeout(()=>{ document.getElementById(`c${first.i}`).classList.remove('flip'); card.classList.remove('flip'); first=null; lock=false;}, 1000); }
+                }
+            };
+        }
+
+        // --- 5. RPS ---
+        function initRPS() {
+            const opts = ['✊','✋','✌️'];
+            gameContent.innerHTML = `<h2>✌️ حجرة ورقة مقص</h2>
+                <div style="font-size:3rem;display:flex;gap:20px;justify-content:center;">
+                    <div onclick="playRPS(0)" style="cursor:pointer">✊</div>
+                    <div onclick="playRPS(1)" style="cursor:pointer">✋</div>
+                    <div onclick="playRPS(2)" style="cursor:pointer">✌️</div>
+                </div>
+                <div id="rpsResult" style="margin-top:20px;font-weight:bold;"></div>`;
+            window.playRPS = (p) => {
+                const c = Math.floor(Math.random()*3);
+                let res = (p===c) ? "تعادل!" : ((p===0&&c===2)||(p===1&&c===0)||(p===2&&c===1)) ? "فزت! 🎉" : "خسرت 😢";
+                document.getElementById('rpsResult').innerHTML = `أنت: ${opts[p]} | الكمبيوتر: ${opts[c]} <br> <h3>${res}</h3>`;
+                if(res.includes("فزت")) launchConfetti();
+            };
+        }
+
+        // --- 6. Tic Tac Toe ---
+        function initTTT() {
+            let board = Array(9).fill(null), turn = 'X', active = true;
+            let html = `<h2>❌ إكس أو ⭕</h2><div class="ttt-grid">`;
+            for(let i=0; i<9; i++) html += `<div class="ttt-cell" id="t${i}" onclick="moveTTT(${i})"></div>`;
+            gameContent.innerHTML = html + `</div><button class="game-btn" style="margin-top:15px" onclick="initTTT()">إعادة</button>`;
+            
+            window.moveTTT = (i) => {
+                if(!active || board[i]) return;
+                board[i] = turn; document.getElementById(`t${i}`).innerText = turn;
+                if(checkWin(turn)) { alert(turn + ' فاز!'); launchConfetti(); active = false; return; }
+                if(!board.includes(null)) { alert('تعادل!'); active = false; return; }
+                turn = turn === 'X' ? 'O' : 'X';
+            };
+            function checkWin(p) {
+                const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                return wins.some(c => board[c[0]]===p && board[c[1]]===p && board[c[2]]===p);
+            }
+        }
+
+        // --- 7. Math ---
+        function initMath() {
+            let score = 0;
+            function next() {
+                const n1 = Math.floor(Math.random()*10)+1, n2 = Math.floor(Math.random()*10)+1;
+                const ans = n1 + n2;
+                let opts = [ans, ans+1, ans-1, ans+2].sort(()=>Math.random()-0.5);
+                let html = `<h2>🔢 اجمع: ${n1} + ${n2} = ؟</h2><div>النقاط: ${score}</div><div style="display:flex;gap:10px;justify-content:center;margin-top:10px;">`;
+                opts.forEach(o => html += `<button class="game-btn" onclick="checkMath(${o},${ans})">${o}</button>`);
+                gameContent.innerHTML = html + `</div>`;
+            }
+            window.checkMath = (s, a) => { if(s===a){score+=10;launchConfetti();next();} else alert('خطأ!') };
+            next();
+        }
+
+        // --- 8. Odd/Even ---
+        function initOddEven() {
+            let num = Math.floor(Math.random()*20)+1;
+            let score = 0;
+            function render() {
+                gameContent.innerHTML = `<h2>⚖️ الرقم: ${num}</h2><div>النقاط: ${score}</div>
+                <button class="game-btn" onclick="checkOE('even')">زوجي</button>
+                <button class="game-btn" onclick="checkOE('odd')">فردي</button>`;
+            }
+            window.checkOE = (type) => {
+                let isEven = num % 2 === 0;
+                if((type==='even' && isEven) || (type==='odd' && !isEven)) { score++; launchConfetti(); num = Math.floor(Math.random()*20)+1; render(); }
+                else alert('خطأ!');
+            };
+            render();
+        }
+
+        // --- 9. Snake ---
+        function initSnake() {
+            // نستخدم canvas مستقل لمنع تضارب المتغيرات
+            gameContent.innerHTML = `<h2>🐍 الثعبان</h2>
+                <div style="position:relative; width:300px; height:300px; margin:0 auto;">
+                    <canvas id="snakeCanvas" width="300" height="300" style="background:#2d3436; border-radius:10px;"></canvas>
+                </div>
+                <div style="margin-top:10px">استخدم الأسهم للتحكم</div>`;
+            
+            const cvs = document.getElementById('snakeCanvas');
+            const snakeCtx = cvs.getContext('2d'); // اسم متغير مختلف عن ctx الخاص بالكونفيتي
+            let box = 15, snake = [{x:9*box, y:10*box}], dir, food = {x:Math.floor(Math.random()*19+1)*box, y:Math.floor(Math.random()*19+1)*box};
+            
+            document.onkeydown = (e) => {
+                if(e.keyCode==37 && dir!='RIGHT') dir='LEFT';
+                else if(e.keyCode==38 && dir!='DOWN') dir='UP';
+                else if(e.keyCode==39 && dir!='LEFT') dir='RIGHT';
+                else if(e.keyCode==40 && dir!='UP') dir='DOWN';
+            };
+
+            activeInterval = setInterval(() => {
+                snakeCtx.fillStyle = '#2d3436'; snakeCtx.fillRect(0,0,300,300);
+                for(let i=0; i<snake.length; i++) {
+                    snakeCtx.fillStyle = (i==0)? '#2EC4B6' : 'white';
+                    snakeCtx.fillRect(snake[i].x, snake[i].y, box, box);
+                }
+                snakeCtx.fillStyle = 'red'; snakeCtx.fillRect(food.x, food.y, box, box);
+
+                let snakeX = snake[0].x, snakeY = snake[0].y;
+                if(dir == 'LEFT') snakeX -= box;
+                if(dir == 'UP') snakeY -= box;
+                if(dir == 'RIGHT') snakeX += box;
+                if(dir == 'DOWN') snakeY += box;
+
+                if(snakeX == food.x && snakeY == food.y) {
+                    food = {x:Math.floor(Math.random()*19+1)*box, y:Math.floor(Math.random()*19+1)*box};
+                    launchConfetti();
+                } else { snake.pop(); }
+
+                let newHead = {x:snakeX, y:snakeY};
+                if(snakeX<0 || snakeX>285 || snakeY<0 || snakeY>285 || snake.some(t=>t.x===newHead.x && t.y===newHead.y)) {
+                    clearInterval(activeInterval); alert('انتهت اللعبة!');
+                }
+                snake.unshift(newHead);
+            }, 150);
+        }
+
+        // --- 10. Guess Number ---
+        function initGuess() {
+            const secret = Math.floor(Math.random()*20)+1;
+            gameContent.innerHTML = `<h2>❓ خمن رقماً من 1 إلى 20</h2>
+            <input type="number" id="gInput" style="padding:10px;font-size:1.2rem;width:60px;">
+            <button class="game-btn" onclick="checkGuess(${secret})">تحقق</button>
+            <p id="gHint" style="font-weight:bold;margin-top:10px;"></p>`;
+            window.checkGuess = (s) => {
+                let v = parseInt(document.getElementById('gInput').value);
+                let h = document.getElementById('gHint');
+                if(v === s) { h.innerHTML = "أحسنت! 🎉"; launchConfetti(); }
+                else if(v < s) h.innerHTML = "أكبر قليلاً 🔼";
+                else h.innerHTML = "أصغر قليلاً 🔽";
+            };
+        }
+
+        // --- 11. Simon ---
+        function initSimon() {
+            let seq = [], userSeq = [], level = 0;
+            gameContent.innerHTML = `<h2>💡 الذاكرة</h2><div id="simonMsg" style="font-weight:bold;margin-bottom:10px;">احفظ النمط</div>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <div id="b1" onclick="simonUser(1)" style="width:60px;height:60px;background:red;border-radius:50%;opacity:0.6;cursor:pointer"></div>
+                <div id="b2" onclick="simonUser(2)" style="width:60px;height:60px;background:green;border-radius:50%;opacity:0.6;cursor:pointer"></div>
+                <div id="b3" onclick="simonUser(3)" style="width:60px;height:60px;background:blue;border-radius:50%;opacity:0.6;cursor:pointer"></div>
+            </div><button class="game-btn" style="margin-top:20px;" onclick="startSimon()">ابدأ</button>`;
+            
+            window.startSimon = () => { seq=[]; level=0; nextSimon(); };
+            function nextSimon() {
+                userSeq = []; level++; document.getElementById('simonMsg').innerText = `المستوى ${level}`;
+                seq.push(Math.floor(Math.random()*3)+1);
+                playSeq(0);
+            }
+            function playSeq(i) {
+                if(i >= seq.length) return;
+                let btn = document.getElementById(`b${seq[i]}`);
+                btn.style.opacity = 1;
+                setTimeout(() => { btn.style.opacity = 0.6; setTimeout(() => playSeq(i+1), 300); }, 500);
+            }
+            window.simonUser = (id) => {
+                userSeq.push(id);
+                let btn = document.getElementById(`b${id}`); btn.style.opacity=1; setTimeout(()=>btn.style.opacity=0.6, 200);
+                if(userSeq[userSeq.length-1] !== seq[userSeq.length-1]) { alert('خطأ! 😔'); return; }
+                if(userSeq.length === seq.length) { setTimeout(nextSimon, 1000); launchConfetti(); }
+            };
+        }
+
+        // --- 12. Typing ---
+        function initTyping() {
+            const words = ['تفاحة', 'مدرسة', 'كتاب', 'قلم', 'شمس', 'قمر', 'بحر'];
+            let current = '';
+            function next() {
+                current = words[Math.floor(Math.random()*words.length)];
+                gameContent.innerHTML = `<h2>⌨️ اكتب الكلمة: "${current}"</h2>
+                <input type="text" id="typingInput" oninput="checkType(this.value)" style="padding:10px;font-size:1.2rem;border-radius:10px;border:2px solid #ccc;width:80%;direction:rtl;">`;
+                document.getElementById('typingInput').focus();
+            }
+            window.checkType = (val) => {
+                if(val === current) { launchConfetti(); next(); }
+            };
+            next();
+        }
+    </script>
+</body>
+</html>

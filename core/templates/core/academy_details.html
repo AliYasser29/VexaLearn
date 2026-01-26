@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ academy.name }} - VexaLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0; background-color: var(--white);
+            color: var(--dark); line-height: 1.6;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 5%; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px); z-index: 100;
+        }
+        .logo { font-size: 1.4rem; font-weight: 900; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo i { color: var(--primary); }
+        .nav-btn {
+            text-decoration: none; color: var(--gray); font-weight: 700; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .nav-btn:hover { color: var(--primary); }
+
+        /* --- Academy Header --- */
+        .academy-header {
+            background: linear-gradient(to bottom, #f8fafc, #ffffff);
+            padding: 60px 5%; text-align: center; border-bottom: 1px solid var(--border);
+        }
+        .logo-container {
+            width: 100px; height: 100px; margin: 0 auto 20px;
+            background: white; border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .logo-container img { width: 90%; height: 90%; object-fit: contain; }
+        .logo-container i { font-size: 3rem; color: var(--gray); opacity: 0.5; }
+
+        .academy-title { font-size: 2.5rem; font-weight: 900; margin: 0 0 10px; color: var(--dark); }
+        .academy-desc { font-size: 1.1rem; color: var(--gray); max-width: 700px; margin: 0 auto; }
+
+        /* --- Filter Bar --- */
+        .filter-wrapper {
+            max-width: 600px; margin: -25px auto 40px; position: relative; z-index: 10;
+            padding: 0 20px;
+        }
+        .filter-box {
+            background: white; padding: 10px 20px; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .filter-select {
+            flex: 1; border: none; outline: none; background: transparent;
+            font-family: 'Cairo'; font-size: 1rem; color: var(--dark); cursor: pointer;
+        }
+
+        /* --- Courses Grid --- */
+        .container { padding: 40px 5% 80px; }
+        .section-label { 
+            font-size: 1.2rem; font-weight: 800; margin-bottom: 30px; 
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-label::before { content: ''; width: 5px; height: 25px; background: var(--primary); border-radius: 10px; }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* --- Minimalist Card --- */
+        .course-card {
+            background: white; border: 1px solid var(--border); border-radius: 12px;
+            overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column;
+            position: relative;
+        }
+        .course-card:hover {
+            transform: translateY(-5px); border-color: var(--primary);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body { padding: 25px; flex: 1; display: flex; flex-direction: column; }
+        
+        .price-tag {
+            position: absolute; top: 20px; left: 20px;
+            background: #ecfdf5; color: #059669; padding: 6px 12px;
+            border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+        }
+
+        .course-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 10px; color: var(--dark); padding-right: 50px; }
+        .course-desc { font-size: 0.95rem; color: var(--gray); margin-bottom: 20px; flex: 1; line-height: 1.5; }
+
+        .card-footer {
+            margin-top: auto; padding-top: 15px; border-top: 1px solid var(--light);
+            display: flex; gap: 10px;
+        }
+
+        .btn-buy {
+            flex: 1; background: var(--dark); color: white; border: none;
+            padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer;
+            transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-buy:hover { background: var(--primary); }
+
+        .empty-state {
+            grid-column: 1/-1; text-align: center; padding: 60px;
+            border: 2px dashed var(--border); border-radius: 16px; color: var(--gray);
+        }
+
+        /* --- Footer --- */
+        .footer { text-align: center; padding: 40px; color: var(--gray); font-size: 0.9rem; border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="{% url 'landing_page' %}" class="logo">
+            <i class="fas fa-cube"></i> VexaLearn
+        </a>
+        <a href="{% url 'landing_page' %}" class="nav-btn">
+            <i class="fas fa-arrow-right"></i> العودة للرئيسية
+        </a>
+    </nav>
+
+    <header class="academy-header">
+        <div class="logo-container">
+            {% if academy.logo %}
+                <img src="{{ academy.logo.url }}" alt="{{ academy.name }}">
+            {% else %}
+                <i class="fas fa-building"></i>
+            {% endif %}
+        </div>
+        <h1 class="academy-title">{{ academy.name }}</h1>
+        <p class="academy-desc">{{ academy.description|default:"منصة تعليمية تهدف لتطوير المهارات وبناء المستقبل." }}</p>
+    </header>
+
+    <div class="filter-wrapper">
+        <form method="GET" id="filterForm">
+            <div class="filter-box">
+                <i class="fas fa-globe" style="color: var(--primary);"></i>
+                <select name="country" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                    <option value="">عرض جميع الكورسات (كل الدول)</option>
+                    {% for country in countries %}
+                        <option value="{{ country.id }}" {% if selected_country_id == country.id %}selected{% endif %}>
+                            {{ country.name }} ({{ country.currency }})
+                        </option>
+                    {% empty %}
+                        <option value="" disabled>لا توجد دول مسجلة حالياً</option>
+                    {% endfor %}
+                </select>
+                <i class="fas fa-chevron-down" style="color: var(--gray); font-size: 0.8rem;"></i>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <div class="section-label">الكورسات المتاحة</div>
+
+        <div class="grid">
+            {% for course in courses %}
+            <div class="course-card">
+                <div class="card-body">
+                    <span class="price-tag">
+                        {% if course.price > 0 %}
+                            {{ course.price }} <span style="font-size: 0.8em;">{{ course.country.currency }}</span>
+                        {% else %}
+                            مجاني
+                        {% endif %}
+                    </span>
+
+                    <h3 class="course-title">{{ course.name }}</h3>
+                    <p class="course-desc">
+                        {{ course.description|default:"محتوى تعليمي تفاعلي مصمم لتنمية مهارات الطلاب..."|truncatewords:20 }}
+                    </p>
+
+                    <div class="card-footer">
+                        <button class="btn-buy" onclick="tryToBuy('{{ course.name }}')">
+                            اشترك الآن <i class="fas fa-arrow-left" style="font-size: 0.8rem;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <div class="empty-state">
+                    <i class="far fa-folder-open" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                    <h3>لا توجد كورسات متاحة حالياً</h3>
+                    <p>جرب تغيير فلتر الدولة أو عد لاحقاً.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        © 2026 VexaLearn Inc. جميع الحقوق محفوظة
+    </footer>
+
+    <script>
+        function tryToBuy(courseName) {
+            alert("شكراً لاهتمامك!\n\nللاشتراك في كورس: " + courseName + "\nيرجى التواصل مع إدارة الأكاديمية لإتمام الإجراءات.");
+        }
+    </script>
+
+</body>
+</html>

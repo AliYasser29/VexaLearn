@@ -1,0 +1,183 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل دخول المشرفين</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #f1f5f9; 
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Cairo', sans-serif; 
+            margin: 0;
+        }
+
+        .login-box { 
+            background: white; 
+            padding: 40px 50px; 
+            border-radius: 20px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            animation: fadeIn 0.6s ease-out;
+            border: 1px solid white;
+        }
+
+        /* تأثير الظهور */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-header {
+            background-color: #eff6ff;
+            color: var(--primary-color);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            font-size: 1.8rem;
+        }
+
+        h2 { 
+            color: var(--text-main); 
+            margin-bottom: 30px; 
+            font-size: 1.5rem; 
+            font-weight: 700;
+        }
+
+        /* تنسيق حقول دجانجو الافتراضية */
+        form p {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        form input[type="text"], 
+        form input[type="password"] { 
+            width: 100%; 
+            padding: 12px 15px; 
+            box-sizing: border-box; 
+            border: 2px solid var(--border-color); 
+            border-radius: 10px; 
+            background-color: #f8fafc;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        form input:focus { 
+            border-color: var(--primary-color); 
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* زر الدخول */
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover { background-color: var(--primary-dark); }
+
+        .footer-text {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="icon-header">
+            <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <h2>تسجيل دخول المشرفين</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {{ form.as_p }}
+            
+            <button type="submit">
+                تسجيل الدخول <i class="fa-solid fa-arrow-left"></i>
+            </button>
+        </form>
+
+        <div class="footer-text">
+            VexaLearn &copy; 2025
+        </div>
+    </div>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تسجيل الدخول</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #e9ecef; font-family: sans-serif; }
+        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>تسجيل دخول المشرفين</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">دخول</button>
+        </form>
+    </div>
+</body>
+>>>>>>> d5830918c0c5f5125220644ff97bb92f7726c7f7
+</html>

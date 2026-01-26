@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رفع مادة علمية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            text-align: center;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        .card h2 i {
+            color: var(--primary-color);
+            margin-left: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* تنسيق حقول Django لتملأ المساحة بشكل جميل */
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+            box-sizing: border-box; /* لضمان عدم خروج الحواف */
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-upload {
+            background: var(--primary-color);
+            color: white;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-upload:hover {
+            background: var(--primary-hover);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
+
+        /* تحسين مظهر حقل رفع الملفات */
+        input[type="file"] {
+            background: #f1f5f9;
+            padding: 10px;
+            border: 2px dashed #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2><i class="fas fa-file-arrow-up"></i> رفع مادة علمية</h2>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label><i class="fas fa-book-open"></i> الكورس المستهدف</label>
+                {{ form.course }}
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-heading"></i> عنوان المادة</label>
+                {{ form.title }}
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-align-left"></i> وصف مختصر</label>
+                {{ form.description }}
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-paperclip"></i> اختر الملف</label>
+                {{ form.file }}
+            </div>
+
+            <button type="submit" class="btn-upload">
+                <i class="fas fa-cloud-upload-alt"></i>
+                بدء الرفع الآن
+            </button>
+        </form>
+
+        <a href="{% url 'profile_view' %}" class="back-link">
+            <i class="fas fa-arrow-right"></i> العودة للملف الشخصي
+        </a>
+    </div>
+
+</body>
+</html>

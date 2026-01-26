@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مراقبة الطالب | {{ student.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --secondary-bg: #f3f4f6;
+            --white: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body { font-family: 'Cairo', sans-serif; background: #f9fafb; margin: 0; padding: 20px; color: var(--text-main); }
+        
+        .main-wrapper { max-width: 1400px; margin: auto; display: flex; gap: 20px; height: 85vh; }
+        
+        .container { flex: 1; background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; overflow: hidden; border: 1px solid var(--border-color); }
+        
+        /* Sidebar (Teachers) */
+        .sidebar { width: 280px; background: #ffffff; border-left: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .student-header { text-align: center; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .student-header h3 { margin: 0 0 5px 0; color: #4f46e5; font-size: 1.4rem; }
+        
+        .teacher-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
+            padding: 12px; 
+            margin-bottom: 10px; 
+            background: #f9fafb; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            color: var(--text-main); 
+            border: 1px solid transparent; 
+            transition: 0.3s; 
+            cursor: pointer;
+        }
+        
+        .teacher-link:hover { background: #eef2ff; border-color: #c7d2fe; }
+        
+        .teacher-link.active { 
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); 
+            color: white; 
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+        /* تعديل النص داخل الرابط النشط */
+        .teacher-link.active div { color: white !important; opacity: 1 !important; }
+        
+        /* Chat Area */
+        .chat-area { 
+            flex: 1; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow-y: auto;
+        }
+        
+        .chat-header-banner {
+            background: white; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 12px; 
+            text-align: center; 
+            font-weight: 700; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .message { max-width: 75%; margin-bottom: 15px; padding: 12px 18px; border-radius: 12px; position: relative; font-size: 0.95rem; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        
+        /* Student Msg - يظهر يمين */
+        .msg-student { align-self: flex-start; background: white; border: 1px solid var(--border-color); border-radius: 2px 18px 18px 18px; }
+        /* Teacher Msg - يظهر يسار */
+        .msg-teacher { align-self: flex-end; background: #e0e7ff; color: #312e81; border-radius: 18px 18px 18px 2px; }
+        
+        .sender-name { font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; display: block; }
+        .time { font-size: 0.7rem; color: #9ca3af; display: block; text-align: left; margin-top: 5px; dir: ltr; }
+        
+        .empty-msg { 
+            text-align: center; 
+            color: #6b7280; 
+            margin-top: 50px; 
+            background: rgba(255,255,255,0.8); 
+            padding: 30px; 
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-back { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px;
+            margin-bottom: 20px; 
+            text-decoration: none; 
+            color: var(--text-main); 
+            font-weight: 700;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+        .btn-back:hover { transform: translateX(5px); color: #4f46e5; }
+
+        /* Reports Section */
+        .reports-sidebar {
+            width: 320px;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: 100%; /* تأخذ ارتفاع الحاوية الأب */
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .reports-header {
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: sticky; top: 0; background: white; z-index: 5;
+        }
+        .report-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 12px;
+            border-right: 4px solid #10b981;
+            transition: 0.3s;
+        }
+        .report-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'supervisor_dashboard' %}" class="btn-back"><i class="fas fa-arrow-right"></i> عودة للوحة المتابعة</a>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="sidebar">
+                <div class="student-header">
+                    <div style="width: 60px; height: 60px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; color: #4f46e5; font-size: 1.5rem;">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>{{ student.name }}</h3>
+                    <span style="background: #f3f4f6; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; color: #6b7280;">مراقبة المحادثات</span>
+                </div>
+                
+                <div style="font-weight: 700; margin-bottom: 10px; color: #374151;">المعلمون:</div>
+                
+                {% for teacher in teachers %}
+                    <a href="?teacher_id={{ teacher.id }}" class="teacher-link {% if selected_teacher.id == teacher.id %}active{% endif %}">
+                        <div style="width: 35px; height: 35px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 0.95rem;">{{ teacher.name }}</div>
+                            <div style="font-size: 0.75rem; opacity: 0.8;">{{ teacher.subject }}</div>
+                        </div>
+                        <i class="fas fa-chevron-left" style="font-size: 0.8rem; opacity: 0.7;"></i>
+                    </a>
+                {% empty %}
+                    <p style="text-align: center; color: #9ca3af; margin-top: 20px;">لا يوجد معلمون مسندون لهذا الطالب.</p>
+                {% endfor %}
+            </div>
+
+            <div class="chat-area" id="chatArea">
+                {% if selected_teacher %}
+                    <div class="chat-header-banner">
+                        <i class="fas fa-exchange-alt" style="color: #9ca3af;"></i>
+                        <span>سجل المحادثة مع: <span style="color: #4f46e5;">{{ selected_teacher.name }}</span></span>
+                    </div>
+
+                    {% for msg in chat_messages %}
+                        <div class="message {% if msg.sender == student.user %}msg-student{% else %}msg-teacher{% endif %}">
+                            <span class="sender-name" style="color: {% if msg.sender == student.user %}#6b7280{% else %}#4f46e5{% endif %};">
+                                {% if msg.sender == student.user %} 
+                                    <i class="fas fa-user-graduate"></i> الطالب 
+                                {% else %} 
+                                    <i class="fas fa-chalkboard-teacher"></i> المعلم 
+                                {% endif %}
+                            </span>
+                            {{ msg.content }}
+                            <span class="time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                        </div>
+                    {% empty %}
+                        <div class="empty-msg">
+                            <i class="far fa-comments" style="font-size: 3rem; color: #d1d5db;"></i>
+                            <span>لا توجد رسائل سابقة بينهما.</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-msg">
+                        <i class="fas fa-mouse-pointer" style="font-size: 3rem; color: #d1d5db;"></i>
+                        <span style="font-size: 1.2rem; font-weight: 700;">يرجى اختيار معلم من القائمة الجانبية</span>
+                        <span style="color: #9ca3af;">لعرض سجل المحادثات الخاص به مع الطالب.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="reports-sidebar">
+            <div class="reports-header">
+                <i class="fas fa-file-alt"></i> سجل التقارير اليومية
+            </div>
+            
+            {% if student_reports %}
+                {% for report in student_reports %}
+                <div class="report-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <div style="font-weight: 700; font-size: 0.9rem; color: #1f2937;">
+                            {{ report.teacher.name }}
+                        </div>
+                        <div style="background: #e0e7ff; color: #4338ca; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">
+                            {{ report.date|date:"d/m" }}
+                        </div>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: #4b5563; line-height: 1.4;">
+                        {{ report.content|truncatechars:80 }}
+                    </p>
+                    {% if report.attachment %}
+                        <a href="{{ report.attachment.url }}" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 0.8rem; color: #2563eb; text-decoration: none;">
+                            <i class="fas fa-paperclip"></i> تحميل المرفق
+                        </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; color: #9ca3af; padding: 20px;">
+                    <i class="fas fa-folder-open" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
+                    لا توجد تقارير مسجلة بعد.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            var chatArea = document.getElementById('chatArea');
+            if(chatArea) {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }
+        };
+    </script>
+
+</body>
+</html>

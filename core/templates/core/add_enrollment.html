@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة اشتراك جديد | VexaLearn</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --success: #10b981;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+        }
+
+        /* --- Card Design --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* شريط علوي ملون */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+        }
+
+        /* --- Header --- */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            background-color: #eff6ff;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1rem auto;
+            border: 1px solid #bfdbfe;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .student-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 6px 16px;
+            background-color: #f1f5f9;
+            color: var(--secondary);
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+        }
+        .student-badge strong { color: var(--primary); }
+
+        /* --- Form --- */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .helptext {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin-top: 6px;
+        }
+
+        /* --- Select2 Customization --- */
+        .select2-container { width: 100% !important; }
+        .select2-container .select2-selection--single {
+            height: 48px !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 8px !important;
+            display: flex !important;
+            align-items: center !important;
+            background-color: #fff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 10px !important; left: 10px !important; right: auto !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-right: 15px !important;
+            color: var(--text-main) !important;
+            font-weight: 500;
+        }
+        .select2-dropdown {
+            border: 1px solid var(--border) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important;
+        }
+
+        /* --- Loader --- */
+        .loader-container {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .fa-spinner { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Buttons --- */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--text-main); }
+
+        /* --- Alerts --- */
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            
+            <div class="header">
+                <div class="icon-wrapper">
+                    <i class="fas fa-folder-plus"></i>
+                </div>
+                <h2>تسجيل اشتراك جديد</h2>
+                <div class="student-badge">
+                    الطالب: <strong>{{ student.name }}</strong>
+                </div>
+            </div>
+
+            <form method="POST" id="enrollmentForm" data-teachers-url="{% url 'ajax_load_teachers' %}">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert-error">
+                        {% for error in form.non_field_errors %}
+                            <p style="margin:0"><i class="fas fa-exclamation-circle"></i> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.course.id_for_label }}">
+                        اختر الكورس الدراسي:
+                    </label>
+                    {{ form.course }}
+                    {% if form.course.errors %}
+                        <div style="color:#ef4444; font-size:0.85rem; margin-top:5px;">{{ form.course.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.teacher.id_for_label }}" style="display:flex; justify-content:space-between;">
+                        <span>المعلم المسؤول:</span>
+                        <span class="loader-container" id="teacher-loader">
+                            <i class="fas fa-spinner"></i> جاري الجلب...
+                        </span>
+                    </label>
+                    
+                    {{ form.teacher }}
+                    
+                    <span class="helptext">
+                        <i class="fas fa-info-circle"></i> سيظهر المعلمون المتخصصون في مادة الكورس المختار فقط.
+                    </span>
+                    
+                    {% if form.teacher.errors %}
+                        <div style="color:#ef4444; font-size:0.85rem; margin-top:5px;">{{ form.teacher.errors }}</div>
+                    {% endif %}
+                </div>
+
+                {% for field in form %}
+                    {% if field.name != 'course' and field.name != 'teacher' %}
+                    <div class="form-group">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check-circle"></i> حفظ الاشتراك
+                </button>
+            </form>
+
+            <a href="{% url 'admin_panel' %}" class="back-link">
+                <i class="fas fa-arrow-right"></i> إلغاء والعودة للقائمة
+            </a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // 1. تفعيل Select2 للحقول
+            $('#id_course').select2({
+                dir: "rtl",
+                placeholder: "ابحث عن الكورس...",
+                allowClear: true
+            });
+
+            $('#id_teacher').select2({
+                dir: "rtl",
+                placeholder: "اختر الكورس أولاً...",
+                allowClear: true
+            });
+
+            // 2. منطق الـ AJAX عند تغيير الكورس
+            $("#id_course").change(function () {
+                var url = $("#enrollmentForm").attr("data-teachers-url");
+                var courseId = $(this).val();
+
+                if (courseId) {
+                    $("#teacher-loader").fadeIn(); // إظهار اللودر
+
+                    $.ajax({
+                        url: url,
+                        data: {
+                            'course_id': courseId
+                        },
+                        success: function (data) {
+                            // تحديث محتوى القائمة
+                            $("#id_teacher").html(data);
+                            
+                            // *** هام جداً: إعادة تفعيل Select2 بعد تحديث المحتوى ***
+                            // لأن استبدال الـ HTML يدمر إعدادات Select2 السابقة
+                            $('#id_teacher').select2({
+                                dir: "rtl",
+                                placeholder: "اختر المعلم...",
+                                allowClear: true
+                            });
+
+                            $("#teacher-loader").fadeOut();
+                        },
+                        error: function() {
+                            alert("حدث خطأ في الاتصال بالسيرفر.");
+                            $("#teacher-loader").fadeOut();
+                        }
+                    });
+                } else {
+                    // إذا تم إزالة اختيار الكورس، نفرغ قائمة المعلمين
+                    $("#id_teacher").html('<option value="">---------</option>');
+                    $('#id_teacher').val(null).trigger('change');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

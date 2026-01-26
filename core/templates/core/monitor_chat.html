@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراقبة المحادثات | VexaLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #64748b;
+            --bg: #f1f5f9;
+        }
+        
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; height: 90vh; }
+        
+        /* Header */
+        .header { background: white; padding: 20px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .student-info h2 { margin: 0; font-size: 1.2rem; color: #1e293b; }
+        .student-info p { margin: 5px 0 0; color: var(--secondary); font-size: 0.9rem; }
+        
+        /* Layout */
+        .content-wrapper { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar (Teachers/Supervisors List) */
+        .teachers-sidebar { width: 280px; background: #f8fafc; border-left: 1px solid #e2e8f0; overflow-y: auto; padding: 15px; }
+        .teacher-item { display: flex; align-items: center; padding: 12px; background: white; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; text-decoration: none; color: inherit; border: 1px solid transparent; }
+        .teacher-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .teacher-item.active { border-color: var(--primary); background: #eef2ff; }
+        .avatar { width: 40px; height: 40px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: bold; margin-left: 10px; }
+        
+        .section-title { font-size: 0.85rem; color: #94a3b8; margin: 15px 0 10px; font-weight: bold; }
+
+        /* Chat Area */
+        .chat-view { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
+        .messages-list { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px; }
+        
+        .msg { max-width: 70%; padding: 10px 15px; border-radius: 15px; font-size: 0.95rem; line-height: 1.5; position: relative; }
+        .msg.student { align-self: flex-start; background: #f1f5f9; color: #334155; border-bottom-right-radius: 2px; }
+        .msg.other { align-self: flex-end; background: var(--primary); color: white; border-bottom-left-radius: 2px; }
+        .msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 5px; display: block; }
+        
+        /* Reports Section */
+        .reports-panel { width: 300px; border-right: 1px solid #e2e8f0; background: white; display: flex; flex-direction: column; }
+        .panel-header { padding: 15px; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; display: flex; align-items: center; gap: 8px; }
+        .reports-list { flex: 1; overflow-y: auto; padding: 15px; }
+        .report-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+        .report-date { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; display: block; }
+        .report-content { font-size: 0.85rem; color: #334155; white-space: pre-wrap; }
+
+        /* زر الفيديو الجديد */
+        .btn-monitor-call {
+            background: #dc2626; color: white; border: none; padding: 6px 15px;
+            border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; text-decoration: none;
+            transition: 0.3s; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+            animation: pulse-red 2s infinite;
+        }
+        .btn-monitor-call:hover { transform: scale(1.05); background: #b91c1c; }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="student-info">
+                <h2><i class="fas fa-user-graduate"></i> {{ student.name }}</h2>
+                <p>{{ student.academic_year }} | {{ student.education_type }}</p>
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="{% url 'supervisor_dashboard' %}" style="text-decoration: none; color: #64748b; font-weight: bold; font-size: 0.9rem;">
+                    <i class="fas fa-arrow-left"></i> عودة للوحة التحكم
+                </a>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="teachers-sidebar">
+                
+                {% if supervisor %}
+                <h4 class="section-title">المشرف</h4>
+                <a href="?supervisor_id={{ supervisor.id }}" class="teacher-item {% if selected_supervisor %}active{% endif %}">
+                    <div class="avatar" style="color: #059669; background: #d1fae5;"><i class="fas fa-user-shield"></i></div>
+                    <div style="margin-right: 10px;">
+                        <div style="font-weight: bold; font-size: 0.9rem;">{{ supervisor.name }}</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">مشرف الطالب</div>
+                    </div>
+                </a>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                {% endif %}
+
+                <h4 class="section-title">المعلمون</h4>
+                {% for teacher in teachers %}
+                <a href="?teacher_id={{ teacher.id }}" class="teacher-item {% if selected_teacher.id == teacher.id %}active{% endif %}">
+                    <div class="avatar"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div style="margin-right: 10px;">
+                        <div style="font-weight: bold; font-size: 0.9rem;">{{ teacher.name }}</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">{{ teacher.subject }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="chat-view">
+                {% if selected_teacher %}
+                    <div style="padding: 10px 20px; border-bottom: 1px solid #f1f5f9; background: #fff; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: bold; color: #4f46e5;">
+                            <i class="far fa-comments"></i> المحادثة مع المعلم: {{ selected_teacher.name }}
+                        </span>
+                        {% if student.user and selected_teacher.user %}
+                            <button onclick="monitorMeeting({{ student.user.id }}, {{ selected_teacher.user.id }})" class="btn-monitor-call">
+                                <i class="fas fa-video"></i> مراقبة الاجتماع
+                            </button>
+                        {% endif %}
+                    </div>
+                {% elif selected_supervisor %}
+                    <div style="padding: 10px 20px; border-bottom: 1px solid #f1f5f9; background: #fff; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: bold; color: #059669;">
+                            <i class="far fa-comments"></i> المحادثة مع المشرف: {{ selected_supervisor.name }}
+                        </span>
+                        {% if student.user and selected_supervisor.user %}
+                            <button onclick="monitorMeeting({{ student.user.id }}, {{ selected_supervisor.user.id }})" class="btn-monitor-call">
+                                <i class="fas fa-video"></i> مراقبة الاجتماع
+                            </button>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div style="padding: 10px 20px; border-bottom: 1px solid #f1f5f9; background: #fff; font-weight: bold; color: #94a3b8;">
+                         لم يتم تحديد محادثة
+                    </div>
+                {% endif %}
+
+                {% if selected_teacher or selected_supervisor %}
+                    <div class="messages-list" id="msgList">
+                        {% for msg in chat_messages %}
+                            {% if selected_teacher and msg.sender == selected_teacher.user %}
+                                <div class="msg other">{{ msg.content }} <span class="msg-time">{{ msg.timestamp|date:"d/m h:i A" }}</span></div>
+                            {% elif selected_supervisor and msg.sender == selected_supervisor.user %}
+                                <div class="msg other" style="background: #059669;">{{ msg.content }} <span class="msg-time">{{ msg.timestamp|date:"d/m h:i A" }}</span></div>
+                            {% else %}
+                                <div class="msg student">{{ msg.content }} <span class="msg-time">{{ msg.timestamp|date:"d/m h:i A" }}</span></div>
+                            {% endif %}
+                        {% empty %}
+                            <div style="text-align: center; color: #cbd5e1; margin-top: 50px;">
+                                <i class="fas fa-comment-slash" style="font-size: 2rem;"></i>
+                                <p>لا توجد رسائل سابقة</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #94a3b8; flex-direction: column;">
+                        <i class="fas fa-hand-pointer" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <p>اختر معلماً أو مشرفاً لعرض سجل المحادثة</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="reports-panel">
+                <div class="panel-header"><i class="fas fa-file-alt"></i> التقارير اليومية</div>
+                <div class="reports-list">
+                    {% for report in student_reports %}
+                        <div class="report-card">
+                            <span class="report-date">{{ report.date }} - {{ report.teacher.name }}</span>
+                            <div class="report-content">{{ report.content }}</div>
+                            {% if report.attachment %}
+                                <a href="{{ report.attachment.url }}" target="_blank" style="display: block; margin-top: 8px; font-size: 0.8rem; color: #4f46e5;">
+                                    <i class="fas fa-paperclip"></i> عرض المرفق
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <p style="text-align: center; color: #cbd5e1; font-size: 0.9rem;">لا توجد تقارير</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // سكرول لأسفل المحادثة
+        var msgList = document.getElementById("msgList");
+        if(msgList){ msgList.scrollTop = msgList.scrollHeight; }
+
+        // دالة مراقبة الاجتماع (تأخذ معرفي الطرفين لتوليد اسم الغرفة)
+        function monitorMeeting(user1Id, user2Id) {
+            // ترتيب المعرفات لضمان تطابق اسم الغرفة
+            const ids = [user1Id, user2Id].sort((a, b) => a - b);
+            const roomName = `VexaLearn_${ids[0]}_${ids[1]}`;
+            
+            // فتح صفحة الفيديو الجديدة
+            window.open(`/video-call/${roomName}/`, '_blank');
+        }
+    </script>
+</body>
+</html>

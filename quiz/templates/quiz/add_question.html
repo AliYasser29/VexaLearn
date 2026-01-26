@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة سؤال جديد | VexaLearn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--secondary);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* Card Styling */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1e293b 100%);
+            padding: 25px 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 { margin: 0; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .card-header .badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+
+        .card-body { padding: 40px; }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 25px; }
+        .form-label {
+            display: block; margin-bottom: 10px; font-weight: 700; color: #334155;
+            font-size: 1rem;
+        }
+        
+        /* تحسين مظهر حقول الإدخال الافتراضية لجانغو */
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: 0.2s all;
+            background-color: #fcfcfc;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--white);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Options Styling */
+        .options-container {
+            background: #f1f5f9;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+        }
+        
+        .option-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .option-row:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .option-row:last-child { margin-bottom: 0; }
+
+        /* Custom Radio Button */
+        input[type="radio"] {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #cbd5e1;
+            border-radius: 50%;
+            margin: 0;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            transition: 0.2s;
+        }
+        input[type="radio"]::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 0.2s;
+            box-shadow: inset 1em 1em var(--primary);
+        }
+        input[type="radio"]:checked {
+            border-color: var(--primary);
+        }
+        input[type="radio"]:checked::before {
+            transform: scale(1);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex; gap: 15px; margin-top: 30px;
+        }
+        .btn {
+            padding: 14px 24px; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+            transition: 0.2s; text-decoration: none; display: inline-flex;
+            align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary {
+            background: var(--primary); color: white; flex: 2;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        
+        .btn-secondary {
+            background: white; color: #64748b; border: 2px solid var(--border); flex: 1;
+        }
+        .btn-secondary:hover { border-color: #94a3b8; color: #1e293b; background: #f8fafc; }
+
+        /* Alert */
+        .alert {
+            padding: 15px; background: #dcfce7; color: #166534;
+            border-radius: 8px; margin-bottom: 20px; border: 1px solid #bbf7d0;
+            display: flex; align-items: center; gap: 10px; font-weight: 600;
+        }
+
+        .section-divider {
+            display: flex; align-items: center; gap: 15px;
+            margin: 30px 0 20px; color: #64748b; font-weight: 700;
+        }
+        .section-divider::after {
+            content: ""; flex: 1; height: 1px; background: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-edit"></i> إضافة سؤال جديد</h2>
+                <div class="badge">
+                    <i class="fas fa-list-ol"></i> عدد الأسئلة: {{ quiz.questions.count }}
+                </div>
+            </div>
+            
+            <div class="card-body">
+                
+                <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border);">
+                    <span style="color: #64748b; font-size: 0.9rem;">اسم الاختبار:</span>
+                    <h3 style="margin: 5px 0 0; color: var(--secondary);">{{ quiz.title }}</h3>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert">
+                            <i class="fas fa-check-circle"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">نص السؤال</label>
+                        {{ form.text }} </div>
+                    
+                    <div class="form-group" style="max-width: 150px;">
+                        <label class="form-label">الدرجة</label>
+                        {{ form.marks }}
+                    </div>
+
+                    <div class="section-divider">
+                        <i class="fas fa-list-ul"></i> خيارات الإجابة
+                    </div>
+                    
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">
+                        حدد الإجابة الصحيحة بالضغط على الدائرة بجانب الخيار. (يجب ملء خيارين على الأقل).
+                    </p>
+
+                    <div class="options-container">
+                        <div class="option-row">
+                            <input type="radio" name="correct_option" value="1" required title="حدد هذا الخيار كإجابة صحيحة">
+                            <input type="text" name="option1" placeholder="الخيار الأول (إجباري)" required style="border:none; background:transparent; padding: 5px; box-shadow: none;">
+                        </div>
+                        
+                        <div class="option-row">
+                            <input type="radio" name="correct_option" value="2">
+                            <input type="text" name="option2" placeholder="الخيار الثاني (إجباري)" required style="border:none; background:transparent; padding: 5px; box-shadow: none;">
+                        </div>
+                        
+                        <div class="option-row">
+                            <input type="radio" name="correct_option" value="3">
+                            <input type="text" name="option3" placeholder="الخيار الثالث (اختياري)" style="border:none; background:transparent; padding: 5px; box-shadow: none;">
+                        </div>
+                        
+                        <div class="option-row">
+                            <input type="radio" name="correct_option" value="4">
+                            <input type="text" name="option4" placeholder="الخيار الرابع (اختياري)" style="border:none; background:transparent; padding: 5px; box-shadow: none;">
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" name="save_and_add_another" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> حفظ وإضافة سؤال آخر
+                        </button>
+                        <a href="{% url 'profile_view' %}" class="btn btn-secondary">
+                            إنهاء وخروج <i class="fas fa-sign-out-alt"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إزالة الحدود عند التركيز داخل الخيارات لجعل التصميم أنظف
+        const optionInputs = document.querySelectorAll('.options-container input[type="text"]');
+        optionInputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.style.borderColor = 'var(--primary)';
+                input.parentElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.style.borderColor = 'var(--border)';
+                input.parentElement.style.boxShadow = 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>
