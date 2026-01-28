@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import secrets
 import string
 from django.contrib import admin
@@ -333,66 +332,3 @@ class NotificationAdmin(ModelAdmin):
     list_display = ('recipient', 'title', 'created_at', 'is_read')
     list_filter = ('is_read', 'created_at')
     search_fields = ('recipient__username', 'title', 'message')
-=======
-from django.contrib import admin
-from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from unfold.admin import ModelAdmin, TabularInline
-from .models import Teacher, Student, Country, EducationType, Course, Enrollment, AcademicYear
-
-try: admin.site.unregister(User)
-except: pass
-
-@admin.register(User)
-class UserAdmin(BaseUserAdmin, ModelAdmin): pass
-
-@admin.register(Teacher)
-class TeacherAdmin(ModelAdmin):
-    list_display = ('name', 'subject', 'phone')
-    search_fields = ['name', 'subject']
-
-@admin.register(Country)
-class CountryAdmin(ModelAdmin):
-    list_display = ('name', 'currency')
-    search_fields = ['name']
-
-@admin.register(EducationType)
-class EducationTypeAdmin(ModelAdmin):
-    list_display = ('name', 'country')
-    list_filter = ('country',)
-    search_fields = ['name']
-    autocomplete_fields = ['country']
-
-# --- (جديد) تسجيل السنوات الدراسية ---
-@admin.register(AcademicYear)
-class AcademicYearAdmin(ModelAdmin):
-    list_display = ('name', 'country')
-    list_filter = ('country',)
-    search_fields = ['name'] # هام للبحث
-    autocomplete_fields = ['country']
-# ------------------------------------
-
-@admin.register(Course)
-class CourseAdmin(ModelAdmin):
-    list_display = ('name', 'price', 'country')
-    list_filter = ('country', 'payment_type')
-    search_fields = ['name']
-    autocomplete_fields = ['country']
-
-class EnrollmentInline(TabularInline):
-    model = Enrollment
-    extra = 1
-    autocomplete_fields = ['course']
-
-@admin.register(Student)
-class StudentAdmin(ModelAdmin):
-    # تحديث العرض ليشمل السنة الدراسية الجديدة
-    list_display = ('name', 'academic_year', 'country', 'parent_phone')
-    search_fields = ('name', 'parent_name', 'parent_phone')
-    list_filter = ('country', 'education_type', 'academic_year') # فلتر جديد
-    
-    inlines = [EnrollmentInline]
-    
-    # إضافة السنة الدراسية لقائمة البحث التلقائي
-    autocomplete_fields = ['country', 'education_type', 'academic_year', 'teachers']
->>>>>>> d5830918c0c5f5125220644ff97bb92f7726c7f7

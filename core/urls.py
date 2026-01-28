@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
@@ -67,23 +66,4 @@ urlpatterns = [
 
     path('ajax/load-education-types/', views.load_education_types, name='ajax_load_education_types'),
     path('ajax/load-academic-years/', views.load_academic_years, name='ajax_load_academic_years'),
-=======
-from django.urls import path
-from django.contrib.auth import views as auth_views
-from .views import supervisor_dashboard, mark_attendance
-from . import views
-
-urlpatterns = [
-    # رابط لوحة التحكم للمشرف
-    path('dashboard/', supervisor_dashboard, name='supervisor_dashboard'),
-
-    # رابط تسجيل الدخول (نستخدم القالب الذي أنشأته أنت)
-    path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
-
-    # رابط تسجيل الخروج
-    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-
-    path('mark-attendance/<int:enrollment_id>/', mark_attendance, name='mark_attendance'),
-    path('complete-course/<int:enrollment_id>/', views.complete_course, name='complete_course'),
->>>>>>> d5830918c0c5f5125220644ff97bb92f7726c7f7
 ]

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.db.models import Sum, Count
 from django.urls import reverse
 from django.utils import timezone
@@ -117,47 +116,4 @@ def dashboard_callback(request, context):
         "income_period": period,
     })
 
-=======
-from django.db.models import Sum, Count
-from .models import Country, Enrollment
-
-def dashboard_callback(request, context):
-    kpi_data = []
-
-    # 1. جلب الدول مع عدد الطلاب
-    countries = Country.objects.annotate(student_count=Count('student'))
-
-    # 2. التحقق: هل توجد دول؟
-    if countries.exists():
-        for country in countries:
-            # حساب الأرباح
-            revenue_data = Enrollment.objects.filter(course__country=country).aggregate(
-                total=Sum('course__price')
-            )
-            
-            # حماية من القيم الفارغة (إذا لم يكن هناك اشتراكات)
-            revenue = revenue_data['total'] if revenue_data['total'] is not None else 0
-
-            # إضافة البطاقة
-            kpi_data.append({
-                "title": country.name,
-                "metric": f"{revenue} {country.currency}",
-                "footer": f"عدد الطلاب: {country.student_count}",
-                "icon": "public", # أيقونة الكرة الأرضية
-            })
-    else:
-        # 3. إذا لم تكن هناك بيانات، اعرض بطاقة ترحيبية حتى لا تظهر الصفحة فارغة
-        kpi_data.append({
-            "title": "مرحباً بك",
-            "metric": "النظام يعمل",
-            "footer": "قم بإضافة دول وطلاب لتظهر الإحصائيات",
-            "icon": "check_circle",
-        })
-
-    # تحديث البيانات
-    context.update({
-        "kpi": kpi_data,
-    })
-
->>>>>>> d5830918c0c5f5125220644ff97bb92f7726c7f7
     return context
