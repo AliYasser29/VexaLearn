@@ -230,25 +230,38 @@
                         حدد الإجابة الصحيحة بالضغط على الدائرة بجانب الخيار. (يجب ملء خيارين على الأقل).
                     </p>
 
-                    <div class="options-container">
-                        <div class="option-row">
-                            <input type="radio" name="correct_option" value="1" required title="حدد هذا الخيار كإجابة صحيحة">
-                            <input type="text" name="option1" placeholder="الخيار الأول (إجباري)" required style="border:none; background:transparent; padding: 5px; box-shadow: none;">
-                        </div>
-                        
-                        <div class="option-row">
-                            <input type="radio" name="correct_option" value="2">
-                            <input type="text" name="option2" placeholder="الخيار الثاني (إجباري)" required style="border:none; background:transparent; padding: 5px; box-shadow: none;">
-                        </div>
-                        
-                        <div class="option-row">
-                            <input type="radio" name="correct_option" value="3">
-                            <input type="text" name="option3" placeholder="الخيار الثالث (اختياري)" style="border:none; background:transparent; padding: 5px; box-shadow: none;">
-                        </div>
-                        
-                        <div class="option-row">
-                            <input type="radio" name="correct_option" value="4">
-                            <input type="text" name="option4" placeholder="الخيار الرابع (اختياري)" style="border:none; background:transparent; padding: 5px; box-shadow: none;">
+                    <div class="options-container" id="formset-container">
+                        {{ formset.management_form }}
+                        {% for choice_form in formset %}
+                            <div class="option-row choice-form" style="position: relative;">
+                                {{ choice_form.id }}
+                                <div style="display: flex; align-items: center; width: 100%;">
+                                    {{ choice_form.is_correct }}
+                                    {{ choice_form.text }}
+                                    <button type="button" class="btn-remove-choice" style="background: none; border: none; color: #ef4444; cursor: pointer; margin-right: 10px;" title="إزالة الخيار"><i class="fas fa-trash"></i></button>
+                                </div>
+                                {% if choice_form.DELETE %}
+                                    <div style="display: none;">{{ choice_form.DELETE }}</div>
+                                {% endif %}
+                                {% if choice_form.errors %}
+                                    <div style="color: red; font-size: 0.8rem; margin-top: 5px; width: 100%;">{{ choice_form.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" id="add-choice-btn" class="btn btn-secondary" style="margin-top: 15px; padding: 10px 15px; font-size: 0.9rem;">
+                        <i class="fas fa-plus"></i> إضافة خيار إضافي
+                    </button>
+                    
+                    <div id="empty-form-template" style="display: none;">
+                        <div class="option-row choice-form" style="position: relative;">
+                            {{ formset.empty_form.id }}
+                            <div style="display: flex; align-items: center; width: 100%;">
+                                {{ formset.empty_form.is_correct }}
+                                {{ formset.empty_form.text }}
+                                <button type="button" class="btn-remove-choice" style="background: none; border: none; color: #ef4444; cursor: pointer; margin-right: 10px;" title="إزالة الخيار"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <div style="display: none;">{{ formset.empty_form.DELETE }}</div>
                         </div>
                     </div>
 
@@ -266,17 +279,67 @@
     </div>
 
     <script>
-        // إزالة الحدود عند التركيز داخل الخيارات لجعل التصميم أنظف
-        const optionInputs = document.querySelectorAll('.options-container input[type="text"]');
-        optionInputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.style.borderColor = 'var(--primary)';
-                input.parentElement.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+        document.addEventListener("DOMContentLoaded", function() {
+            const addBtn = document.getElementById('add-choice-btn');
+            const container = document.getElementById('formset-container');
+            const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;
+            const totalFormsInput = document.getElementById('id_choices-TOTAL_FORMS');
+            
+            let formCount = parseInt(totalFormsInput.value);
+
+            addBtn.addEventListener('click', function() {
+                const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formCount);
+                container.insertAdjacentHTML('beforeend', newFormHtml);
+                
+                bindOptionInputFocus();
+                
+                formCount++;
+                totalFormsInput.value = formCount;
             });
-            input.addEventListener('blur', () => {
-                input.parentElement.style.borderColor = 'var(--border)';
-                input.parentElement.style.boxShadow = 'none';
+
+            container.addEventListener('click', function(e) {
+                if (e.target.closest('.btn-remove-choice')) {
+                    const row = e.target.closest('.option-row');
+                    
+                    const deleteInput = row.querySelector('input[name$="-DELETE"]');
+                    if (deleteInput) {
+                        deleteInput.checked = true;
+                        row.style.display = 'none';
+                    } else {
+                        row.remove();
+                    }
+                }
             });
+
+            function bindOptionInputFocus() {
+                const optionInputs = document.querySelectorAll('.options-container input[type="text"]');
+                optionInputs.forEach(input => {
+                    input.style.border = 'none';
+                    input.style.background = 'transparent';
+                    input.style.padding = '5px';
+                    input.style.boxShadow = 'none';
+
+                    // Removing previous listeners safely
+                    const newInput = input.cloneNode(true);
+                    input.parentNode.replaceChild(newInput, input);
+                    
+                    newInput.addEventListener('focus', () => {
+                        const parentRow = newInput.closest('.option-row');
+                        if (parentRow) {
+                            parentRow.style.borderColor = 'var(--primary)';
+                            parentRow.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                        }
+                    });
+                    newInput.addEventListener('blur', () => {
+                        const parentRow = newInput.closest('.option-row');
+                        if (parentRow) {
+                            parentRow.style.borderColor = 'var(--border)';
+                            parentRow.style.boxShadow = 'none';
+                        }
+                    });
+                });
+            }
+            bindOptionInputFocus();
         });
     </script>
 

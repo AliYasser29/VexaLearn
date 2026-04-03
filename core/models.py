@@ -8,6 +8,28 @@ from django.dispatch import receiver
 from django.conf import settings
 from .utils import send_mail_async 
 
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        # Automatically drops visually deleted items
+        return super().get_queryset().filter(is_deleted=False)
+
+class SoftDeleteModel(models.Model):
+    is_deleted = models.BooleanField(default=False, verbose_name="محذوف")
+
+    objects = SoftDeleteManager()
+    all_objects = models.Manager()
+
+    def delete(self, *args, **kwargs):
+        self.is_deleted = True
+        self.save()
+        # Deactivate associated User preventing login
+        if hasattr(self, 'user') and self.user:
+            if not self.user.is_superuser:
+                self.user.is_active = False
+                self.user.save()
+
+    class Meta:
+        abstract = True
 # 1. الدولة (يجب أن تكون في البداية لأن الجميع يعتمد عليها)
 class Country(models.Model):
     name = models.CharField(max_length=100, verbose_name="اسم الدولة")
@@ -57,7 +79,7 @@ class Academy(models.Model):
         verbose_name_plural = "الأكاديميات"
 
 # 6. المعلم (محدث)
-class Teacher(models.Model):
+class Teacher(SoftDeleteModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='teacher_profile', verbose_name="حساب المستخدم")
     name = models.CharField(max_length=150, verbose_name="اسم المعلم")
     phone = models.CharField(max_length=20, verbose_name="رقم الهاتف")
@@ -73,7 +95,7 @@ class Teacher(models.Model):
     class Meta: verbose_name = "معلم"; verbose_name_plural = "المعلمون"
 
 # 7. المشرف
-class Supervisor(models.Model):
+class Supervisor(SoftDeleteModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='supervisor_profile', verbose_name="حساب المستخدم")
     name = models.CharField(max_length=150, verbose_name="اسم المشرف")
     phone = models.CharField(max_length=20, verbose_name="رقم الهاتف")
@@ -83,7 +105,7 @@ class Supervisor(models.Model):
     class Meta: verbose_name = "مشرف"; verbose_name_plural = "المشرفون"
 
 # 8. المدير الإداري
-class Manager(models.Model):
+class Manager(SoftDeleteModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='manager_profile', verbose_name="حساب المستخدم")
     name = models.CharField(max_length=150, verbose_name="اسم المدير")
     phone = models.CharField(max_length=20, verbose_name="رقم الهاتف")
@@ -112,7 +134,7 @@ class Course(models.Model):
     class Meta: verbose_name = "كورس"; verbose_name_plural = "الكورسات"
 
 # 10. الطالب
-class Student(models.Model):
+class Student(SoftDeleteModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='student_profile', verbose_name="حساب المستخدم")
     name = models.CharField(max_length=150, verbose_name="اسم الطالب")
     age = models.IntegerField(verbose_name="العمر")
@@ -376,29 +398,3 @@ def notify_attendance_change(sender, instance, created, **kwargs):
             print(f"✅ تم جدولة إشعار الحضور لولي الأمر: {parent_email}")
 
 
-@receiver(post_delete, sender=Teacher)
-@receiver(post_delete, sender=Student)
-@receiver(post_delete, sender=Supervisor)
-@receiver(post_delete, sender=Manager)
-def disable_user_on_profile_delete(sender, instance, **kwargs):
-    """
-    دالة موحدة تعمل عند حذف أي بروفايل (معلم، طالب، مشرف، مدير).
-    تقوم بتعطيل حساب المستخدم (User) المرتبط بهذا البروفايل فوراً.
-    """
-    try:
-        if instance.user:
-            user = instance.user
-            
-            # حماية: عدم تعطيل السوبر يوزر
-            if user.is_superuser:
-                print(f"تنبيه: تم حذف بروفايل للسوبر يوزر {user.username} ولكن لم يتم تعطيل الحساب.")
-                return
-
-            # تعطيل الحساب
-            user.is_active = False
-            user.save()
-            
-            print(f"✅ تم تعطيل حساب المستخدم '{user.username}' تلقائياً بعد حذف دوره كـ {sender.__name__}.")
-            
-    except Exception as e:
-        print(f"حدث خطأ أثناء محاولة تعطيل المستخدم: {e}")

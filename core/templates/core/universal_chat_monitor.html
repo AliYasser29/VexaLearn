@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,110 +14,321 @@
             --primary: #dc2626;
             --primary-hover: #b91c1c;
             --secondary: #4f46e5;
-            --bg: #f1f5f9;
-            --text-dark: #1e293b;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
         }
 
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* --- Global Reset & Base --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #ffffff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-dark);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        p {
+            margin: 0;
+        }
 
         /* --- Header --- */
-        .top-bar { background: white; padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); z-index: 20; }
-        .brand { font-weight: 700; font-size: 1.25rem; color: var(--text-dark); display: flex; align-items: center; gap: 12px; }
-        .back-link { text-decoration: none; color: #64748b; font-weight: 600; font-size: 0.9rem; transition: 0.3s; padding: 8px 16px; border-radius: 8px; }
-        .back-link:hover { background: #f8fafc; color: var(--primary); }
+        .top-bar {
+            padding: 24px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
 
         /* --- Selection Area --- */
-        .selection-container { background: white; padding: 25px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 15px; align-items: flex-end; justify-content: center; flex-wrap: wrap; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); z-index: 10; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 250px; max-width: 350px; }
-        label { font-size: 0.95rem; color: var(--text-dark); font-weight: 700; }
+        .selection-container {
+            padding: 0 48px 48px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-end;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            z-index: 10;
+            border-bottom: 1px solid #f1f5f9;
+        }
 
-        /* Select2 Style Override */
-        .select2-container--default .select2-selection--single { background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; height: 50px; display: flex; align-items: center; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { padding-right: 20px; font-weight: 600; color: #334155; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 48px; left: 10px; }
-        
-        .swap-icon { font-size: 1.2rem; color: #94a3b8; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px; }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+            max-width: 350px;
+        }
 
-        .btn-show { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color: white; border: none; padding: 0 35px; border-radius: 12px; cursor: pointer; font-weight: 700; height: 50px; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3); display: flex; align-items: center; gap: 8px; }
-        .btn-show:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.4); }
+        label {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-        /* --- Main Content Area (Flex Split) --- */
+        /* Select2 Base Overrides */
+        .select2-container--default .select2-selection--single {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--text-gray);
+            outline: none;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-right: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 46px;
+            left: 10px;
+        }
+
+        .swap-icon {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-show {
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            padding: 0 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            height: 48px;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-show:hover {
+            background: #334155;
+        }
+
+        /* --- Main Content Area --- */
         .main-container {
             flex: 1;
             display: flex;
-            max-width: 1200px;
-            margin: 20px auto;
-            width: 95%;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
             background: #fff;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
             overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            padding: 20px 48px;
+            box-sizing: border-box;
+            gap: 60px;
         }
 
-        /* Chat Section */
+        /* --- Chat Section --- */
         .chat-section {
             flex: 1;
             display: flex;
             flex-direction: column;
-            border-left: {% if show_reports_panel %}1px solid #e2e8f0{% else %}none{% endif %};
+            min-width: 0;
+            /* allows truncating in flex */
         }
 
         .chat-header {
-            background: white; padding: 15px; text-align: center; border-bottom: 1px solid #e2e8f0;
-            color: var(--text-dark); font-size: 0.95rem; font-weight: 600;
+            padding: 15px 0 30px;
+            color: var(--text-gray);
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
 
         .messages-list {
-            flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; gap: 18px;
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px;
-        }
-
-        .msg { max-width: 75%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.6; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .msg.user1 { align-self: flex-start; background: white; border: 1px solid #e2e8f0; color: var(--text-dark); border-bottom-right-radius: 4px; }
-        .msg.user1::before { content: attr(data-sender); display: block; font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 4px; }
-        .msg.user2 { align-self: flex-end; background: linear-gradient(135deg, var(--secondary) 0%, #4338ca 100%); color: white; border-bottom-left-radius: 4px; }
-        .msg.user2::before { content: attr(data-sender); display: block; font-size: 0.75rem; color: #e0e7ff; font-weight: 700; margin-bottom: 4px; }
-        .msg-time { font-size: 0.7rem; opacity: 0.8; margin-top: 6px; display: block; text-align: left; direction: ltr; }
-
-        /* Reports Section (Sidebar) */
-        .reports-section {
-            width: 320px;
-            background: #f8fafc;
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 20px;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #e2e8f0; /* فاصل في حالة RTL يكون على اليمين */
+            gap: 24px;
         }
-        
+
+        /* Textual Chat Log Distillation */
+        .msg {
+            max-width: 100%;
+            padding: 0 0 24px 0;
+            font-size: 1rem;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .msg:last-child {
+            border-bottom: none;
+        }
+
+        .msg-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .msg-sender {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .msg.user1 .msg-sender {
+            color: var(--primary);
+        }
+
+        .msg.user2 .msg-sender {
+            color: var(--secondary);
+        }
+
+        .msg-time {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .msg-content {
+            white-space: pre-wrap;
+            color: var(--text-dark);
+        }
+
+        /* --- Reports Section --- */
+        .reports-section {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            padding-right: 40px;
+            border-right: 1px solid #f1f5f9;
+        }
+
         .reports-header {
-            padding: 15px; background: white; border-bottom: 1px solid #e2e8f0;
-            font-weight: 700; color: #334155; display: flex; align-items: center; gap: 8px;
+            padding: 15px 0 30px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .reports-list { flex: 1; overflow-y: auto; padding: 15px; }
 
-        .report-card {
-            background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 12px;
-            transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        .reports-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
         }
-        .report-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        
-        .report-date { font-size: 0.8rem; color: var(--secondary); font-weight: 700; margin-bottom: 8px; display: block; }
-        .report-content { font-size: 0.9rem; color: #475569; white-space: pre-wrap; margin-bottom: 8px; line-height: 1.5; }
+
+        .report-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .report-date {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .report-content {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
         .report-attach {
-            font-size: 0.8rem; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
-            background: #fee2e2; padding: 5px 10px; border-radius: 6px; font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            transition: color 0.2s;
         }
-        .report-attach:hover { background: #fecaca; }
 
-        .empty-reports { text-align: center; color: #94a3b8; margin-top: 40px; font-size: 0.9rem; }
+        .report-attach:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .empty-reports,
+        .empty-chat {
+            text-align: left;
+            color: var(--text-gray);
+            margin-top: 40px;
+            font-size: 1rem;
+        }
+
+        /* Scrollbar Distillation */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="top-bar">
@@ -137,7 +349,7 @@
             <select name="user1" id="user1" class="select-users" required>
                 <option value=""></option>
                 {% for u in users_data %}
-                <option value="{{ u.id }}" {% if user1_id == u.id %}selected{% endif %}>
+                <option value="{{ u.id }}" {% if user1_id==u.id %}selected{% endif %}>
                     {{ u.name }} ({{ u.role }})
                 </option>
                 {% endfor %}
@@ -151,7 +363,7 @@
             <select name="user2" id="user2" class="select-users" required>
                 <option value=""></option>
                 {% for u in users_data %}
-                <option value="{{ u.id }}" {% if user2_id == u.id %}selected{% endif %}>
+                <option value="{{ u.id }}" {% if user2_id==u.id %}selected{% endif %}>
                     {{ u.name }} ({{ u.role }})
                 </option>
                 {% endfor %}
@@ -164,29 +376,27 @@
     </form>
 
     <div class="main-container">
-        
+
         {% if show_reports_panel %}
         <div class="reports-section">
             <div class="reports-header">
-                <i class="fas fa-clipboard-list" style="color: var(--secondary);"></i>
                 سجل التقارير اليومية
             </div>
             <div class="reports-list">
                 {% for report in daily_reports %}
-                    <div class="report-card">
-                        <span class="report-date"><i class="far fa-calendar-alt"></i> {{ report.date|date:"Y-m-d" }}</span>
-                        <div class="report-content">{{ report.content }}</div>
-                        {% if report.attachment %}
-                            <a href="{{ report.attachment.url }}" target="_blank" class="report-attach">
-                                <i class="fas fa-paperclip"></i> عرض المرفق
-                            </a>
-                        {% endif %}
-                    </div>
+                <div class="report-item">
+                    <span class="report-date">{{ report.date|date:"Y-m-d" }}</span>
+                    <div class="report-content">{{ report.content }}</div>
+                    {% if report.attachment %}
+                    <a href="{{ report.attachment.url }}" target="_blank" class="report-attach">
+                        <i class="fas fa-paperclip"></i> عرض المرفق
+                    </a>
+                    {% endif %}
+                </div>
                 {% empty %}
-                    <div class="empty-reports">
-                        <i class="fas fa-file-excel" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <p>لا توجد تقارير مسجلة لهذا الطالب من هذا المعلم.</p>
-                    </div>
+                <div class="empty-reports">
+                    <p>لا توجد تقارير مسجلة لهذا الطالب من هذا المعلم.</p>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -194,38 +404,41 @@
 
         <div class="chat-section">
             {% if user1_obj and user2_obj %}
-                <div class="chat-header">
-                    المحادثة بين: 
-                    <span style="color: var(--primary);">{{ user1_obj.display_name|default:user1_obj.username }}</span> 
-                    و 
-                    <span style="color: var(--secondary);">{{ user2_obj.display_name|default:user2_obj.username }}</span>
-                </div>
+            <div class="chat-header">
+                محادثة <span style="color: var(--primary);">{{ user1_obj.display_name|default:user1_obj.username
+                    }}</span>
+                و <span style="color: var(--secondary);">{{ user2_obj.display_name|default:user2_obj.username }}</span>
+            </div>
 
-                <div class="messages-list" id="msgList">
-                    {% for msg in chat_messages %}
-                        {% if msg.sender.id == user1_id %}
-                            <div class="msg user1" data-sender="{{ user1_obj.display_name|default:user1_obj.username }}">
-                                {{ msg.content }}
-                                <span class="msg-time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
-                            </div>
-                        {% else %}
-                            <div class="msg user2" data-sender="{{ user2_obj.display_name|default:user2_obj.username }}">
-                                {{ msg.content }}
-                                <span class="msg-time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
-                            </div>
-                        {% endif %}
-                    {% empty %}
-                        <div style="flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #cbd5e1;">
-                            <i class="far fa-comments" style="font-size: 4rem; margin-bottom: 15px;"></i>
-                            <p>لا توجد رسائل سابقة</p>
-                        </div>
-                    {% endfor %}
+            <div class="messages-list" id="msgList">
+                {% for msg in chat_messages %}
+                {% if msg.sender.id == user1_id %}
+                <div class="msg user1">
+                    <div class="msg-header">
+                        <span class="msg-sender">{{ user1_obj.display_name|default:user1_obj.username }}</span>
+                        <span class="msg-time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                    </div>
+                    <div class="msg-content">{{ msg.content }}</div>
                 </div>
+                {% else %}
+                <div class="msg user2">
+                    <div class="msg-header">
+                        <span class="msg-sender">{{ user2_obj.display_name|default:user2_obj.username }}</span>
+                        <span class="msg-time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                    </div>
+                    <div class="msg-content">{{ msg.content }}</div>
+                </div>
+                {% endif %}
+                {% empty %}
+                <div class="empty-chat">
+                    <p>لا توجد رسائل سابقة في هذا السجل.</p>
+                </div>
+                {% endfor %}
+            </div>
             {% else %}
-                <div style="flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: #94a3b8;">
-                    <i class="fas fa-mouse-pointer" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                    <p style="font-weight: 600;">اختر الطرفين لعرض البيانات</p>
-                </div>
+            <div class="empty-chat">
+                <p>يرجى اختيار الأطراف من الأعلى لعرض السجلات.</p>
+            </div>
             {% endif %}
         </div>
     </div>
@@ -233,7 +446,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('.select-users').select2({
                 dir: "rtl",
                 placeholder: "ابحث عن مستخدم...",
@@ -242,8 +455,9 @@
             });
 
             var msgList = document.getElementById("msgList");
-            if(msgList){ msgList.scrollTop = msgList.scrollHeight; }
+            if (msgList) { msgList.scrollTop = msgList.scrollHeight; }
         });
     </script>
 </body>
+
 </html>

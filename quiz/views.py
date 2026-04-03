@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from core.models import Course, Enrollment
 from .models import Quiz, Question, Choice, QuizAttempt
-from .forms import QuizForm, QuestionForm
+from .forms import QuizForm, QuestionForm, ChoiceFormSet
 
 # --- دوال التحقق من الصلاحيات ---
 
@@ -49,25 +49,21 @@ def add_question(request, quiz_id):
     
     if request.method == 'POST':
         form = QuestionForm(request.POST)
+        formset = ChoiceFormSet(request.POST)
         
-        # استقبال الاختيارات يدوياً من الـ HTML
-        option1 = request.POST.get('option1')
-        option2 = request.POST.get('option2')
-        option3 = request.POST.get('option3')
-        option4 = request.POST.get('option4')
-        correct_option = request.POST.get('correct_option') 
-
-        if form.is_valid() and option1 and option2: # يجب وجود خيارين على الأقل
+        if form.is_valid() and formset.is_valid():
             question = form.save(commit=False)
             question.quiz = quiz
             question.save()
 
-            # حفظ الاختيارات
-            options = [option1, option2, option3, option4]
-            for idx, opt_text in enumerate(options, 1):
-                if opt_text: # إذا كان الحقل ممتلئاً
-                    is_correct = (str(idx) == correct_option)
-                    Choice.objects.create(question=question, text=opt_text, is_correct=is_correct)
+            # Save the related choices
+            choices = formset.save(commit=False)
+            for choice in choices:
+                choice.question = question
+                choice.save()
+            
+            for obj in formset.deleted_objects:
+                obj.delete()
             
             messages.success(request, "تم إضافة السؤال بنجاح.")
             
@@ -75,10 +71,16 @@ def add_question(request, quiz_id):
                 return redirect('add_question', quiz_id=quiz.id)
             else:
                 return redirect('/') 
+        else:
+            if formset.non_form_errors():
+                for error in formset.non_form_errors():
+                    messages.error(request, f"خطأ في الخيارات: {error}")
+            messages.error(request, "يرجى مراجعة الأخطاء في النموذج.")
     else:
         form = QuestionForm()
+        formset = ChoiceFormSet()
 
-    return render(request, 'quiz/add_question.html', {'form': form, 'quiz': quiz})
+    return render(request, 'quiz/add_question.html', {'form': form, 'quiz': quiz, 'formset': formset})
 
 
 # 3. صفحة حل الاختبار (للطالب أو المدير فقط)

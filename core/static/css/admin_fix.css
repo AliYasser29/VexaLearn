@@ -1,7 +1,8 @@
 /* core/static/css/admin_fix.css */
 
+/* --- Layout Hotfixes --- */
 /* إصلاح مشكلة اختفاء القوائم في الوضع العربي */
-.absolute {
+.absolute, .dropdown-menu {
     z-index: 99999 !important; /* إجبار القائمة أن تكون فوق الجميع */
 }
 
@@ -15,4 +16,50 @@
 /* منع الـ Container من قص القائمة */
 header, nav, aside {
     overflow: visible !important;
+}
+
+/* --- UI Polish (Border Radii 12px/16px & Micro-Shadows) --- */
+
+/* Dropdowns & Modals */
+.absolute, .dropdown-menu, .modal {
+    border-radius: 16px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease !important;
+}
+
+/* Cards & Containers */
+.rounded, .rounded-md, .rounded-lg, .rounded-xl, .card, .panel {
+    border-radius: 16px !important;
+}
+
+/* Inputs, Selects, & Textareas */
+input, select, textarea, .form-control {
+    border-radius: 12px !important;
+    transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    border-color: rgba(37, 99, 235, 0.5) !important;
+}
+
+/* Buttons */
+button, .button, .btn, input[type="submit"], input[type="button"] {
+    border-radius: 12px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+button:hover, .button:hover, .btn:hover, input[type="submit"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 14px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+button:active, .button:active, .btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Image avatars & small elements micro-polish */
+img.rounded-full, .avatar {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05) inset !important;
 }

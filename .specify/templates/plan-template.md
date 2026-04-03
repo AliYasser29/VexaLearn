@@ -31,7 +31,11 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **Architecture**: Aligns with "Fat Models, Thin Views" and RBAC constraints.
+- [ ] **Data Integrity**: Uses Soft Delete pattern for all critical entities.
+- [ ] **Security**: Addresses Zero Plain-Text Secrets and Strict Token Expirations.
+- [ ] **Performance**: Mitigates N+1 queries. Background tasks planned for async jobs.
+- [ ] **Code Quality**: Utilizes proper Formsets and adheres to DRY principle (e.g. abstract base models).
 
 ## Project Structure
 

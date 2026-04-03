@@ -1,50 +1,58 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+Version change: [CONSTITUTION_VERSION] -> 1.0.0
+Modified principles:
+  - [PRINCIPLE_1_NAME] -> I. ARCHITECTURE & PATTERNS
+  - [PRINCIPLE_2_NAME] -> II. DATA INTEGRITY
+  - [PRINCIPLE_3_NAME] -> III. SECURITY RULES
+  - [PRINCIPLE_4_NAME] -> IV. PERFORMANCE & SCALABILITY
+  - [PRINCIPLE_5_NAME] -> V. CODE QUALITY & UI
+Removed sections:
+  - [SECTION_3_NAME]
+Added sections:
+  - None
+Templates requiring updates:
+  - .specify/templates/plan-template.md (✅ updated)
+  - .specify/templates/spec-template.md (✅ updated)
+  - .specify/templates/tasks-template.md (✅ updated)
+Follow-up TODOs:
+  - TODO(RATIFICATION_DATE): Missing original adoption date.
+  - TODO(ADDITIONAL_CONSTRAINTS): Optional extra constraints not defined yet.
+-->
+# VexaLearn Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. ARCHITECTURE & PATTERNS
+- **Fat Models, Thin Views**: Follow strict Django "Fat Models, Thin Views" principles. Keep business logic out of templates and views where possible.
+- **Role-Based Access Control (RBAC)**: Adhere strictly to the established Role-Based Access Control. Always verify user permissions (Superuser, Manager, Supervisor, Teacher, Student) before allowing actions.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. DATA INTEGRITY
+- **No Physical Deletions**: Never use physical deletions (Hard Delete) for critical entities (Users, Teachers, Students, Courses, Enrollments).
+- **Soft Delete Pattern**: Always implement a "Soft Delete" pattern (e.g., `is_deleted` or `is_active` flags) and override the model's `delete()` method to prevent breaking relationships and historical data like Chat Logs or Course Materials.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. SECURITY RULES
+- **Zero Plain-Text Secrets**: Never rely solely on email for delivering generated passwords without a secure UI fallback for the admin.
+- **Strict Token Expirations**: Third-party tokens (like Agora SDK) must have the absolute minimum required lifespan (e.g., 2 hours max, never 24 hours).
+- **Access Control**: Always validate that the `request.user` is explicitly linked (via Enrollment or RBAC) to the resource they are trying to access (e.g., Video Rooms, Course Materials).
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. PERFORMANCE & SCALABILITY
+- **Database Optimization**: Strictly avoid N+1 query problems. Always use `select_related` and `prefetch_related`. Avoid excessive QuerySet `.union()` operations; use optimized `Q` objects and annotations instead.
+- **Asynchronous Operations**: Do not use standard Python threading for emails or heavy tasks within request/response cycles. Plan for robust background task queues (e.g., Celery/Redis).
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. CODE QUALITY & UI
+- **Dynamic Forms**: Avoid hardcoded HTML inputs for relational data. Always use Django Formsets for one-to-many relationships (e.g., Quiz Questions and Choices).
+- **DRY Principle**: Do not repeat code. Use abstract base models and utility functions where appropriate.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Additional Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+[ADDITIONAL_CONSTRAINTS]
+<!-- TODO(ADDITIONAL_CONSTRAINTS): Intentionally deferred - no extra deployment or generic tech stack requirements provided beyond Django. -->
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- **Amendment Procedure**: Any changes to these core principles must be proposed in a PR updating this Constitution.
+- **Versioning Policy**: The Constitution follows SemVer. MAJOR for breaking governance changes, MINOR for new principles, PATCH for clarifications.
+- **Compliance Review**: All code PRs and design plans (`plan.md`) MUST include a checklist verifying alignment with the 5 core principles.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-04-03

@@ -65,7 +65,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T004 Setup database schema and migrations framework
 - [ ] T005 [P] Implement authentication/authorization framework
 - [ ] T006 [P] Setup API routing and middleware structure
-- [ ] T007 Create base models/entities that all stories depend on
+- [ ] T007 Create base models/entities (Ensure Soft-Delete is configured)
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
 
@@ -152,9 +152,9 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] TXXX [P] Documentation updates in docs/
 - [ ] TXXX Code cleanup and refactoring
-- [ ] TXXX Performance optimization across all stories
+- [ ] TXXX Performance optimization (Resolve N+1 query problems via select_related/prefetch_related)
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/
-- [ ] TXXX Security hardening
+- [ ] TXXX Security hardening (Verify strict token expirations and RBAC adherence)
 - [ ] TXXX Run quickstart.md validation
 
 ---

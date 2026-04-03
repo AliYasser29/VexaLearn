@@ -1,3 +1,22 @@
 .env
 *.sqlite3
 db.sqlite3
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+*.egg-info/
+*.specify
+*.specs
+
+# Special App/Agent Folders
+.agent/
+.agents/
+_agent/
+_agents/
+impeccable-style-universal/
+
+# Django
+media/
+staticfiles/

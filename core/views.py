@@ -361,7 +361,7 @@ def admin_panel(req):
                     messages.info(req, f"تم إرسال بيانات الدخول إلى: {parent_email}")
 
                 # عرض كلمة المرور للمدير لنسخها في حال لم يصل الإيميل
-                messages.success(req, f"تم إنشاء ملف الطالب {student.name}")
+                messages.success(req, f"تم إنشاء ملف الطالب {student.name}. Generated credentials: {username} / {password}")
                 messages.warning(req, "يرجى الآن إضافة الكورسات واختيار المعلمين لهذا الطالب.")
                 return redirect('add_enrollment', student_id=student.id)
             
@@ -461,41 +461,24 @@ def chat_room(request, user_id=None):
             return redirect('profile_view')
 
     # بناء قائمة المستخدمين المتاحين للمراسلة
-    users_list = User.objects.none()
+    q_objects = Q()
 
-    if current_user.is_superuser:
-        users_list = User.objects.filter(is_active=True)
-    elif hasattr(current_user, 'manager_profile'):
-        users_list = User.objects.filter(is_active=True)
+    if current_user.is_superuser or hasattr(current_user, 'manager_profile'):
+        q_objects = Q(is_active=True)
     elif hasattr(current_user, 'supervisor_profile'):
         supervisor_profile = current_user.supervisor_profile
-        my_students = Student.objects.filter(supervisor=supervisor_profile)
-        students_users = User.objects.filter(student_profile__in=my_students)
-        teachers_of_my_students = Teacher.objects.filter(student__in=my_students).distinct()
-        teachers_users = User.objects.filter(teacher_profile__in=teachers_of_my_students)
-        users_list = students_users | teachers_users
+        q_objects = Q(student_profile__supervisor=supervisor_profile) | \
+                    Q(teacher_profile__student__supervisor=supervisor_profile)
     elif hasattr(current_user, 'teacher_profile'):
         teacher_profile = current_user.teacher_profile
-        
-        # نستخدم enrollment__teacher بناءً على رسالة الخطأ السابقة التي أوضحت أن الاسم هو enrollment
-        my_students = Student.objects.filter(enrollment__teacher=teacher_profile).distinct()
-        
-        students_users = User.objects.filter(student_profile__in=my_students)
-        
-        # جلب المشرفين المرتبطين بهؤلاء الطلاب
-        supervisors_of_my_students = Supervisor.objects.filter(students__in=my_students).distinct()
-        supervisors_users = User.objects.filter(supervisor_profile__in=supervisors_of_my_students)
-        
-        users_list = students_users | supervisors_users
+        q_objects = Q(student_profile__enrollment__teacher=teacher_profile) | \
+                    Q(supervisor_profile__students__enrollment__teacher=teacher_profile)
     elif hasattr(current_user, 'student_profile'):
         student_profile = current_user.student_profile
-        teachers_ids = Enrollment.objects.filter(student=student_profile).values_list('teacher__user', flat=True)
-        teachers_users = User.objects.filter(id__in=teachers_ids)
-        
-        supervisor_user = User.objects.none()
-        if student_profile.supervisor and student_profile.supervisor.user:
-            supervisor_user = User.objects.filter(id=student_profile.supervisor.user.id)
-        users_list = teachers_users | supervisor_user
+        q_objects = Q(teacher_profile__enrollment__student=student_profile) | \
+                    Q(supervisor_profile__students=student_profile)
+
+    users_list = User.objects.filter(q_objects).filter(is_active=True)
 
     if not current_user.is_superuser:
         # [تصحيح الخطأ هنا]: قمنا بإزالة .distinct() من هذا الاستعلام ليمكن دمجه
@@ -1043,8 +1026,24 @@ def video_call_view(request, room_name):
         messages.error(request, "إعدادات الفيديو غير مكتملة في السيرفر.")
         return redirect('chat_home')
 
+    # Authorization Check
+    is_authorized = False
+    if request.user.is_superuser or hasattr(request.user, 'manager_profile'):
+        is_authorized = True
+    elif hasattr(request.user, 'teacher_profile'):
+        # Check if teacher has an enrollment assignment for this specific course
+        if Enrollment.objects.filter(course_id=room_name, teacher=request.user.teacher_profile).exists():
+            is_authorized = True
+    elif hasattr(request.user, 'student_profile'):
+        if Enrollment.objects.filter(course_id=room_name, student=request.user.student_profile, is_completed=False).exists():
+            is_authorized = True
+
+    if not is_authorized:
+        messages.error(request, "غير مصرح لك بدخول هذه الجلسة.")
+        return redirect('chat_home')
+
     uid = request.user.id 
-    expiration_time_in_seconds = 3600 * 24 
+    expiration_time_in_seconds = 7200 
     current_timestamp = int(time.time())
     privilege_expired_ts = current_timestamp + expiration_time_in_seconds
     role = 1 
