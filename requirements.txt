@@ -6,4 +6,7 @@ Pillow
 whitenoise>=6.6.0
 gunicorn>=21.2.0
 python-dotenv
-agora-token-builder
+agora-token-builderdjango-simple-history
+django-filter
+django-import-export
+openpyxl

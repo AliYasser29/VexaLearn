@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
+from simple_history.admin import SimpleHistoryAdmin
 
 # استيراد الموديلات (تم إضافة الموديلات الجديدة هنا)
 from .models import (
@@ -21,8 +22,11 @@ def generate_random_password(length=10):
     alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for i in range(length))
 
+from import_export.admin import ExportActionModelAdmin, ImportExportModelAdmin
+from .resources import StudentResource, TeacherResource, EnrollmentResource, AttendanceResource
+
 # --- كلاس أساسي لتوحيد منطق إنشاء المستخدم وإرسال الإيميل ---
-class BaseRoleAdmin(ModelAdmin):
+class BaseRoleAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
     """
     كلاس يقوم بإنشاء المستخدم تلقائياً ويرسل رسالة مخصصة بالكامل لكل دور.
     """
@@ -187,13 +191,13 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
     change_password_form = AdminPasswordChangeForm
 
 @admin.register(Academy)
-class AcademyAdmin(ModelAdmin):
+class AcademyAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('name',)
     search_fields = ['name']
 
 # --- الجديد: تسجيل المواد الدراسية ---
 @admin.register(Subject)
-class SubjectAdmin(ModelAdmin):
+class SubjectAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('name', 'education_type', 'country')
     list_filter = ('country', 'education_type')
     search_fields = ('name',)
@@ -203,14 +207,25 @@ class SubjectAdmin(ModelAdmin):
 
 @admin.register(Teacher)
 class TeacherAdmin(BaseRoleAdmin):
+    resource_classes = [TeacherResource]
     # [تعديل هام]: استبدال subject بدالة get_subjects لأن الحقل أصبح ManyToMany
-    list_display = ('name', 'get_subjects', 'phone', 'email', 'user')
-    search_fields = ['name', 'subjects__name', 'phone']
+    list_display = ('name', 'get_subjects', 'phone', 'email', 'user', 'get_student_count')
+    search_fields = ['name', 'subjects__name', 'phone', 'email', 'user__username']
+    list_filter = ['subjects']
+    list_per_page = 50
     autocomplete_fields = ['subjects'] # للإكمال التلقائي للمواد
+
+    def get_queryset(self, request):
+        # Prevent N+1 queries when fetching related subjects and enrollments
+        return super().get_queryset(request).select_related('user').prefetch_related('subjects', 'enrollment_set')
 
     def get_subjects(self, obj):
         return ", ".join([sub.name for sub in obj.subjects.all()])
     get_subjects.short_description = "المواد"
+
+    def get_student_count(self, obj):
+        return obj.enrollment_set.filter(is_completed=False).count()
+    get_student_count.short_description = "عدد الطلاب الحاليين"
 
 @admin.register(Supervisor)
 class SupervisorAdmin(BaseRoleAdmin): 
@@ -225,26 +240,26 @@ class ManagerAdmin(BaseRoleAdmin):
 # ------------------------------------------------------------------
 
 @admin.register(Country)
-class CountryAdmin(ModelAdmin):
+class CountryAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('name', 'currency')
     search_fields = ['name']
 
 @admin.register(EducationType)
-class EducationTypeAdmin(ModelAdmin):
+class EducationTypeAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('name', 'country')
     list_filter = ('country',)
     search_fields = ['name']
     autocomplete_fields = ['country']
 
 @admin.register(AcademicYear)
-class AcademicYearAdmin(ModelAdmin):
+class AcademicYearAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('name', 'country')
     list_filter = ('country',)
     search_fields = ['name']
     autocomplete_fields = ['country']
 
 @admin.register(Course)
-class CourseAdmin(ModelAdmin):
+class CourseAdmin(SimpleHistoryAdmin, ModelAdmin):
     # [تعديل]: إضافة subject للقائمة
     list_display = ('name', 'subject', 'price', 'country', 'academy', 'sessions_count')
     list_filter = ('country', 'payment_type', 'academy', 'subject')
@@ -258,12 +273,17 @@ class EnrollmentInline(StackedInline):
     autocomplete_fields = ['course', 'teacher'] # [تعديل]: إضافة teacher
 
 @admin.register(Enrollment)
-class EnrollmentAdmin(ModelAdmin):
+class EnrollmentAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
+    resource_classes = [EnrollmentResource]
     # [تعديل]: إضافة teacher للعرض
     list_display = ('student', 'course', 'teacher', 'start_date', 'attendance_summary', 'is_completed')
     list_filter = ('is_completed', 'course', 'start_date', 'teacher')
     search_fields = ('student__name', 'course__name', 'teacher__name')
     autocomplete_fields = ['student', 'course', 'teacher']
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('student', 'course', 'teacher').prefetch_related('attendances')
+
     
     def attendance_summary(self, obj):
         present = obj.attendances.filter(status='present').count()
@@ -280,17 +300,21 @@ class EnrollmentAdmin(ModelAdmin):
     inlines = [AttendanceInline]
 
 @admin.register(Attendance)
-class AttendanceAdmin(ModelAdmin):
+class AttendanceAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
+    resource_classes = [AttendanceResource]
     list_display = ('enrollment', 'date', 'status')
     list_filter = ('date', 'status', 'enrollment__course')
     search_fields = ('enrollment__student__name',)
     autocomplete_fields = ['enrollment']
 
 @admin.register(Student)
-class StudentAdmin(ModelAdmin):
-    list_display = ('name', 'academic_year', 'country', 'parent_phone', 'user', 'supervisor')
-    search_fields = ('name', 'parent_name', 'parent_phone')
-    list_filter = ('country', 'education_type', 'academic_year', 'supervisor')
+class StudentAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
+    resource_classes = [StudentResource]
+    list_display = ('name', 'academic_year', 'country', 'parent_phone', 'user', 'supervisor', 'get_active_enrollments')
+
+    search_fields = ('name', 'parent_name', 'parent_phone', 'student_phone', 'user__username', 'user__email')
+    list_filter = ('country', 'education_type', 'academic_year', 'supervisor', 'teachers')
+    list_per_page = 50
     
     exclude = ('user',)
     readonly_fields = ('user',)
@@ -299,8 +323,17 @@ class StudentAdmin(ModelAdmin):
     
     autocomplete_fields = ['country', 'education_type', 'academic_year', 'teachers', 'supervisor']
 
+    def get_queryset(self, request):
+        # Prevent N+1 queries when fetching related enrollments for the custom column
+        return super().get_queryset(request).select_related('academic_year', 'country', 'supervisor', 'user').prefetch_related('enrollment_set__course')
+
+    def get_active_enrollments(self, obj):
+        active_courses = [enrollment.course.name for enrollment in obj.enrollment_set.all() if not enrollment.is_completed]
+        return ", ".join(active_courses) if active_courses else "لا يوجد"
+    get_active_enrollments.short_description = "الكورسات النشطة"
+
 @admin.register(Message)
-class MessageAdmin(ModelAdmin):
+class MessageAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('sender', 'receiver', 'content', 'timestamp', 'is_read')
     list_filter = ('timestamp', 'is_read')
     search_fields = ('sender__username', 'receiver__username', 'content')
@@ -308,7 +341,7 @@ class MessageAdmin(ModelAdmin):
     ordering = ('-timestamp',)
 
 @admin.register(DailyReport)
-class DailyReportAdmin(ModelAdmin):
+class DailyReportAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('student', 'teacher', 'date', 'has_attachment')
     list_filter = ('date', 'teacher', 'student')
     search_fields = ('student__name', 'teacher__name', 'content')
@@ -320,15 +353,41 @@ class DailyReportAdmin(ModelAdmin):
 
 # --- الجديد: إدارة مكتبة المواد ---
 @admin.register(CourseMaterial)
-class CourseMaterialAdmin(ModelAdmin):
+class CourseMaterialAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('title', 'course', 'teacher', 'created_at')
     list_filter = ('course', 'teacher')
     search_fields = ('title', 'course__name')
     autocomplete_fields = ['course', 'teacher']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('course', 'teacher')
+
 # --- الجديد: إدارة الإشعارات ---
 @admin.register(Notification)
-class NotificationAdmin(ModelAdmin):
+class NotificationAdmin(SimpleHistoryAdmin, ModelAdmin):
     list_display = ('recipient', 'title', 'created_at', 'is_read')
     list_filter = ('is_read', 'created_at')
     search_fields = ('recipient__username', 'title', 'message')
+
+# --- Global History (US2) ---
+# Registering historical models directly to provide a global audit trail.
+@admin.register(Student.history.model)
+class StudentHistoryAdmin(ModelAdmin):
+    list_display = ('history_id', 'history_date', 'history_user', 'history_type', 'name')
+    list_filter = ('history_date', 'history_type', 'history_user')
+    search_fields = ('name', 'history_user__username')
+    readonly_fields = [f.name for f in Student.history.model._meta.get_fields()]
+
+@admin.register(Teacher.history.model)
+class TeacherHistoryAdmin(ModelAdmin):
+    list_display = ('history_id', 'history_date', 'history_user', 'history_type', 'name')
+    list_filter = ('history_date', 'history_type', 'history_user')
+    search_fields = ('name', 'history_user__username')
+    readonly_fields = [f.name for f in Teacher.history.model._meta.get_fields()]
+
+@admin.register(Enrollment.history.model)
+class EnrollmentHistoryAdmin(ModelAdmin):
+    list_display = ('history_id', 'history_date', 'history_user', 'history_type', 'student', 'course')
+    list_filter = ('history_date', 'history_type', 'history_user')
+    search_fields = ('student__name', 'course__name', 'history_user__username')
+    readonly_fields = [f.name for f in Enrollment.history.model._meta.get_fields()]

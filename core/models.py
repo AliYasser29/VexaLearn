@@ -7,6 +7,7 @@ from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.conf import settings
 from .utils import send_mail_async 
+from simple_history.models import HistoricalRecords
 
 class SoftDeleteManager(models.Manager):
     def get_queryset(self):
@@ -18,6 +19,7 @@ class SoftDeleteModel(models.Model):
 
     objects = SoftDeleteManager()
     all_objects = models.Manager()
+    history = HistoricalRecords(inherit=True)
 
     def delete(self, *args, **kwargs):
         self.is_deleted = True
@@ -34,6 +36,7 @@ class SoftDeleteModel(models.Model):
 class Country(models.Model):
     name = models.CharField(max_length=100, verbose_name="اسم الدولة")
     currency = models.CharField(max_length=10, verbose_name="العملة (EGP, USD)")
+    history = HistoricalRecords()
     
     def __str__(self): return f"{self.name} ({self.currency})"
     class Meta: verbose_name = "دولة"; verbose_name_plural = "الدول"
@@ -42,6 +45,7 @@ class Country(models.Model):
 class EducationType(models.Model):
     name = models.CharField(max_length=100, verbose_name="نوع التعليم")
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='education_types', verbose_name="تابع لدولة")
+    history = HistoricalRecords()
     
     def __str__(self): return f"{self.name} ({self.country.name})"
     class Meta: verbose_name = "نوع تعليم"; verbose_name_plural = "أنواع التعليم"
@@ -50,6 +54,7 @@ class EducationType(models.Model):
 class AcademicYear(models.Model):
     name = models.CharField(max_length=100, verbose_name="اسم السنة (مثال: الصف الأول الثانوي)")
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='academic_years', verbose_name="تابع لدولة")
+    history = HistoricalRecords()
 
     def __str__(self): return f"{self.name} ({self.country.name})"
     class Meta: verbose_name = "سنة دراسية"; verbose_name_plural = "السنوات الدراسية"
@@ -59,6 +64,7 @@ class Subject(models.Model):
     name = models.CharField(max_length=100, verbose_name="اسم المادة")
     education_type = models.ForeignKey(EducationType, on_delete=models.CASCADE, verbose_name="نوع التعليم")
     country = models.ForeignKey(Country, on_delete=models.CASCADE, verbose_name="الدولة")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.name} - {self.education_type.name}"
@@ -70,6 +76,7 @@ class Academy(models.Model):
     name = models.CharField(max_length=150, verbose_name="اسم الأكاديمية")
     description = models.TextField(verbose_name="وصف الأكاديمية", null=True, blank=True, help_text="نبذة مختصرة تظهر في الصفحة الرئيسية")
     logo = models.ImageField(upload_to='academy_logos/', null=True, blank=True, verbose_name="شعار الأكاديمية")
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -129,6 +136,7 @@ class Course(models.Model):
     academy = models.ForeignKey(Academy, on_delete=models.SET_NULL, null=True, blank=True, related_name='courses', verbose_name="الأكاديمية")
     
     description = models.TextField(verbose_name="وصف الكورس", null=True, blank=True)
+    history = HistoricalRecords()
 
     def __str__(self): return f"{self.name} | {self.price} {self.country.currency}"
     class Meta: verbose_name = "كورس"; verbose_name_plural = "الكورسات"
@@ -176,6 +184,7 @@ class Enrollment(models.Model):
     
     start_date = models.DateField(default=timezone.now, verbose_name="تاريخ بدء الاشتراك")
     is_completed = models.BooleanField(default=False, verbose_name="منتهي")
+    history = HistoricalRecords()
 
     def __str__(self):
         teacher_name = self.teacher.name if self.teacher else "بدون معلم"
@@ -201,6 +210,7 @@ class Attendance(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name='attendances', verbose_name="الاشتراك")
     date = models.DateField(auto_now_add=True, verbose_name="تاريخ الحصة")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='present', verbose_name="الحالة")
+    history = HistoricalRecords()
 
     def __str__(self): 
         return f"{self.enrollment.student.name} - {self.date} ({self.get_status_display()})"
@@ -217,6 +227,7 @@ class Message(models.Model):
     content = models.TextField(verbose_name="نص الرسالة")
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name="وقت الإرسال")
     is_read = models.BooleanField(default=False, verbose_name="تمت القراءة")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"من {self.sender} إلى {self.receiver}"
@@ -234,6 +245,7 @@ class DailyReport(models.Model):
     attachment = models.FileField(upload_to='daily_reports/', null=True, blank=True, verbose_name="ملف مرفق")
     date = models.DateField(default=timezone.now, verbose_name="تاريخ التقرير")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="وقت الرفع")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"تقرير عن {self.student.name} - {self.date}"
@@ -252,6 +264,7 @@ class CourseMaterial(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name="وصف (اختياري)")
     file = models.FileField(upload_to='materials/%Y/%m/', verbose_name="الملف")
     created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.title} - {self.course.name}"
@@ -281,6 +294,7 @@ class Notification(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"إشعار لـ {self.recipient.username} - {self.title}"

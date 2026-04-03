@@ -166,9 +166,8 @@ def supervisor_dashboard(request):
         messages.error(request, "غير مصرح لك بدخول لوحة المشرفين.")
         return redirect('chat_home')
 
-    active_enrollments = Enrollment.objects.filter(is_completed=False)
+    active_enrollments = Enrollment.objects.filter(is_completed=False).select_related('course').prefetch_related('attendances')
 
-    # استخدام select_related و prefetch_related لتحسين الأداء
     students = students_queryset.distinct()\
         .select_related('country', 'education_type', 'academic_year')\
         .prefetch_related(

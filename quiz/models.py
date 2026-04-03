@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import Course, Student
+from simple_history.models import HistoricalRecords
 
 class Quiz(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes', verbose_name="الكورس")
@@ -17,6 +18,7 @@ class Quiz(models.Model):
     duration = models.PositiveIntegerField(help_text="المدة بالدقائق", verbose_name="مدة الاختبار")
     pass_score = models.PositiveIntegerField(default=50, help_text="النسبة المئوية للنجاح (مثلاً 50)", verbose_name="درجة النجاح")
     created_at = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         type_label = "خاص" if self.specific_students.exists() else "عام"
@@ -36,6 +38,7 @@ class Question(models.Model):
     text = models.TextField(verbose_name="نص السؤال")
     question_type = models.CharField(max_length=10, choices=QUESTION_TYPES, default='mcq', verbose_name="نوع السؤال")
     marks = models.PositiveIntegerField(default=1, verbose_name="الدرجة")
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.text[:50]
@@ -49,6 +52,7 @@ class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
     text = models.CharField(max_length=255, verbose_name="نص الاختيار")
     is_correct = models.BooleanField(default=False, verbose_name="إجابة صحيحة؟")
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.text
@@ -64,6 +68,7 @@ class QuizAttempt(models.Model):
     score = models.FloatField(verbose_name="الدرجة المحققة")
     passed = models.BooleanField(default=False, verbose_name="ناجح؟")
     completed_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الاختبار")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.student.name} - {self.quiz.title}"

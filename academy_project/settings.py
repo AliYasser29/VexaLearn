@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'core',
     'sslserver',
     'quiz',
+    'simple_history',
+    'django_filters',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -59,8 +62,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.MediaCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'academy_project.urls'
@@ -121,6 +126,10 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# WhiteNoise Cache Settings
+WHITENOISE_MAX_AGE = 31536000  # 1 year
+
 
 # إعدادات الوسائط (للمرفقات والصور)
 MEDIA_URL = '/media/'
@@ -275,6 +284,28 @@ UNFOLD = {
                         "title": _("الإشعارات"),
                         "icon": "notifications",
                         "link": reverse_lazy("admin:core_notification_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("سجل المراجعة (Audit Log)"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("سجل الطلاب"),
+                        "icon": "history",
+                        "link": reverse_lazy("admin:core_historicalstudent_changelist"),
+                    },
+                    {
+                        "title": _("سجل المعلمين"),
+                        "icon": "history",
+                        "link": reverse_lazy("admin:core_historicalteacher_changelist"),
+                    },
+                    {
+                        "title": _("سجل الاشتراكات"),
+                        "icon": "history",
+                        "link": reverse_lazy("admin:core_historicalenrollment_changelist"),
                     },
                 ],
             },
