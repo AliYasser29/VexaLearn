@@ -1,24 +1,28 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الملف الشخصي | VexaLearn</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
+    <script src="{% static 'js/global_ux.js' %}" defer></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0f172a;
-            --text-main: #334155;
-            --text-light: #64748b;
-            --bg-light: #f1f5f9;
+            --primary: var(--primary-neon);
+            --primary-dark: var(--primary-dark);
+            --secondary: var(--secondary);
+            --text-main: var(--text-primary);
+            --text-light: var(--text-secondary);
+            --bg-light: var(--bg-main);
             --white: #ffffff;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --danger: #ef4444;
-            --radius: 12px;
+            --border: var(--border-color);
+            --success: var(--success);
+            --danger: var(--error);
+            --radius: var(--radius-lg);
         }
 
         body {
@@ -41,26 +45,47 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
         }
 
         .logo {
-            font-size: 1.5rem; font-weight: 800; color: var(--secondary);
-            text-decoration: none; display: flex; align-items: center; gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .logo i { color: var(--primary); }
+
+        .logo i {
+            color: var(--primary);
+        }
 
         .btn-back {
-            text-decoration: none; color: var(--text-light); font-weight: 700;
-            transition: 0.2s; display: flex; align-items: center; gap: 8px;
-            background: #f8fafc; padding: 8px 15px; border-radius: 30px; border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text-light);
+            font-weight: 700;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
         }
-        .btn-back:hover { color: var(--primary); border-color: var(--primary); background: white; }
+
+        .btn-back:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: white;
+        }
 
         /* --- Layout --- */
         .main-container {
             display: grid;
-            grid-template-columns: 320px 1fr; 
+            grid-template-columns: 320px 1fr;
             gap: 25px;
             padding: 25px;
             width: 100%;
@@ -69,162 +94,335 @@
         }
 
         @media (max-width: 992px) {
-            .main-container { grid-template-columns: 1fr; }
-            aside { margin-bottom: 20px; }
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                margin-bottom: 20px;
+            }
         }
 
         /* --- Sidebar & Cards --- */
-        .card {
+        .ux-card-profile {
             background: var(--white);
             border-radius: var(--radius);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border);
             padding: 25px;
             margin-bottom: 20px;
             overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .ux-card-profile:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
         }
 
         .card-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
         }
-        .card-title { font-size: 1.15rem; font-weight: 800; color: var(--secondary); margin: 0; display: flex; align-items: center; gap: 10px; }
-        .card-title i { color: var(--primary); }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
 
         /* User Profile Style */
-        .user-welcome { text-align: center; padding: 10px 0 20px; }
+        .user-welcome {
+            text-align: center;
+            padding: 10px 0 20px;
+        }
+
         .avatar-large {
-            width: 90px; height: 90px; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; margin: 0 auto 15px; border: 3px solid var(--white);
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 15px;
+            border: 3px solid var(--white);
             box-shadow: 0 5px 15px rgba(37, 99, 235, 0.15);
         }
-        .user-name { font-size: 1.4rem; font-weight: 800; color: var(--secondary); margin: 0; }
-        .user-role { 
-            display: inline-block; background: #f1f5f9; padding: 4px 12px; 
-            border-radius: 20px; font-size: 0.85rem; font-weight: 700; color: var(--text-light); margin-top: 8px; 
+
+        .user-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 0;
+        }
+
+        .user-role {
+            display: inline-block;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-top: 8px;
         }
 
         /* Forms Styling */
-        .form-group { margin-bottom: 18px; }
-        .form-label { display: block; margin-bottom: 8px; color: var(--text-main); font-weight: 700; font-size: 0.9rem; }
-        .form-input {
-            width: 100%; padding: 12px 15px; border: 2px solid #f1f5f9;
-            border-radius: 10px; font-family: inherit; font-size: 0.95rem; box-sizing: border-box;
-            transition: 0.3s; background: #f8fafc;
+        .form-group {
+            margin-bottom: 18px;
         }
-        .form-input:focus { outline: none; border-color: var(--primary); background: var(--white); }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #f1f5f9;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: 0.3s;
+            background: #f8fafc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+        }
 
         /* Buttons */
         .btn {
-            width: 100%; padding: 12px; border-radius: 10px; border: none;
-            font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.95rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        
-        .btn-danger { background: #fee2e2; color: var(--danger); border: 1px solid #fecaca; }
-        .btn-danger:hover { background: #fecaca; }
 
-        .btn-create { 
-            background: var(--success); color: white; width: auto; 
-            padding: 10px 30px; border-radius: 50px; font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-            border: none; cursor: pointer;
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
         }
-        .btn-create:hover { background: #059669; transform: translateY(-2px); }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: var(--danger);
+            border: 1px solid #fecaca;
+        }
+
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+
+        .btn-create {
+            background: var(--success);
+            color: white;
+            width: auto;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-create:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
 
         .btn-upload {
-            background: #f59e0b; color: white; width: auto; 
-            padding: 10px 30px; border-radius: 50px; font-size: 1rem;
+            background: #f59e0b;
+            color: white;
+            width: auto;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
-        .btn-upload:hover { background: #d97706; transform: translateY(-2px); }
 
-        /* Grid for Cards inside Main Content */
-        .content-grid {
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 20px;
+        .btn-upload:hover {
+            background: #d97706;
+            transform: translateY(-2px);
         }
-        .card.full-width { grid-column: 1 / -1; }
 
         /* Course Items */
-        .course-item { 
-            background: white; padding: 20px; border-radius: 16px; 
-            border: 1px solid var(--border); transition: 0.2s;
-            display: flex; flex-direction: column; gap: 15px;
+        .course-item {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
             position: relative;
         }
-        .course-item:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        
-        .course-header { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; }
-        .progress-container { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
-        .progress-bar { height: 100%; border-radius: 5px; }
-        .course-meta { font-size: 0.85rem; color: var(--text-light); display: flex; align-items: center; gap: 5px; }
 
-        /* زر المكتبة (جديد) */
-        .btn-library {
-            display: block; text-align: center; background: #eff6ff; color: var(--primary);
-            padding: 8px; border-radius: 8px; font-weight: 700; font-size: 0.9rem;
-            text-decoration: none; transition: 0.2s; margin-top: 5px;
+        .course-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
-        .btn-library:hover { background: var(--primary); color: white; }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .progress-container {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .course-meta {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* المكتبة */
+        .btn-library {
+            display: block;
+            text-align: center;
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn-library:hover {
+            background: var(--primary);
+            color: white;
+        }
 
         /* Notifications */
-        .notif-list { display: flex; flex-direction: column; gap: 0; }
-        .notif-item { 
-            padding: 15px 0; border-bottom: 1px solid #f1f5f9; display: flex; gap: 15px; 
-        }
-        .notif-item:last-child { border-bottom: none; }
-        .notif-icon { 
-            width: 45px; height: 45px; border-radius: 12px; background: #f1f5f9; color: var(--text-main);
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;
-        }
-        .notif-content h4 { margin: 0 0 5px; font-size: 0.95rem; font-weight: 700; color: var(--secondary); }
-        .notif-content p { margin: 0; font-size: 0.85rem; color: var(--text-light); line-height: 1.5; }
-        .notif-time { font-size: 0.7rem; color: #94a3b8; margin-top: 5px; display: block; }
-
-        /* Teacher Tables */
-        .student-row { 
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px; border-bottom: 1px solid #f1f5f9;
-        }
-        .student-row:last-child { border-bottom: none; }
-        .student-info { display: flex; align-items: center; gap: 12px; font-weight: 700; }
-        .student-avatar {
-            width: 40px; height: 40px; background: #e0e7ff; color: var(--primary);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1rem;
+        .notif-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            gap: 15px;
         }
 
-        .grades-badge {
-            background: #f8fafc; border: 1px solid var(--border); padding: 5px 12px;
-            border-radius: 8px; font-size: 0.85rem; color: var(--text-main); font-weight: 600;
+        .notif-item:last-child {
+            border-bottom: none;
+        }
+
+        .notif-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
         }
 
         /* Dropdown Style */
-        .dropdown { position: relative; display: inline-block; }
-        .dropdown-content {
-            display: none; position: absolute; left: 0; top: 100%;
-            background-color: white; min-width: 220px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 1000;
-            border-radius: 12px; border: 1px solid var(--border);
-            overflow: hidden; margin-top: 8px;
+        .dropdown {
+            position: relative;
+            display: inline-block;
         }
-        .dropdown-content a {
-            color: var(--text-main); padding: 12px 16px;
-            text-decoration: none; display: flex; align-items: center; gap: 8px;
-            font-size: 0.9rem; transition: 0.2s;
-        }
-        .dropdown-content a:hover { background-color: #f1f5f9; color: var(--primary); }
-        .show { display: block; }
 
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .dropdown-content a {
+            color: var(--text-main);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .show {
+            display: block;
+        }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar">
@@ -237,7 +435,7 @@
     </nav>
 
     <div class="main-container">
-        
+
         <aside>
             <div class="card">
                 <div class="user-welcome">
@@ -246,16 +444,18 @@
                     </div>
                     <h2 class="user-name">{{ request.user.first_name|default:request.user.username }}</h2>
                     <span class="user-role">
-                        {% if is_student %}طالب أكاديمي{% elif is_teacher %}عضو هيئة تدريس{% elif request.user.is_superuser %}مدير النظام{% else %}مستخدم{% endif %}
+                        {% if is_student %}طالب أكاديمي{% elif is_teacher %}عضو هيئة تدريس{% elif
+                        request.user.is_superuser %}مدير النظام{% else %}مستخدم{% endif %}
                     </span>
                 </div>
 
                 {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-success" style="padding: 10px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
+                {% for message in messages %}
+                <div class="alert alert-success"
+                    style="padding: 10px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
+                    {{ message }}
+                </div>
+                {% endfor %}
                 {% endif %}
 
                 <div class="card-header" style="margin-top: 10px;">
@@ -272,17 +472,17 @@
                         <i class="fas fa-check"></i> حفظ التعديلات
                     </button>
                 </form>
-                
+
                 <hr style="border: 0; border-top: 1px dashed var(--border); margin: 25px 0;">
-                
+
                 <h4 style="margin: 0 0 15px; font-size: 1rem; color: var(--secondary);">الأمان</h4>
                 <form method="POST">
                     {% csrf_token %}
                     {% for field in password_form %}
-                        <div class="form-group">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }} 
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-danger">
                         <i class="fas fa-key"></i> تغيير كلمة المرور
@@ -292,178 +492,197 @@
         </aside>
 
         <main>
-            
+
             {% if is_student %}
-                <div class="content-grid">
-                    <div class="card full-width">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-graduation-cap"></i> تقدمي في الكورسات</h3>
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                            {% for item in courses_data %}
-                                <div class="course-item">
-                                    <div class="course-header">
-                                        <span>{{ item.course }}</span>
-                                        <span style="color: {{ item.color }}">{{ item.percent }}%</span>
-                                    </div>
-                                    <div class="progress-container">
-                                        <div class="progress-bar" style="width: {{ item.percent }}%; background: {{ item.color }};"></div>
-                                    </div>
-                                    <span class="course-meta">
-                                        <i class="far fa-clock"></i> تم حضور {{ item.attended }} من {{ item.total }} حصص
-                                    </span>
-                                    
-                                    <a href="{% url 'course_materials' item.course_id %}" class="btn-library">
-                                        <i class="fas fa-folder-open"></i> المكتبة والمواد العلمية
-                                    </a>
-                                </div>
-                            {% empty %}
-                                <div style="text-align: center; padding: 40px; color: var(--text-light); grid-column: 1/-1;">
-                                    <i class="fas fa-folder-open" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                                    <p>لا توجد كورسات مسجلة حتى الآن.</p>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="card full-width">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-bell"></i> آخر التنبيهات</h3>
-                        </div>
-                        <div class="notif-list">
-                            {% for notif in notifications %}
-                                <div class="notif-item">
-                                    <div class="notif-icon">
-                                        {% if "حضور" in notif.title %}
-                                            <i class="fas fa-check-circle" style="color: var(--success);"></i>
-                                        {% elif "غياب" in notif.title %}
-                                            <i class="fas fa-times-circle" style="color: var(--danger);"></i>
-                                        {% else %}
-                                            <i class="fas fa-info-circle" style="color: var(--primary);"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div class="notif-content">
-                                        <h4>{{ notif.title }}</h4>
-                                        <p>{{ notif.message }}</p>
-                                        <span class="notif-time">{{ notif.created_at|date:"d/m/Y - h:i A" }}</span>
-                                    </div>
-                                </div>
-                            {% empty %}
-                                <div style="text-align: center; padding: 30px; color: var(--text-light);">
-                                    <p>لا توجد إشعارات جديدة.</p>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
-
-            {% if is_teacher %}
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 15px; flex-wrap: wrap;">
-                    
-                    <a href="{% url 'upload_material' %}" class="btn-upload">
-                        <i class="fas fa-cloud-upload-alt"></i> رفع ملفات
-                    </a>
-
-                    <div class="dropdown">
-                        <button onclick="toggleDropdown()" class="btn btn-create" style="width: auto;">
-                            <i class="fas fa-plus"></i> اختبار جديد <i class="fas fa-chevron-down" style="margin-right: 5px; font-size: 0.8rem;"></i>
-                        </button>
-                        <div id="myDropdown" class="dropdown-content">
-                            {% if teacher_courses %}
-                                {% for course in teacher_courses %}
-                                    <a href="{% url 'create_quiz' course.id %}">
-                                        <i class="fas fa-book-open" style="margin-left: 5px; color: #cbd5e1;"></i> {{ course.name }}
-                                    </a>
-                                {% endfor %}
-                            {% else %}
-                                <span style="display:block; padding:10px; color:#999; text-align:center;">لا توجد كورسات مسجلة</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
+            <div class="content-grid">
                 <div class="card full-width">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-users"></i> متابعة الطلاب</h3>
+                        <h3 class="card-title"><i class="fas fa-graduation-cap"></i> تقدمي في الكورسات</h3>
                     </div>
-                    <div>
-                        {% for item in students_with_grades %}
-                            <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border);">
-                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                                    <div class="student-avatar">
-                                        {{ item.student.name|slice:":1" }}
-                                    </div>
-                                    <div>
-                                        <div style="font-weight: 800; font-size: 1.1rem;">{{ item.student.name }}</div>
-                                        <div style="font-size: 0.85rem; color: var(--text-light);">{{ item.student.academic_year }}</div>
-                                    </div>
-                                </div>
-                                {% if item.attempts %}
-                                    <table class="grades-table" style="width: 100%; border-collapse: collapse;">
-                                        <thead>
-                                            <tr style="border-bottom: 2px solid var(--border);">
-                                                <th style="text-align: right; padding: 10px; font-size: 0.85rem; color: var(--text-light);">الاختبار</th>
-                                                <th style="text-align: center; padding: 10px; font-size: 0.85rem; color: var(--text-light);">الدرجة</th>
-                                                <th style="text-align: center; padding: 10px; font-size: 0.85rem; color: var(--text-light);">النتيجة</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for attempt in item.attempts %}
-                                                <tr style="border-bottom: 1px solid var(--border);">
-                                                    <td style="padding: 10px; font-weight: 600;">{{ attempt.quiz.title }}</td>
-                                                    <td style="padding: 10px; text-align: center;"><span class="grades-badge">{{ attempt.score }}%</span></td>
-                                                    <td style="padding: 10px; text-align: center;">
-                                                        {% if attempt.passed %}
-                                                            <span style="color: var(--success); font-weight: 700; font-size: 0.9rem;">ناجح <i class="fas fa-check"></i></span>
-                                                        {% else %}
-                                                            <span style="color: var(--danger); font-weight: 700; font-size: 0.9rem;">راسب</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                {% else %}
-                                    <div style="text-align: center; padding: 15px; color: var(--text-light); font-size: 0.9rem; background: white; border-radius: 8px;">
-                                        لم يقم هذا الطالب بأداء أي اختبارات بعد.
-                                    </div>
-                                {% endif %}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        {% for item in courses_data %}
+                        <div class="course-item">
+                            <div class="course-header">
+                                <span>{{ item.course }}</span>
+                                <span style="color: {{ item.color }}">{{ item.percent }}%</span>
                             </div>
+                            <div class="progress-container">
+                                <div class="progress-bar"
+                                    style="width: {{ item.percent }}%; background: {{ item.color }};"></div>
+                            </div>
+                            <span class="course-meta">
+                                <i class="far fa-clock"></i> تم حضور {{ item.attended }} من {{ item.total }} حصص
+                            </span>
+
+                            <a href="{% url 'course_materials' item.course_id %}" class="btn-library">
+                                <i class="fas fa-folder-open"></i> المكتبة والمواد العلمية
+                            </a>
+                        </div>
                         {% empty %}
-                            <div style="text-align: center; padding: 50px; color: var(--text-light);">
-                                <i class="fas fa-user-friends" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
-                                <p>لا يوجد طلاب مرتبطين بك حالياً.</p>
-                            </div>
+                        <div style="text-align: center; padding: 40px; color: var(--text-light); grid-column: 1/-1;">
+                            <i class="fas fa-folder-open"
+                                style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <p>لا توجد كورسات مسجلة حتى الآن.</p>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
+
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bell"></i> آخر التنبيهات</h3>
+                    </div>
+                    <div class="notif-list">
+                        {% for notif in notifications %}
+                        <div class="notif-item">
+                            <div class="notif-icon">
+                                {% if "حضور" in notif.title %}
+                                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                                {% elif "غياب" in notif.title %}
+                                <i class="fas fa-times-circle" style="color: var(--danger);"></i>
+                                {% else %}
+                                <i class="fas fa-info-circle" style="color: var(--primary);"></i>
+                                {% endif %}
+                            </div>
+                            <div class="notif-content">
+                                <h4>{{ notif.title }}</h4>
+                                <p>{{ notif.message }}</p>
+                                <span class="notif-time">{{ notif.created_at|date:"d/m/Y - h:i A" }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div style="text-align: center; padding: 30px; color: var(--text-light);">
+                            <p>لا توجد إشعارات جديدة.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if is_teacher %}
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 15px; flex-wrap: wrap;">
+
+                <a href="{% url 'upload_material' %}" class="btn-upload">
+                    <i class="fas fa-cloud-upload-alt"></i> رفع ملفات
+                </a>
+
+                <div class="dropdown">
+                    <button onclick="toggleDropdown()" class="btn btn-create" style="width: auto;">
+                        <i class="fas fa-plus"></i> اختبار جديد <i class="fas fa-chevron-down"
+                            style="margin-right: 5px; font-size: 0.8rem;"></i>
+                    </button>
+                    <div id="myDropdown" class="dropdown-content">
+                        {% if teacher_courses %}
+                        {% for course in teacher_courses %}
+                        <a href="{% url 'create_quiz' course.id %}">
+                            <i class="fas fa-book-open" style="margin-left: 5px; color: #cbd5e1;"></i> {{ course.name }}
+                        </a>
+                        {% endfor %}
+                        {% else %}
+                        <span style="display:block; padding:10px; color:#999; text-align:center;">لا توجد كورسات
+                            مسجلة</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card full-width">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-users"></i> متابعة الطلاب</h3>
+                </div>
+                <div>
+                    {% for item in students_with_grades %}
+                    <div
+                        style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                            <div class="student-avatar">
+                                {{ item.student.name|slice:":1" }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; font-size: 1.1rem;">{{ item.student.name }}</div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">{{ item.student.academic_year
+                                    }}</div>
+                            </div>
+                        </div>
+                        {% if item.attempts %}
+                        <table class="grades-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border);">
+                                    <th
+                                        style="text-align: right; padding: 10px; font-size: 0.85rem; color: var(--text-light);">
+                                        الاختبار</th>
+                                    <th
+                                        style="text-align: center; padding: 10px; font-size: 0.85rem; color: var(--text-light);">
+                                        الدرجة</th>
+                                    <th
+                                        style="text-align: center; padding: 10px; font-size: 0.85rem; color: var(--text-light);">
+                                        النتيجة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attempt in item.attempts %}
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 10px; font-weight: 600;">{{ attempt.quiz.title }}</td>
+                                    <td style="padding: 10px; text-align: center;"><span class="grades-badge">{{
+                                            attempt.score }}%</span></td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        {% if attempt.passed %}
+                                        <span style="color: var(--success); font-weight: 700; font-size: 0.9rem;">ناجح
+                                            <i class="fas fa-check"></i></span>
+                                        {% else %}
+                                        <span
+                                            style="color: var(--danger); font-weight: 700; font-size: 0.9rem;">راسب</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div
+                            style="text-align: center; padding: 15px; color: var(--text-light); font-size: 0.9rem; background: white; border-radius: 8px;">
+                            لم يقم هذا الطالب بأداء أي اختبارات بعد.
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 50px; color: var(--text-light);">
+                        <i class="fas fa-user-friends" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <p>لا يوجد طلاب مرتبطين بك حالياً.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
             {% endif %}
 
             {% if request.user.is_superuser or request.user.manager_profile %}
-                <div class="card full-width">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-cogs"></i> لوحة الإدارة السريعة</h3>
+            <div class="card full-width">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-cogs"></i> لوحة الإدارة السريعة</h3>
+                </div>
+                <div style="padding: 30px; text-align: center;">
+                    <div style="font-size: 4rem; color: var(--primary); margin-bottom: 20px;">
+                        <i class="fas fa-user-shield"></i>
                     </div>
-                    <div style="padding: 30px; text-align: center;">
-                        <div style="font-size: 4rem; color: var(--primary); margin-bottom: 20px;">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                        <h3 style="margin-bottom: 10px; color: var(--secondary);">مرحباً بك، مدير النظام</h3>
-                        <p style="color: var(--text-light); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
-                            لديك صلاحيات كاملة لإدارة النظام. يمكنك الوصول إلى لوحة التحكم أو مراقبة المحادثات من هنا.
-                        </p>
-                        
-                        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                            <a href="{% url 'admin_panel' %}" class="btn btn-primary" style="width: auto; padding: 12px 35px;">
-                                <i class="fas fa-tools"></i> إدارة الأكاديمية
-                            </a>
-                            <a href="{% url 'universal_chat_monitor' %}" class="btn btn-create" style="width: auto; background: #7c3aed;">
-                                <i class="fas fa-eye"></i> مراقبة الشات
-                            </a>
-                        </div>
+                    <h3 style="margin-bottom: 10px; color: var(--secondary);">مرحباً بك، مدير النظام</h3>
+                    <p
+                        style="color: var(--text-light); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        لديك صلاحيات كاملة لإدارة النظام. يمكنك الوصول إلى لوحة التحكم أو مراقبة المحادثات من هنا.
+                    </p>
+
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        <a href="{% url 'admin_panel' %}" class="btn btn-primary"
+                            style="width: auto; padding: 12px 35px;">
+                            <i class="fas fa-tools"></i> إدارة الأكاديمية
+                        </a>
+                        <a href="{% url 'universal_chat_monitor' %}" class="btn btn-create"
+                            style="width: auto; background: #7c3aed;">
+                            <i class="fas fa-eye"></i> مراقبة الشات
+                        </a>
                     </div>
                 </div>
+            </div>
             {% endif %}
 
         </main>
@@ -483,7 +702,7 @@
         }
 
         // إغلاق القائمة عند النقر خارجها
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (!event.target.matches('.btn-create') && !event.target.matches('.btn-create *')) {
                 var dropdowns = document.getElementsByClassName("dropdown-content");
                 for (var i = 0; i < dropdowns.length; i++) {
@@ -496,5 +715,7 @@
         }
     </script>
 
+    <div id="toast-container" class="ux-toast-container"></div>
 </body>
+
 </html>

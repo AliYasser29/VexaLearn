@@ -1,122 +1,264 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول | VexaLearn</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', sans-serif;
             height: 100vh;
+            font-family: 'Cairo', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            background: radial-gradient(circle at top right, var(--primary-light), transparent),
+                radial-gradient(circle at bottom left, var(--secondary), transparent),
+                var(--bg-main);
             overflow: hidden;
             position: relative;
         }
 
-        /* خلفية متحركة */
-        .circles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; }
-        .circles li { position: absolute; display: block; list-style: none; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.2); animation: animate 25s linear infinite; bottom: -150px; border-radius: 50%; }
-        .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
-        .circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
-        .circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
-        .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
-        .circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
-        @keyframes animate { 0% { transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; } 100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; } }
+        /* --- Circle Background --- */
+        .circles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
 
-        /* كارت تسجيل الدخول */
+        .circles li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%;
+        }
+
+        .circles li:nth-child(1) {
+            left: 25%;
+            width: 80px;
+            height: 80px;
+            animation-delay: 0s;
+        }
+
+        .circles li:nth-child(2) {
+            left: 10%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 2s;
+            animation-duration: 12s;
+        }
+
+        .circles li:nth-child(3) {
+            left: 70%;
+            width: 20px;
+            height: 20px;
+            animation-delay: 4s;
+        }
+
+        @keyframes animate {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+
+        /* --- Login Card --- */
         .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 48px;
+            border-radius: var(--radius-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 440px;
+            box-shadow: var(--shadow-premium);
             z-index: 10;
             text-align: center;
             position: relative;
         }
 
-        .logo { font-size: 2rem; font-weight: 800; color: #4f46e5; margin-bottom: 10px; }
-        .subtitle { color: #64748b; margin-bottom: 30px; font-size: 0.95rem; }
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
 
-        /* أزرار التبديل (طالب/معلم) */
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+
+        /* --- Role Switch --- */
         .role-switch {
             display: flex;
-            background: #f1f5f9;
-            padding: 5px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            position: relative;
+            background: #eff6ff;
+            padding: 6px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 28px;
+            border: 1px solid var(--border-color);
         }
+
         .role-option {
             flex: 1;
-            padding: 10px;
-            text-align: center;
+            padding: 12px;
             cursor: pointer;
             z-index: 2;
             font-weight: 700;
-            color: #64748b;
+            color: var(--text-secondary);
             transition: 0.3s;
-            border-radius: 10px;
+            border-radius: var(--radius-md);
         }
+
         .role-option.active {
-            color: #4f46e5;
+            color: var(--primary);
             background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: var(--shadow-sm);
         }
-        
-        /* حقول الإدخال */
-        .input-group { margin-bottom: 20px; text-align: right; }
-        .input-group label { display: block; margin-bottom: 8px; color: #334155; font-weight: 600; font-size: 0.9rem; }
-        .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); color: #94a3b8; }
+
+        /* --- Inputs --- */
+        .input-group {
+            margin-bottom: 24px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            top: 50%;
+            right: 18px;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
         .form-control {
-            width: 100%; padding: 12px 45px 12px 15px;
-            border: 2px solid #e2e8f0; border-radius: 12px;
-            font-family: inherit; font-size: 1rem; box-sizing: border-box;
+            width: 100%;
+            padding: 14px 50px 14px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
             transition: 0.3s;
         }
-        .form-control:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
 
-        /* زر الدخول */
-        .btn-submit {
-            width: 100%; padding: 14px; background: #4f46e5; color: white;
-            border: none; border-radius: 12px; font-weight: 700; font-size: 1.1rem;
-            cursor: pointer; transition: 0.3s; margin-top: 10px;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
-        .btn-submit:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3); }
 
-        /* رسائل الخطأ */
-        .alert-error { background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid #fecaca; }
+        .form-control:invalid:not(:placeholder-shown) {
+            border-color: var(--error);
+        }
 
-        .back-link { margin-top: 20px; display: block; color: #64748b; text-decoration: none; font-size: 0.9rem; }
-        .back-link:hover { color: #4f46e5; }
+        .form-control:valid:not(:placeholder-shown) {
+            border-color: var(--success);
+        }
+
+        /* --- Submit Button --- */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 12px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: var(--error);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            border: 1px solid #fecaca;
+        }
+
+        .back-link {
+            margin-top: 24px;
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
     </style>
 </head>
+
 <body>
 
-    <ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul>
+    <ul class="circles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
 
     <div class="login-card">
         <div class="logo"><i class="fas fa-graduation-cap"></i> VexaLearn</div>
         <p class="subtitle">سجل دخولك لمتابعة رحلتك التعليمية</p>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ message }}</div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ message }}</div>
+        {% endfor %}
         {% endif %}
 
         <form method="POST">
             {% csrf_token %}
-            
+
             <div class="role-switch">
                 <div class="role-option active" onclick="selectRole('student')">
                     <i class="fas fa-user-graduate"></i> طالب
@@ -131,7 +273,8 @@
                 <label>اسم المستخدم</label>
                 <div class="input-wrapper">
                     <i class="fas fa-user"></i>
-                    <input type="text" name="username" class="form-control" placeholder="أدخل اسم المستخدم" required autofocus>
+                    <input type="text" name="username" class="form-control" placeholder="أدخل اسم المستخدم" required
+                        autofocus>
                 </div>
             </div>
 
@@ -154,7 +297,7 @@
             // تحديث الشكل
             const options = document.querySelectorAll('.role-option');
             options.forEach(opt => opt.classList.remove('active'));
-            
+
             if (role === 'student') {
                 options[0].classList.add('active');
             } else {
@@ -175,4 +318,5 @@
     </script>
 
 </body>
+
 </html>

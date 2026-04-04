@@ -1,53 +1,58 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة متابعة المشرف</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
+    <script src="{% static 'js/global_ux.js' %}" defer></script>
     <style>
         :root {
-            --primary-color: #3b82f6;
-            --primary-dark: #2563eb;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --bg-color: #f8fafc;
-            --text-main: #1e293b;
-            --text-secondary: #64748b;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
+            --primary-color: var(--primary-neon);
+            --primary-dark: var(--primary-dark);
+            --success-color: var(--success);
+            --danger-color: var(--error);
+            --bg-color: var(--bg-main);
+            --text-main: var(--text-primary);
+            --text-secondary: var(--text-secondary);
+            --card-bg: var(--bg-card);
+            --border-color: var(--border-color);
             --monitor-color: #8b5cf6;
         }
 
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            background-color: var(--bg-color); 
-            padding: 30px; 
-            margin: 0; 
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            padding: 30px;
+            margin: 0;
             color: var(--text-main);
         }
-        
+
         /* الهيدر */
-        .header { 
-            background: var(--card-bg); 
-            padding: 20px 30px; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 30px; 
+        .header {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
             border: 1px solid var(--border-color);
         }
-        .header h2 { 
-            margin: 0; 
-            font-size: 1.4rem; 
-            color: var(--text-main); 
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--text-main);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -62,13 +67,13 @@
         }
 
         /* زر الخروج */
-        .logout-btn { 
-            background-color: #fee2e2; 
-            color: var(--danger-color); 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 10px; 
-            cursor: pointer; 
+        .logout-btn {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
             font-family: 'Cairo', sans-serif;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -77,7 +82,12 @@
             gap: 8px;
             font-size: 0.9rem;
         }
-        .logout-btn:hover { background-color: var(--danger-color); color: white; transform: translateY(-2px); }
+
+        .logout-btn:hover {
+            background-color: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+        }
 
         /* --- زر الشات الجديد --- */
         .chat-btn {
@@ -94,6 +104,7 @@
             font-size: 0.9rem;
             border: 1px solid transparent;
         }
+
         .chat-btn:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
@@ -101,49 +112,119 @@
         }
 
         /* التنبيهات */
-        .alert { padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .alert-success { background-color: #d1fae5; color: #065f46; border-right: 5px solid #10b981; }
-        .alert-warning { background-color: #fef3c7; color: #92400e; border-right: 5px solid #d97706; }
-        .alert-error { background-color: #fee2e2; color: #b91c1c; border-right: 5px solid #ef4444; }
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-right: 5px solid #10b981;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border-right: 5px solid #d97706;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border-right: 5px solid #ef4444;
+        }
 
         /* الجدول */
-        .table-container { 
-            background: var(--card-bg); 
-            border-radius: 16px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
-            overflow: hidden; 
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
             border: 1px solid var(--border-color);
         }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        
-        thead { background-color: #f1f5f9; }
-        th { 
-            color: var(--text-secondary); 
-            font-weight: 700; 
-            text-align: right; 
-            padding: 18px 20px; 
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        thead {
+            background-color: #f1f5f9;
+        }
+
+        th {
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-align: right;
+            padding: 18px 20px;
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
-        td { 
-            padding: 20px; 
-            border-bottom: 1px solid var(--border-color); 
-            vertical-align: top; 
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
             color: var(--text-main);
         }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f8fafc; }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
 
         /* النصوص الفرعية */
-        .main-text { display: block; font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
-        .sub-text { font-size: 0.85em; color: var(--text-secondary); display: block; display: flex; align-items: center; gap: 5px; }
+        .main-text {
+            display: block;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .sub-text {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            display: block;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         /* الشارات (Badges) */
-        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-        .badge-teacher { background-color: #f3f4f6; color: var(--text-main); border: 1px solid #e5e7eb; margin: 2px 0; }
-        .badge-currency { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; margin-top: 6px; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-teacher {
+            background-color: #f3f4f6;
+            color: var(--text-main);
+            border: 1px solid #e5e7eb;
+            margin: 2px 0;
+        }
+
+        .badge-currency {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+            margin-top: 6px;
+        }
 
         /* زر المراقبة */
         .btn-monitor {
@@ -151,7 +232,7 @@
             align-items: center;
             gap: 6px;
             /* تم تعديل اللون ليكون أحمر للإشارة للصلاحية الخاصة */
-            background-color: #fff1f2; 
+            background-color: #fff1f2;
             color: #be123c;
             padding: 6px 12px;
             border-radius: 8px;
@@ -162,6 +243,7 @@
             border: 1px solid #fda4af;
             transition: all 0.2s;
         }
+
         .btn-monitor:hover {
             background-color: #be123c;
             color: white;
@@ -175,34 +257,84 @@
             border-radius: 12px;
             padding: 16px;
             margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
             overflow: hidden;
         }
-        .course-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-color: #cbd5e1; }
-        
-        .course-card::before {
-            content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background-color: var(--primary-color);
-        }
-        
-        .course-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .course-title { font-weight: 700; color: #1e3a8a; font-size: 1rem; }
-        .course-price { font-size: 0.8rem; background: #eff6ff; padding: 2px 8px; border-radius: 6px; color: #2563eb; font-weight: 600; }
 
-        .progress-section { margin: 12px 0; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; }
-        .progress-bar-bg { background-color: #e2e8f0; height: 8px; border-radius: 10px; overflow: hidden; }
-        .progress-bar-fill { 
-            background: linear-gradient(90deg, #10b981, #059669); 
-            height: 100%; 
+        .course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e1;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--primary-color);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .course-title {
+            font-weight: 700;
+            color: #1e3a8a;
+            font-size: 1rem;
+        }
+
+        .course-price {
+            font-size: 0.8rem;
+            background: #eff6ff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            margin: 12px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            background-color: #e2e8f0;
+            height: 8px;
             border-radius: 10px;
-            transition: width 0.5s ease-in-out; 
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
         }
 
         /* الأزرار داخل الكورس */
-        .action-buttons { display: flex; gap: 8px; margin-top: 15px; }
-        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
         .btn-icon {
             flex: 1;
             border: none;
@@ -219,14 +351,41 @@
             font-weight: 600;
         }
 
-        .btn-attend { background-color: #eff6ff; color: var(--primary-dark); border: 1px solid #bfdbfe; }
-        .btn-attend:hover { background-color: var(--primary-dark); color: white; border-color: var(--primary-dark); }
+        .btn-attend {
+            background-color: #eff6ff;
+            color: var(--primary-dark);
+            border: 1px solid #bfdbfe;
+        }
 
-        .btn-absent { background-color: #fef2f2; color: var(--danger-color); border: 1px solid #fecaca; }
-        .btn-absent:hover { background-color: var(--danger-color); color: white; border-color: var(--danger-color); }
+        .btn-attend:hover {
+            background-color: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+        }
 
-        .btn-archive { background-color: #1f2937; color: white; width: 100%; margin-top: 10px; padding: 10px; }
-        .btn-archive:hover { background-color: black; }
+        .btn-absent {
+            background-color: #fef2f2;
+            color: var(--danger-color);
+            border: 1px solid #fecaca;
+        }
+
+        .btn-absent:hover {
+            background-color: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .btn-archive {
+            background-color: #1f2937;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+        }
+
+        .btn-archive:hover {
+            background-color: black;
+        }
 
         .status-completed {
             background-color: #f3f4f6;
@@ -237,26 +396,34 @@
             font-size: 0.85rem;
             border: 1px dashed #d1d5db;
             margin-top: 10px;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
-        hr.dashed { border: 0; border-top: 1px dashed #cbd5e1; margin: 15px 0; }
-
+        hr.dashed {
+            border: 0;
+            border-top: 1px dashed #cbd5e1;
+            margin: 15px 0;
+        }
     </style>
 </head>
+
 <body>
 
     {% if messages %}
-        <div>
-            {% for message in messages %}
-                <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-error{% endif %}">
-                    {% if message.tags == 'success' %} <i class="fa-solid fa-circle-check"></i>
-                    {% elif message.tags == 'warning' %} <i class="fa-solid fa-triangle-exclamation"></i>
-                    {% else %} <i class="fa-solid fa-circle-xmark"></i> {% endif %}
-                    {{ message }}
-                </div>
-            {% endfor %}
+    <div>
+        {% for message in messages %}
+        <div
+            class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-error{% endif %}">
+            {% if message.tags == 'success' %} <i class="fa-solid fa-circle-check"></i>
+            {% elif message.tags == 'warning' %} <i class="fa-solid fa-triangle-exclamation"></i>
+            {% else %} <i class="fa-solid fa-circle-xmark"></i> {% endif %}
+            {{ message }}
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
 
     <div class="header">
@@ -264,10 +431,12 @@
             <i class="fa-solid fa-user-astronaut" style="color: var(--primary-color);"></i>
             <span>أهلاً بك، {{ request.user.username }}</span>
             {% if is_superuser %}
-            <span style="font-size: 0.8rem; background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; margin-right: 5px;">(مدير نظام)</span>
+            <span
+                style="font-size: 0.8rem; background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; margin-right: 5px;">(مدير
+                نظام)</span>
             {% endif %}
         </h2>
-        
+
         <div class="header-actions">
             <a href="{% url 'chat_home' %}" class="chat-btn">
                 <i class="fa-solid fa-comments"></i>
@@ -302,17 +471,19 @@
                     <td>
                         <span class="main-text">{{ student.name }}</span>
                         <span class="sub-text"><i class="fa-regular fa-calendar"></i> {{ student.age }} سنة</span>
-                        
+
                         {% if is_superuser %}
-                            <a href="{% url 'student_full_chat_log' student.id %}" class="btn-monitor" title="عرض سجل المحادثات الكامل (الصادر والوارد)">
-                                <i class="fa-solid fa-eye"></i> سجل المحادثات
-                            </a>
+                        <a href="{% url 'student_full_chat_log' student.id %}" class="btn-monitor"
+                            title="عرض سجل المحادثات الكامل (الصادر والوارد)">
+                            <i class="fa-solid fa-eye"></i> سجل المحادثات
+                        </a>
                         {% endif %}
-                        </td>
+                    </td>
 
                     <td>
                         <span class="main-text">{{ student.academic_year }}</span>
-                        <span class="sub-text"><i class="fa-solid fa-graduation-cap"></i> {{ student.education_type.name }}</span>
+                        <span class="sub-text"><i class="fa-solid fa-graduation-cap"></i> {{ student.education_type.name
+                            }}</span>
                     </td>
 
                     <td>
@@ -323,93 +494,91 @@
 
                     <td>
                         {% for enrollment in student.enrollment_set.all %}
-                            <div class="course-card">
-                                <div class="course-header">
-                                    <div class="course-title">{{ enrollment.course.name }}</div>
-                                    <div class="course-price">
-                                        {{ enrollment.course.price }}
-                                        {% if enrollment.course.payment_type == 'monthly' %} (شهري) {% else %} (كاش) {% endif %}
-                                    </div>
+                        <div class="course-card">
+                            <div class="course-header">
+                                <div class="course-title">{{ enrollment.course.name }}</div>
+                                <div class="course-price">
+                                    {{ enrollment.course.price }}
+                                    {% if enrollment.course.payment_type == 'monthly' %} (شهري) {% else %} (كاش) {%
+                                    endif %}
                                 </div>
+                            </div>
 
-                                <div class="progress-section">
-                                    <div class="progress-info">
-                                        <span><i class="fa-solid fa-list-check"></i> الحضور: {{ enrollment.attendances.count }}</span>
-                                        <span>الهدف: {{ enrollment.course.sessions_count }}</span>
-                                    </div>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" style="width: {{ enrollment.get_progress_percent }}%;"></div>
-                                    </div>
+                            <div class="progress-section">
+                                <div class="progress-info">
+                                    <span><i class="fa-solid fa-list-check"></i> الحضور: {{ enrollment.attendances.count
+                                        }}</span>
+                                    <span>الهدف: {{ enrollment.course.sessions_count }}</span>
                                 </div>
-
-                                {% if enrollment.attendances.count < enrollment.course.sessions_count %}
-                                    
-                                    <div class="action-buttons">
-                                        <form action="{% url 'mark_attendance' enrollment.id %}" method="post" style="flex: 1;">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn-icon btn-attend" title="تسجيل حضور">
-                                                <i class="fa-solid fa-check"></i> حضور
-                                            </button>
-                                        </form>
-
-                                        <form action="{% url 'mark_absence' enrollment.id %}" method="post" style="flex: 1;">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn-icon btn-absent" title="تسجيل غياب" onclick="return confirm('تأكيد تسجيل غياب للطالب؟');">
-                                                <i class="fa-solid fa-xmark"></i> غياب
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                {% else %}
-                                    
-                                    <div class="status-completed">
-                                        <i class="fa-solid fa-lock"></i> اكتملت جميع الحصص
-                                    </div>
-                                    
-                                    <hr class="dashed">
-
-                                    <form action="{% url 'complete_course' enrollment.id %}" method="post" onsubmit="return confirm('هل أنت متأكد أن الطالب أنهى هذا الكورس تماماً؟ سيتم أرشفة الكورس.');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-icon btn-archive">
-                                            <i class="fa-solid fa-box-archive"></i> إنهاء وأرشفة الكورس
-                                        </button>
-                                    </form>
-
-                                {% endif %}
-
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill"
+                                        style="width: {{ enrollment.get_progress_percent }}%;"></div>
+                                </div>
                             </div>
-                        {% empty %}
-                            <div style="text-align:center; color: #94a3b8; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
-                                <i class="fa-solid fa-folder-open"></i> لا توجد كورسات
-                            </div>
-                        {% endfor %}
-                    </td>
 
-                    <td>
-                        {% for teacher in student.teachers.all %}
-                            <span class="badge badge-teacher"><i class="fa-solid fa-chalkboard-user"></i> {{ teacher.name }}</span><br>
-                        {% empty %}
-                            <span class="sub-text">-</span>
-                        {% endfor %}
-                    </td>
+                            {% if enrollment.attendances.count < enrollment.course.sessions_count %}
+                            <div class="action-buttons">
+                                <form action="{% url 'mark_attendance' enrollment.id %}" method="post" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon btn-attend" title="تسجيل حضور">
+                                        <i class="fa-solid fa-check"></i> حضور
+                                    </button>
+                                </form>
+                                <form action="{% url 'mark_absence' enrollment.id %}" method="post" style="flex: 1;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon btn-absent" title="تسجيل غياب"
+                                        onclick="return confirm('تأكيد تسجيل غياب للطالب؟');">
+                                        <i class="fa-solid fa-xmark"></i> غياب
+                                    </button>
+                                </form>
+                        </div>
+                        {% else %}
+                        <div class="status-completed">
+                            <i class="fa-solid fa-lock"></i> اكتملت جميع الحصص
+                        </div>
+                        <hr class="dashed">
+                        <form action="{% url 'complete_course' enrollment.id %}" method="post"
+                            onsubmit="return confirm('هل أنت متأكد أن الطالب أنهى هذا الكورس تماماً؟ سيتم أرشفة الكورس.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-icon btn-archive">
+                                <i class="fa-solid fa-box-archive"></i> إنهاء وأرشفة الكورس
+                            </button>
+                        </form>
+                        {% endif %}
+    </div>
+    {% empty %}
+    <div style="text-align:center; color: #94a3b8; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px;">
+        <i class="fa-solid fa-folder-open"></i> لا توجد كورسات
+    </div>
+    {% endfor %}
+    </td>
 
-                    <td>
-                        <span class="main-text" style="font-size: 0.9rem;">{{ student.parent_name }}</span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 50px; color: var(--text-secondary);">
-                        <i class="fa-solid fa-users-slash" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                        لا يوجد طلاب لعرضهم حالياً.
-                    </td>
-                </tr>
-                {% endfor %}
+    <td>
+        {% for teacher in student.teachers.all %}
+        <span class="badge badge-teacher"><i class="fa-solid fa-chalkboard-user"></i> {{ teacher.name }}</span><br>
+        {% empty %}
+        <span class="sub-text">-</span>
+        {% endfor %}
+    </td>
 
-                
-            </tbody>
-        </table>
+    <td>
+        <span class="main-text" style="font-size: 0.9rem;">{{ student.parent_name }}</span>
+    </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" style="text-align: center; padding: 50px; color: var(--text-secondary);">
+            <i class="fa-solid fa-users-slash" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+            لا يوجد طلاب لعرضهم حالياً.
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+    </table>
     </div>
 
+    <div id="toast-container" class="ux-toast-container"></div>
 </body>
+
 </html>

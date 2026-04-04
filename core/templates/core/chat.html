@@ -1,30 +1,35 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>المحادثات | VexaChat</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
     <style>
         :root {
-            --primary-color: #6366f1;
-            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --primary-color: var(--primary-neon);
+            --primary-gradient: linear-gradient(135deg, var(--primary-neon) 0%, var(--primary-dark) 100%);
             --glass-bg: rgba(255, 255, 255, 0.75);
             --glass-border: rgba(255, 255, 255, 0.6);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --text-main: var(--text-primary);
+            --text-muted: var(--text-secondary);
+            --shadow-soft: var(--shadow-sm);
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            margin: 0; 
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
             height: 100vh;
-            display: flex; 
-            flex-direction: column; 
+            display: flex;
+            flex-direction: column;
             color: var(--text-main);
             overflow: hidden;
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
@@ -34,213 +39,507 @@
         }
 
         @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
-        
+
         /* Navbar Glass */
-        .navbar { 
+        .navbar {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 10px 25px; 
+            padding: 10px 25px;
             border-bottom: 1px solid var(--glass-border);
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             z-index: 20;
             flex-shrink: 0;
         }
-        
-        .logo-area { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; color: #4f46e5; }
-        .nav-left-controls { display: flex; align-items: center; gap: 15px; }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #4f46e5;
+        }
+
+        .nav-left-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
         /* Current User Badge */
         .current-user-badge {
-            display: flex; align-items: center; gap: 10px; 
-            background: rgba(255,255,255,0.6); padding: 5px 15px 5px 5px; 
-            border-radius: 30px; border: 1px solid rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 5px 15px 5px 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
             transition: 0.3s;
         }
-        .current-user-badge:hover { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+        .current-user-badge:hover {
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
 
         .my-avatar {
-            width: 36px; height: 36px; background: var(--primary-gradient); color: white;
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-size: 1rem; box-shadow: 0 3px 8px rgba(99, 102, 241, 0.3);
+            width: 36px;
+            height: 36px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.3);
         }
-        .my-info { display: flex; flex-direction: column; line-height: 1.2; text-align: right; }
-        .my-name { font-weight: 700; font-size: 0.85rem; color: #334155; }
-        .my-role { font-size: 0.7rem; color: #64748b; font-weight: 600; }
+
+        .my-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            text-align: right;
+        }
+
+        .my-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .my-role {
+            font-size: 0.7rem;
+            color: #64748b;
+            font-weight: 600;
+        }
 
         /* Logout Button */
         .btn-logout-stylish {
-            background: rgba(254, 226, 226, 0.7); color: #dc2626; border: none; padding: 8px 14px;
-            border-radius: 12px; font-weight: 700; font-family: 'Cairo'; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+            background: rgba(254, 226, 226, 0.7);
+            color: #dc2626;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Cairo';
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
         }
-        .btn-logout-stylish:hover { background: #fee2e2; transform: translateY(-2px); }
+
+        .btn-logout-stylish:hover {
+            background: #fee2e2;
+            transform: translateY(-2px);
+        }
 
         /* Main Container */
-        .chat-container { 
-            display: flex; flex: 1; overflow: hidden; max-width: 1400px; 
-            margin: 20px auto; width: 95%; position: relative;
+        .chat-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            max-width: 1400px;
+            margin: 20px auto;
+            width: 95%;
+            position: relative;
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-radius: 24px; 
+            border-radius: 24px;
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow-soft);
         }
-        
+
         /* Sidebar */
-        .sidebar { 
-            width: 300px; border-left: 1px solid rgba(0,0,0,0.05); display: flex; 
-            flex-direction: column; background: rgba(255,255,255,0.4); height: 100%; z-index: 2;
+        .sidebar {
+            width: 300px;
+            border-left: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.4);
+            height: 100%;
+            z-index: 2;
         }
-        .sidebar-header { padding: 20px; font-weight: 700; color: #475569; font-size: 1rem; letter-spacing: 0.5px; text-transform: uppercase; }
-        .users-list { overflow-y: auto; flex: 1; padding: 15px; }
-        
-        .user-item { 
-            padding: 12px; border-radius: 16px; display: flex; align-items: center; 
-            text-decoration: none; color: var(--text-main); margin-bottom: 8px; 
+
+        .sidebar-header {
+            padding: 20px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .users-list {
+            overflow-y: auto;
+            flex: 1;
+            padding: 15px;
+        }
+
+        .user-item {
+            padding: 12px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-main);
+            margin-bottom: 8px;
             transition: all 0.2s ease;
         }
-        .user-item:hover { background-color: rgba(255,255,255,0.6); }
-        .user-item.active { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transform: scale(1.02); }
-        
-        .avatar { 
-            width: 42px; height: 42px; background: #e0e7ff; color: #4f46e5; 
-            border-radius: 14px; display: flex; justify-content: center; align-items: center; 
-            margin-left: 15px; font-size: 1.1rem; flex-shrink: 0; position: relative;
+
+        .user-item:hover {
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .user-item.active {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transform: scale(1.02);
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            background: #e0e7ff;
+            color: #4f46e5;
+            border-radius: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 15px;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            position: relative;
             transition: 0.3s;
         }
-        .user-item.active .avatar { background: var(--primary-gradient); color: white; }
+
+        .user-item.active .avatar {
+            background: var(--primary-gradient);
+            color: white;
+        }
 
         .unread-badge {
-            position: absolute; top: -2px; right: -2px; width: 10px; height: 10px;
-            background-color: #10b981; border: 2px solid white; border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background-color: #10b981;
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Chat Area */
-        .chat-area { 
-            flex: 1; display: flex; flex-direction: column; 
-            background: rgba(255,255,255,0.3);
-            position: relative; height: 100%;
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            height: 100%;
         }
-        
-        .chat-header { 
-            padding: 15px 25px; background: rgba(255,255,255,0.6); 
-            border-bottom: 1px solid rgba(0,0,0,0.05); 
-            display: flex; align-items: center; z-index: 5;
+
+        .chat-header {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            z-index: 5;
         }
 
         .mobile-back-btn {
-            display: none; background: white; border: 1px solid #e2e8f0; width: 35px; height: 35px;
-            border-radius: 50%; align-items: center; justify-content: center; margin-left: 15px; 
-            color: #64748b; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: none;
+            background: white;
+            border: 1px solid #e2e8f0;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            color: #64748b;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        
-        .messages-box { 
-            flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; 
+
+        .messages-box {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
         }
-        
-        .message { 
-            max-width: 75%; padding: 12px 20px; border-radius: 18px; font-size: 0.95rem; line-height: 1.6; position: relative; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+
+        .message {
+            max-width: 75%;
+            padding: 12px 20px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             animation: slideUpFade 0.4s ease-out;
         }
-        
+
         @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .message.sent { 
-            align-self: flex-end; 
-            background: var(--primary-gradient); 
-            color: white; 
+        .message.sent {
+            align-self: flex-end;
+            background: var(--primary-gradient);
+            color: white;
             border-radius: 18px 18px 4px 18px;
         }
-        .message.received { 
-            align-self: flex-start; 
-            background: white; 
+
+        .message.received {
+            align-self: flex-start;
+            background: white;
             color: #334155;
-            border-radius: 18px 18px 18px 4px; 
+            border-radius: 18px 18px 18px 4px;
         }
-        
-        .time { font-size: 0.65rem; display: block; margin-top: 5px; opacity: 0.7; font-weight: 500; }
+
+        .time {
+            font-size: 0.65rem;
+            display: block;
+            margin-top: 5px;
+            opacity: 0.7;
+            font-weight: 500;
+        }
 
         /* Floating Input */
-        .input-area { 
-            padding: 20px; background: transparent; 
-            display: flex; gap: 15px; align-items: center; flex-shrink: 0;
+        .input-area {
+            padding: 20px;
+            background: transparent;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-shrink: 0;
         }
-        
-        .input-area input { 
-            flex: 1; padding: 16px 25px; border-radius: 50px; border: none; 
-            font-family: 'Cairo'; background: white; font-size: 0.95rem; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: 0.3s;
+
+        .input-area input {
+            flex: 1;
+            padding: 16px 25px;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Cairo';
+            background: white;
+            font-size: 0.95rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
         }
-        .input-area input:focus { outline: none; box-shadow: 0 5px 25px rgba(99, 102, 241, 0.15); transform: translateY(-1px); }
-        
-        .btn-send { 
-            width: 54px; height: 54px; background: var(--primary-gradient); color: white; 
-            border: none; border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-            font-size: 1.2rem; cursor: pointer; transition: 0.3s;
+
+        .input-area input:focus {
+            outline: none;
+            box-shadow: 0 5px 25px rgba(99, 102, 241, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-send {
+            width: 54px;
+            height: 54px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
             box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
-        .btn-send:hover { transform: scale(1.05) rotate(5deg); }
-        .btn-send.flying i { animation: fly 0.6s forwards; }
-        @keyframes fly { 0% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(-20px, -20px); opacity: 0; } }
+
+        .btn-send:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .btn-send.flying i {
+            animation: fly 0.6s forwards;
+        }
+
+        @keyframes fly {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-20px, -20px);
+                opacity: 0;
+            }
+        }
 
         /* زر الفيديو (محدث) */
         .btn-video-call {
-            background: #10b981; color: white; border: none; width: 40px; height: 40px; 
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            font-size: 1rem; cursor: pointer; transition: 0.3s; margin-left: 10px;
+            background: #10b981;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-left: 10px;
             box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-            text-decoration: none; /* لأنه قد يكون رابطاً */
+            text-decoration: none;
+            /* لأنه قد يكون رابطاً */
         }
-        .btn-video-call:hover { transform: scale(1.1); background: #059669; }
+
+        .btn-video-call:hover {
+            transform: scale(1.1);
+            background: #059669;
+        }
 
         /* Empty State */
-        .empty-state { 
-            flex: 1; display: flex; justify-content: center; align-items: center; 
-            flex-direction: column; color: #64748b; text-align: center; 
+        .empty-state {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #64748b;
+            text-align: center;
         }
-        .mascot-container { width: 140px; height: 140px; margin-bottom: 20px; opacity: 0.9; }
-        .mascot-svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1)); }
-        .eye-ball { transition: transform 0.1s; }
+
+        .mascot-container {
+            width: 140px;
+            height: 140px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .mascot-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.1));
+        }
+
+        .eye-ball {
+            transition: transform 0.1s;
+        }
 
         /* Scrollbars */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
 
         @media (max-width: 768px) {
-            body { height: 100dvh; background: #f8fafc; }
-            .navbar { padding: 10px 15px; background: white; }
-            .logo-area span, .my-info { display: none; }
-            .nav-left-controls { gap: 8px; }
-            
-            .chat-container { margin: 0; width: 100%; border-radius: 0; border: none; height: 100%; background: white; }
-            .sidebar { width: 100%; background: white; border: none; }
-            .chat-area { display: none; width: 100%; background: #f8fafc; }
+            body {
+                height: 100dvh;
+                background: #f8fafc;
+            }
 
-            .chat-container.mobile-active .sidebar { display: none; }
-            .chat-container.mobile-active .chat-area { display: flex; }
+            .navbar {
+                padding: 10px 15px;
+                background: white;
+            }
 
-            .mobile-back-btn { display: flex; }
-            .message { max-width: 90%; }
-            .avatar { margin-left: 10px; }
-            .chat-header { background: white; }
+            .logo-area span,
+            .my-info {
+                display: none;
+            }
+
+            .nav-left-controls {
+                gap: 8px;
+            }
+
+            .chat-container {
+                margin: 0;
+                width: 100%;
+                border-radius: 0;
+                border: none;
+                height: 100%;
+                background: white;
+            }
+
+            .sidebar {
+                width: 100%;
+                background: white;
+                border: none;
+            }
+
+            .chat-area {
+                display: none;
+                width: 100%;
+                background: #f8fafc;
+            }
+
+            .chat-container.mobile-active .sidebar {
+                display: none;
+            }
+
+            .chat-container.mobile-active .chat-area {
+                display: flex;
+            }
+
+            .mobile-back-btn {
+                display: flex;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .avatar {
+                margin-left: 10px;
+            }
+
+            .chat-header {
+                background: white;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <div class="navbar">
@@ -248,7 +547,7 @@
             <form action="{% url 'chat_logout' %}" method="post" style="margin: 0;">
                 {% csrf_token %}
                 <button type="submit" class="btn-logout-stylish">
-                    <i class="fas fa-power-off"></i> 
+                    <i class="fas fa-power-off"></i>
                     <span style="font-size: 0.9rem;">خروج</span>
                 </button>
             </form>
@@ -281,9 +580,11 @@
             </div>
 
             {% if current_user.is_superuser or current_user.manager_profile %}
-                <a href="{% url 'admin_panel' %}" style="text-decoration:none; background:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#475569; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;" title="لوحة الإدارة">
-                    <i class="fas fa-cog"></i>
-                </a>
+            <a href="{% url 'admin_panel' %}"
+                style="text-decoration:none; background:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#475569; box-shadow:0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;"
+                title="لوحة الإدارة">
+                <i class="fas fa-cog"></i>
+            </a>
             {% endif %}
         </div>
 
@@ -293,133 +594,153 @@
     </div>
 
     <div class="chat-container {% if selected_user %}mobile-active{% endif %}">
-        
+
         <div class="sidebar">
             <div class="sidebar-header">
                 المحادثات الأخيرة
             </div>
             <div class="users-list">
                 {% for user in users_list %}
-                <a href="{% url 'chat_room' user.id %}" class="user-item {% if selected_user.id == user.id %}active{% endif %}">
+                <a href="{% url 'chat_room' user.id %}"
+                    class="user-item {% if selected_user.id == user.id %}active{% endif %}">
                     <div class="avatar">
-                        {% if user.role_icon %}<i class="{{ user.role_icon }}"></i>{% else %}<i class="fas fa-user"></i>{% endif %}
+                        {% if user.role_icon %}<i class="{{ user.role_icon }}"></i>{% else %}<i
+                            class="fas fa-user"></i>{% endif %}
                         {% if user.has_unread %} <span class="unread-badge"></span> {% endif %}
                     </div>
                     <div class="user-info">
-                        <div class="user-info-top" style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="user-info-top"
+                            style="display:flex; justify-content:space-between; align-items:center;">
                             <span style="font-weight:700; font-size:0.95rem;">{{ user.display_name }}</span>
                             {% if user.has_unread %}
-                                <span style="font-size:0.6rem; color:#10b981; font-weight:800; background:#dcfce7; padding:2px 6px; border-radius:4px;">جديد</span>
+                            <span
+                                style="font-size:0.6rem; color:#10b981; font-weight:800; background:#dcfce7; padding:2px 6px; border-radius:4px;">جديد</span>
                             {% endif %}
                         </div>
                         <small style="color:#94a3b8;">{{ user.role_label }}</small>
                     </div>
                 </a>
                 {% empty %}
-                    <div style="text-align:center; padding:40px; color:#94a3b8;">
-                        <i class="far fa-comments" style="font-size: 2rem; margin-bottom: 10px; opacity:0.5;"></i><br>
-                        لا يوجد محادثات
-                    </div>
+                <div style="text-align:center; padding:40px; color:#94a3b8;">
+                    <i class="far fa-comments" style="font-size: 2rem; margin-bottom: 10px; opacity:0.5;"></i><br>
+                    لا يوجد محادثات
+                </div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="chat-area" id="chatArea">
             {% if selected_user %}
-                <div class="chat-header">
-                    <a href="{% url 'chat_home' %}" class="mobile-back-btn">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
+            <div class="chat-header">
+                <a href="{% url 'chat_home' %}" class="mobile-back-btn">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
 
-                    <div class="avatar" style="background: var(--primary-gradient); color: white; width: 42px; height: 42px; font-size:1.2rem;">
-                        <i class="fas fa-user"></i>
+                <div class="avatar"
+                    style="background: var(--primary-gradient); color: white; width: 42px; height: 42px; font-size:1.2rem;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div style="margin-right: 12px;">
+                    <div style="font-weight: 800; font-size: 1rem; color: #334155;">{{ selected_user.display_name }}
                     </div>
-                    <div style="margin-right: 12px;">
-                        <div style="font-weight: 800; font-size: 1rem; color: #334155;">{{ selected_user.display_name }}</div>
-                        <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">{{ selected_user.role_label }}</div>
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">{{ selected_user.role_label }}
                     </div>
+                </div>
 
-                    <div style="margin-right: auto; display: flex; gap: 10px; align-items: center;">
-                        
-                        <button onclick="openVideoPage()" class="btn-video-call" title="بدء مكالمة فيديو">
-                            <i class="fas fa-video"></i>
+                <div style="margin-right: auto; display: flex; gap: 10px; align-items: center;">
+
+                    <button onclick="openVideoPage()" class="btn-video-call" title="بدء مكالمة فيديو">
+                        <i class="fas fa-video"></i>
+                    </button>
+
+                    {% if report_form %}
+                    <div>
+                        {% if already_reported_today %}
+                        <div
+                            style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                            <i class="fas fa-check-circle"></i> تم التقرير
+                        </div>
+                        {% else %}
+                        <button onclick="document.getElementById('reportModal').style.display='flex'"
+                            style="background:white; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.05); border-radius:12px; padding:8px 12px; color:#6366f1; font-weight:bold; cursor:pointer; transition:0.2s;">
+                            <i class="fas fa-file-medical"></i> <span style="font-size:0.9rem;">تقرير</span>
                         </button>
-
-                        {% if report_form %}
-                            <div>
-                                {% if already_reported_today %}
-                                    <div style="background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                                        <i class="fas fa-check-circle"></i> تم التقرير
-                                    </div>
-                                {% else %}
-                                    <button onclick="document.getElementById('reportModal').style.display='flex'" style="background:white; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.05); border-radius:12px; padding:8px 12px; color:#6366f1; font-weight:bold; cursor:pointer; transition:0.2s;">
-                                        <i class="fas fa-file-medical"></i> <span style="font-size:0.9rem;">تقرير</span>
-                                    </button>
-                                {% endif %}
-                            </div>
                         {% endif %}
                     </div>
+                    {% endif %}
                 </div>
+            </div>
 
-                <div class="messages-box" id="msgBox">
-                    {% for msg in chat_messages %}
-                        <div class="message {% if msg.sender == current_user %}sent{% else %}received{% endif %}">
-                            {{ msg.content }}
-                            <span class="time">{{ msg.timestamp|date:"h:i A" }}</span>
-                        </div>
-                    {% endfor %}
+            <div class="messages-box" id="msgBox">
+                {% for msg in chat_messages %}
+                <div class="message {% if msg.sender == current_user %}sent{% else %}received{% endif %}">
+                    {{ msg.content }}
+                    <span class="time">{{ msg.timestamp|date:"h:i A" }}</span>
                 </div>
+                {% endfor %}
+            </div>
 
-                <form method="POST" class="input-area" id="chatForm">
-                    {% csrf_token %}
-                    <input type="text" name="content" placeholder="اكتب رسالتك هنا..." required autocomplete="off" autofocus>
-                    <button type="submit" class="btn-send" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
-                </form>
+            <form method="POST" class="input-area" id="chatForm">
+                {% csrf_token %}
+                <input type="text" name="content" placeholder="اكتب رسالتك هنا..." required autocomplete="off"
+                    autofocus>
+                <button type="submit" class="btn-send" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+            </form>
             {% else %}
-                <div style="display:none;" class="mobile-hidden-msg">اختر محادثة</div>
-                
-                <div class="empty-state" id="emptyState">
-                    <div class="mascot-container">
-                        <svg class="mascot-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="60" cy="60" r="50" fill="#6366f1" />
-                            <circle cx="60" cy="60" r="45" fill="#ffffff" opacity="0.1" />
-                            <circle cx="20" cy="30" r="15" fill="#6366f1" />
-                            <circle cx="100" cy="30" r="15" fill="#6366f1" />
-                            <circle cx="20" cy="30" r="8" fill="#4338ca" opacity="0.3" />
-                            <circle cx="100" cy="30" r="8" fill="#4338ca" opacity="0.3" />
-                            <g class="eyes">
-                                <circle cx="40" cy="55" r="12" fill="white" />
-                                <circle class="eye-ball" cx="40" cy="55" r="5" fill="#1e293b" />
-                                <circle cx="80" cy="55" r="12" fill="white" />
-                                <circle class="eye-ball" cx="80" cy="55" r="5" fill="#1e293b" />
-                            </g>
-                            <path d="M 45 80 Q 60 90 75 80" stroke="#1e293b" stroke-width="3" fill="none" stroke-linecap="round" />
-                            <circle cx="60" cy="70" r="6" fill="#1e293b" />
-                        </svg>
-                    </div>
-                    <h2 style="color: #334155; margin: 0; font-weight:800;">مرحباً بك 👋</h2>
-                    <p style="background: rgba(255,255,255,0.6); padding: 8px 20px; border-radius: 30px; margin-top: 15px; color: #64748b; font-weight: 600;">اختر صديقاً من القائمة لبدء المحادثة</p>
+            <div style="display:none;" class="mobile-hidden-msg">اختر محادثة</div>
+
+            <div class="empty-state" id="emptyState">
+                <div class="mascot-container">
+                    <svg class="mascot-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="60" cy="60" r="50" fill="#6366f1" />
+                        <circle cx="60" cy="60" r="45" fill="#ffffff" opacity="0.1" />
+                        <circle cx="20" cy="30" r="15" fill="#6366f1" />
+                        <circle cx="100" cy="30" r="15" fill="#6366f1" />
+                        <circle cx="20" cy="30" r="8" fill="#4338ca" opacity="0.3" />
+                        <circle cx="100" cy="30" r="8" fill="#4338ca" opacity="0.3" />
+                        <g class="eyes">
+                            <circle cx="40" cy="55" r="12" fill="white" />
+                            <circle class="eye-ball" cx="40" cy="55" r="5" fill="#1e293b" />
+                            <circle cx="80" cy="55" r="12" fill="white" />
+                            <circle class="eye-ball" cx="80" cy="55" r="5" fill="#1e293b" />
+                        </g>
+                        <path d="M 45 80 Q 60 90 75 80" stroke="#1e293b" stroke-width="3" fill="none"
+                            stroke-linecap="round" />
+                        <circle cx="60" cy="70" r="6" fill="#1e293b" />
+                    </svg>
                 </div>
+                <h2 style="color: #334155; margin: 0; font-weight:800;">مرحباً بك 👋</h2>
+                <p
+                    style="background: rgba(255,255,255,0.6); padding: 8px 20px; border-radius: 30px; margin-top: 15px; color: #64748b; font-weight: 600;">
+                    اختر صديقاً من القائمة لبدء المحادثة</p>
+            </div>
             {% endif %}
         </div>
     </div>
 
     {% if report_form %}
-    <div id="reportModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:2000; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
-        <div style="background:white; padding:30px; border-radius:24px; width:90%; max-width:450px; position:relative; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-            <button onclick="document.getElementById('reportModal').style.display='none'" style="position:absolute; top:20px; left:20px; background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size: 1.2rem; color: #64748b;">&times;</button>
+    <div id="reportModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:2000; justify-content:center; align-items:center; backdrop-filter: blur(5px);">
+        <div
+            style="background:white; padding:30px; border-radius:24px; width:90%; max-width:450px; position:relative; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <button onclick="document.getElementById('reportModal').style.display='none'"
+                style="position:absolute; top:20px; left:20px; background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size: 1.2rem; color: #64748b;">&times;</button>
             <h3 style="margin-top:0; color:#6366f1; text-align: center; font-size: 1.4rem;">تقرير يومي</h3>
-            <form action="{% url 'submit_daily_report' target_student_id %}" method="post" enctype="multipart/form-data">
+            <form action="{% url 'submit_daily_report' target_student_id %}" method="post"
+                enctype="multipart/form-data">
                 {% csrf_token %}
                 <div style="margin-bottom:20px;">
                     <label style="display:block; margin-bottom:8px; font-weight:700; color: #475569;">الملاحظات:</label>
                     {{ report_form.content }}
                 </div>
                 <div style="margin-bottom:25px;">
-                    <label style="display:block; margin-bottom:8px; font-weight:700; color: #475569;">صورة أو ملف:</label>
+                    <label style="display:block; margin-bottom:8px; font-weight:700; color: #475569;">صورة أو
+                        ملف:</label>
                     {{ report_form.attachment }}
                 </div>
-                <button type="submit" style="width:100%; background:var(--primary-gradient); color:white; padding:14px; border-radius:16px; border:none; font-weight:700; cursor:pointer; font-size: 1rem; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3); transition:0.3s;">إرسال التقرير</button>
+                <button type="submit"
+                    style="width:100%; background:var(--primary-gradient); color:white; padding:14px; border-radius:16px; border:none; font-weight:700; cursor:pointer; font-size: 1rem; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3); transition:0.3s;">إرسال
+                    التقرير</button>
             </form>
         </div>
     </div>
@@ -427,25 +748,25 @@
 
     <script>
         var msgBox = document.getElementById("msgBox");
-        if(msgBox){ msgBox.scrollTop = msgBox.scrollHeight; }
+        if (msgBox) { msgBox.scrollTop = msgBox.scrollHeight; }
 
         const chatForm = document.getElementById('chatForm');
         const sendBtn = document.getElementById('sendBtn');
-        if(chatForm) {
-            chatForm.addEventListener('submit', function() {
+        if (chatForm) {
+            chatForm.addEventListener('submit', function () {
                 sendBtn.classList.add('flying');
             });
         }
 
         const chatArea = document.getElementById('chatArea');
         const eyeBalls = document.querySelectorAll('.eye-ball');
-        
+
         if (chatArea && eyeBalls.length > 0) {
             chatArea.addEventListener('mousemove', (e) => {
                 const rect = chatArea.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                const moveX = (x / rect.width) * 12 - 6; 
+                const moveX = (x / rect.width) * 12 - 6;
                 const moveY = (y / rect.height) * 12 - 6;
                 eyeBalls.forEach(eye => {
                     eye.style.transform = `translate(${moveX}px, ${moveY}px)`;
@@ -456,32 +777,33 @@
         // --- كود الفيديو الجديد (يفتح Agora) ---
         function openVideoPage() {
             {% if current_user and selected_user %}
-                const myId = {{ current_user.id }};
-                const partnerId = {{ selected_user.id }};
-                // ترتيب المعرفات لضمان نفس اسم الغرفة لكلا الطرفين
-                const ids = [myId, partnerId].sort((a, b) => a - b);
-                
-                // اسم الغرفة الموحد
-                const roomName = `VexaLearn_${ids[0]}_${ids[1]}`;
-                
-                // الانتقال إلى صفحة الفيديو الجديدة
-                window.location.href = `/video-call/${roomName}/`;
-            {% else %}
-                alert("يجب اختيار مستخدم أولاً");
-            {% endif %}
+            const myId = {{ current_user.id }
+        };
+        const partnerId = {{ selected_user.id }};
+        // ترتيب المعرفات لضمان نفس اسم الغرفة لكلا الطرفين
+        const ids = [myId, partnerId].sort((a, b) => a - b);
+
+        // اسم الغرفة الموحد
+        const roomName = `VexaLearn_${ids[0]}_${ids[1]}`;
+
+        // الانتقال إلى صفحة الفيديو الجديدة
+        window.location.href = `/video-call/${roomName}/`;
+        {% else %}
+        alert("يجب اختيار مستخدم أولاً");
+        {% endif %}
         }
     </script>
     <script>
         // 1. متغير لتخزين آخر رسالة تم التنبيه عنها (لمنع التكرار)
         let lastNotifiedMsgId = null;
-    
+
         // 2. دالة طلب الإذن من المستخدم
         function requestNotificationPermission() {
             if (!("Notification" in window)) {
                 console.log("هذا المتصفح لا يدعم الإشعارات");
                 return;
             }
-    
+
             if (Notification.permission !== "granted" && Notification.permission !== "denied") {
                 Notification.requestPermission().then(permission => {
                     if (permission === "granted") {
@@ -490,53 +812,54 @@
                 });
             }
         }
-    
+
         // 3. دالة فحص الرسائل
         function checkMessages() {
             // لا نفحص إلا إذا كان المستخدم مسجلاً والدخول مسموح
             // (يمكنك التأكد من ذلك عبر فحص متغير في القالب أو الاعتماد على أن الصفحة لا تفتح إلا للمسجلين)
-            
+
             fetch("{% url 'check_new_messages' %}")
-            .then(response => {
-                if (response.status === 200) return response.json();
-                return null;
-            })
-            .then(data => {
-                if (data && data.has_new) {
-                    // نتأكد أننا لم نرسل إشعاراً لهذه الرسالة من قبل
-                    if (data.msg_id !== lastNotifiedMsgId) {
-                        
-                        // إظهار الإشعار
-                        if (Notification.permission === "granted") {
-                            const notification = new Notification(`رسالة جديدة من ${data.sender}`, {
-                                body: data.content,
-                                icon: "https://cdn-icons-png.flaticon.com/512/1041/1041916.png", // يمكنك وضع رابط لوجو الموقع هنا
-                                dir: "rtl" // اتجاه النص
-                            });
-    
-                            // عند الضغط على الإشعار، نفتح صفحة الشات
-                            notification.onclick = function() {
-                                window.location.href = "{% url 'chat_home' %}";
-                                notification.close();
-                            };
+                .then(response => {
+                    if (response.status === 200) return response.json();
+                    return null;
+                })
+                .then(data => {
+                    if (data && data.has_new) {
+                        // نتأكد أننا لم نرسل إشعاراً لهذه الرسالة من قبل
+                        if (data.msg_id !== lastNotifiedMsgId) {
+
+                            // إظهار الإشعار
+                            if (Notification.permission === "granted") {
+                                const notification = new Notification(`رسالة جديدة من ${data.sender}`, {
+                                    body: data.content,
+                                    icon: "https://cdn-icons-png.flaticon.com/512/1041/1041916.png", // يمكنك وضع رابط لوجو الموقع هنا
+                                    dir: "rtl" // اتجاه النص
+                                });
+
+                                // عند الضغط على الإشعار، نفتح صفحة الشات
+                                notification.onclick = function () {
+                                    window.location.href = "{% url 'chat_home' %}";
+                                    notification.close();
+                                };
+                            }
+
+                            // تحديث آخر رسالة
+                            lastNotifiedMsgId = data.msg_id;
                         }
-    
-                        // تحديث آخر رسالة
-                        lastNotifiedMsgId = data.msg_id;
                     }
-                }
-            })
-            .catch(error => console.error("Error checking messages:", error));
+                })
+                .catch(error => console.error("Error checking messages:", error));
         }
-    
+
         // 4. تشغيل الفحص كل 5 ثواني (5000 ميلي ثانية)
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // طلب الإذن فور تحميل الصفحة (أو يمكنك ربطه بضغط زر معين)
             requestNotificationPermission();
-    
+
             // بدء العداد
-            setInterval(checkMessages, 5000); 
+            setInterval(checkMessages, 5000);
         });
     </script>
 </body>
+
 </html>

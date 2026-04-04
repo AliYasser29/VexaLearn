@@ -1,91 +1,165 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دخول الإدارة | VexaLearn</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
     <style>
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #f3f4f6;
+            background: radial-gradient(circle at top right, var(--secondary), transparent),
+                radial-gradient(circle at bottom left, var(--primary-dark), transparent),
+                #0f172a;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-image: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            overflow: hidden;
         }
+
         .login-card {
-            background: white;
-            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            width: 90%;
             max-width: 400px;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 48px;
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-premium);
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: card-fade-in 0.6s ease-out;
         }
+
+        @keyframes card-fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: #2563eb; /* أزرق رسمي */
+            width: 64px;
+            height: 64px;
+            background: var(--secondary);
             color: white;
-            border-radius: 12px;
+            border-radius: var(--radius-xl);
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 28px;
-            margin: 0 auto 20px auto;
-            transform: rotate(3deg);
+            margin: 0 auto 24px auto;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
-        h2 { margin: 0; color: #1e293b; font-weight: 700; }
-        p { color: #64748b; margin-top: 5px; font-size: 0.9rem; }
-        
-        .form-group { margin-top: 25px; text-align: right; }
-        .form-group label { display: block; color: #334155; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
-        
-        .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: #94a3b8; }
-        
+
+        h2 {
+            margin: 0;
+            color: var(--secondary);
+            font-weight: 800;
+            font-size: 1.8rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-top: 32px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            top: 50%;
+            left: 18px;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
         input {
             width: 100%;
-            padding: 12px 15px 12px 40px; /* مسافة للأيقونة */
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            padding: 14px 18px 14px 50px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
             box-sizing: border-box;
             font-family: inherit;
             transition: 0.3s;
             outline: none;
         }
-        input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
+
+        input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
+        }
+
+        input:invalid:not(:placeholder-shown) {
+            border-color: var(--error);
+        }
+
+        input:valid:not(:placeholder-shown) {
+            border-color: var(--success);
+        }
+
         button {
             width: 100%;
-            padding: 14px;
-            background-color: #1e293b; /* لون داكن رسمي */
+            padding: 16px;
+            background-color: var(--secondary);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-weight: 700;
+            border-radius: var(--radius-lg);
+            font-weight: 800;
             cursor: pointer;
-            margin-top: 30px;
-            transition: 0.3s;
-            font-size: 1rem;
+            margin-top: 32px;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        button:hover { background-color: #0f172a; transform: translateY(-2px); }
-        
+
+        button:hover {
+            background-color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
         .alert {
             background-color: #fee2e2;
-            color: #991b1b;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
+            color: var(--error);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
             border: 1px solid #fecaca;
         }
     </style>
 </head>
+
 <body>
 
     <div class="login-card">
@@ -96,11 +170,11 @@
         <p>تسجيل دخول المسؤولين فقط</p>
 
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert">
-                    <i class="fas fa-exclamation-circle"></i> {{ message }}
-                </div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="alert">
+            <i class="fas fa-exclamation-circle"></i> {{ message }}
+        </div>
+        {% endfor %}
         {% endif %}
 
         <form method="post">
@@ -126,4 +200,5 @@
     </div>
 
 </body>
+
 </html>

@@ -171,23 +171,29 @@ UNFOLD = {
     
     # --- 1. إعدادات القائمة الجانبية (Sidebar) ---
     "SIDEBAR": {
-        "show_search": True,  # إظهار شريط البحث في القائمة
-        "show_all_applications": False, # إخفاء التطبيقات غير المخصصة لترتيب القائمة يدوياً
+        "show_search": True,
+        "show_all_applications": False,
         "navigation": [
             {
-                "title": _("إدارة المستخدمين"),
-                "separator": True,  # خط فاصل
-                "collapsible": True, # قابل للطي لتوفير مساحة
+                "title": _("لوحة التحكم"),
+                "separator": True,
                 "items": [
                     {
-                        "title": _("المديرون"),
-                        "icon": "manage_accounts",
-                        "link": reverse_lazy("admin:core_manager_changelist"),
+                        "title": _("الرئيسية"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
                     },
+                ],
+            },
+            {
+                "title": _("إدارة المستخدمين"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
                     {
-                        "title": _("المشرفون"),
-                        "icon": "supervisor_account",
-                        "link": reverse_lazy("admin:core_supervisor_changelist"),
+                        "title": _("الطلاب"),
+                        "icon": "face",
+                        "link": reverse_lazy("admin:core_student_changelist"),
                     },
                     {
                         "title": _("المعلمون"),
@@ -195,19 +201,24 @@ UNFOLD = {
                         "link": reverse_lazy("admin:core_teacher_changelist"),
                     },
                     {
-                        "title": _("الطلاب"),
-                        "icon": "face",
-                        "link": reverse_lazy("admin:core_student_changelist"),
+                        "title": _("المشرفون"),
+                        "icon": "supervisor_account",
+                        "link": reverse_lazy("admin:core_supervisor_changelist"),
+                    },
+                    {
+                        "title": _("المديرون"),
+                        "icon": "manage_accounts",
+                        "link": reverse_lazy("admin:core_manager_changelist"),
                     },
                      {
-                        "title": _("المستخدمين (Users)"),
+                        "title": _("حسابات النظام"),
                         "icon": "person",
                         "link": reverse_lazy("admin:auth_user_changelist"),
                     },
                 ],
             },
             {
-                "title": _("الهيكل الأكاديمي"),
+                "title": _("المحتوى التعليمي"),
                 "separator": True,
                 "collapsible": True,
                 "items": [
@@ -216,6 +227,67 @@ UNFOLD = {
                         "icon": "domain",
                         "link": reverse_lazy("admin:core_academy_changelist"),
                     },
+                    {
+                        "title": _("الكورسات"),
+                        "icon": "class",
+                        "link": reverse_lazy("admin:core_course_changelist"),
+                    },
+                    {
+                        "title": _("المواد الدراسية"),
+                        "icon": "menu_book",
+                        "link": reverse_lazy("admin:core_subject_changelist"),
+                    },
+                    {
+                        "title": _("مكتبة الملفات"),
+                        "icon": "folder_shared",
+                        "link": reverse_lazy("admin:core_coursematerial_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("الاشتراكات والعمليات"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("الاشتراكات"),
+                        "icon": "card_membership",
+                        "link": reverse_lazy("admin:core_enrollment_changelist"),
+                    },
+                    {
+                        "title": _("سجلات الحضور"),
+                        "icon": "fact_check",
+                        "link": reverse_lazy("admin:core_attendance_changelist"),
+                    },
+                    {
+                        "title": _("التقارير اليومية"),
+                        "icon": "assessment",
+                        "link": reverse_lazy("admin:core_dailyreport_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("تواصل النظام"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
+                    {
+                        "title": _("الرسائل (Chat)"),
+                        "icon": "chat",
+                        "link": reverse_lazy("admin:core_message_changelist"),
+                    },
+                    {
+                        "title": _("الإشعارات"),
+                        "icon": "notifications",
+                        "link": reverse_lazy("admin:core_notification_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("بيانات النظام الأساسية"),
+                "separator": True,
+                "collapsible": True,
+                "items": [
                     {
                         "title": _("الدول"),
                         "icon": "public",
@@ -231,64 +303,10 @@ UNFOLD = {
                         "icon": "calendar_today",
                         "link": reverse_lazy("admin:core_academicyear_changelist"),
                     },
-                    {
-                        "title": _("المواد الدراسية"),
-                        "icon": "menu_book",  # أيقونة الكتاب
-                        "link": reverse_lazy("admin:core_subject_changelist"),
-                    },
-                    {
-                        "title": _("الكورسات"),
-                        "icon": "class",
-                        "link": reverse_lazy("admin:core_course_changelist"),
-                    },
                 ],
             },
             {
-                "title": _("العمليات والاشتراكات"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("الاشتراكات"),
-                        "icon": "card_membership",
-                        "link": reverse_lazy("admin:core_enrollment_changelist"),
-                    },
-                    {
-                        "title": _("سجلات الحضور"),
-                        "icon": "fact_check",
-                        "link": reverse_lazy("admin:core_attendance_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("التواصل والمحتوى"),
-                "separator": True,
-                "collapsible": True,
-                "items": [
-                    {
-                        "title": _("مكتبة المواد"),
-                        "icon": "folder_shared",
-                        "link": reverse_lazy("admin:core_coursematerial_changelist"),
-                    },
-                    {
-                        "title": _("الرسائل (Chat)"),
-                        "icon": "chat",
-                        "link": reverse_lazy("admin:core_message_changelist"),
-                    },
-                    {
-                        "title": _("التقارير اليومية"),
-                        "icon": "assessment",
-                        "link": reverse_lazy("admin:core_dailyreport_changelist"),
-                    },
-                    {
-                        "title": _("الإشعارات"),
-                        "icon": "notifications",
-                        "link": reverse_lazy("admin:core_notification_changelist"),
-                    },
-                ],
-            },
-            {
-                "title": _("سجل المراجعة (Audit Log)"),
+                "title": _("سجل المراجعة (Audit)"),
                 "separator": True,
                 "collapsible": True,
                 "items": [
@@ -315,17 +333,17 @@ UNFOLD = {
     # --- 2. تحسينات النصوص والألوان ---
     "COLORS": {
         "primary": {
-            "50": "238 242 255",
-            "100": "224 231 255",
-            "200": "199 210 254",
-            "300": "165 180 252",
-            "400": "129 140 248",
-            "500": "99 102 241",
-            "600": "79 70 229",
-            "700": "67 56 202",
-            "800": "55 48 163",
-            "900": "49 46 129",
-            "950": "30 27 75",
+            "50": "245 243 255",
+            "100": "237 233 254",
+            "200": "221 214 254",
+            "300": "196 181 253",
+            "400": "167 139 250",
+            "500": "139 92 246",
+            "600": "124 58 237",
+            "700": "109 40 217",
+            "800": "91 33 182",
+            "900": "76 29 149",
+            "950": "46 16 101",
         },
     },
 }

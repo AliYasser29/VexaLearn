@@ -153,7 +153,7 @@ def complete_course(request, enrollment_id):
 # ==========================================
 
 @never_cache
-@login_required
+@login_required(login_url='management_login')
 def supervisor_dashboard(request):
     """لوحة تحكم المشرفين لمتابعة الطلاب."""
     current_user = request.user
@@ -709,10 +709,7 @@ def course_materials(request, course_id):
 def management_login(request):
     """تسجيل دخول الإداريين فقط."""
     if request.user.is_authenticated:
-        if request.user.is_superuser or hasattr(request.user, 'manager_profile'):
-            return redirect('admin_panel')
-        else:
-            return redirect('chat_logout') 
+        return redirect('supervisor_dashboard')
 
     form = AuthenticationForm(request, data=request.POST or None)
     

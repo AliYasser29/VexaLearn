@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -9,13 +10,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
     <style>
         :root {
-            --primary: #dc2626;
+            --primary: var(--error);
             --primary-hover: #b91c1c;
-            --secondary: #4f46e5;
-            --text-dark: #0f172a;
-            --text-gray: #64748b;
+            --secondary: var(--primary-neon);
+            --text-dark: var(--text-primary);
+            --text-gray: var(--text-secondary);
         }
 
         /* --- Global Reset & Base --- */
@@ -349,7 +351,7 @@
             <select name="user1" id="user1" class="select-users" required>
                 <option value=""></option>
                 {% for u in users_data %}
-                <option value="{{ u.id }}" {% if user1_id==u.id %}selected{% endif %}>
+                <option value="{{ u.id }}" {% if user1_id == u.id %}selected{% endif %}>
                     {{ u.name }} ({{ u.role }})
                 </option>
                 {% endfor %}
@@ -363,7 +365,7 @@
             <select name="user2" id="user2" class="select-users" required>
                 <option value=""></option>
                 {% for u in users_data %}
-                <option value="{{ u.id }}" {% if user2_id==u.id %}selected{% endif %}>
+                <option value="{{ u.id }}" {% if user2_id == u.id %}selected{% endif %}>
                     {{ u.name }} ({{ u.role }})
                 </option>
                 {% endfor %}

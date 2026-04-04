@@ -1,12 +1,14 @@
 # VexaLearn-main Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-03
+Auto-generated from all feature plans. Last updated: 2026-04-04
 
 ## Active Technologies
 - Python 3.12, Django 5.0 + Django, WhiteNoise (006-performance-optimization)
 - SQLite 3 (existing) (006-performance-optimization)
 - Python 3.12, Django 5.0 + Django Admin, `django-unfold`, `django-filter` (007-comprehensive-table-views)
 - Python 3.12, Django 5.0 + `django-import-export`, `django-unfold`, `openpyxl` (for xlsx support) (008-excel-data-export)
+- Python 3.12 + Django 5.0 (009-fix-super-monitor-error)
+- N/A (UI layer fix) (009-fix-super-monitor-error)
 
 - Python 3.12.3, Django 5.0 + `django-simple-history`, `django-unfold` (005-audit-log-system)
 
@@ -26,9 +28,9 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 Python 3.12.3, Django 5.0: Follow standard conventions
 
 ## Recent Changes
+- 009-fix-super-monitor-error: Added Python 3.12 + Django 5.0
 - 008-excel-data-export: Added Python 3.12, Django 5.0 + `django-import-export`, `django-unfold`, `openpyxl` (for xlsx support)
 - 007-comprehensive-table-views: Added Python 3.12, Django 5.0 + Django Admin, `django-unfold`, `django-filter`
-- 006-performance-optimization: Added Python 3.12, Django 5.0 + Django, WhiteNoise
 
 
 <!-- MANUAL ADDITIONS START -->
