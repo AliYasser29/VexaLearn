@@ -26,6 +26,7 @@ NAV_CONFIG = {
     'MANAGER': [
         {'label': 'لوحة الإدارة', 'url_name': 'admin:index', 'icon': 'fas fa-cogs'},
         {'label': 'الإحصائيات', 'url_name': 'core:admin_panel', 'icon': 'fas fa-chart-line'},
+        {'label': 'الدردشة', 'url_name': 'core:chat_home', 'icon': 'fas fa-comments'},
     ]
 }
 

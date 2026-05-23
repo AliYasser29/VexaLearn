@@ -66,7 +66,9 @@
                 </div>
                 <p class="text-sm text-slate-500">إدارة الإحصائيات، البحث، وإضافة وتعديل بيانات الطلاب بشكل متقدم.</p>
             </a>
+            {% endif %}
 
+            {% if user.is_superuser %}
             <a href="/admin/" class="block bg-white shadow-lg rounded-xl p-6 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">

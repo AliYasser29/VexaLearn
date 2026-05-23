@@ -87,6 +87,7 @@
                         {% elif user.is_superuser or request.active_role == 'manager' %}
                             <a href="{% url 'admin:index' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">الإدارة</a>
                         {% endif %}
+                        <a href="{% url 'chat_home' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">المحادثات</a>
                     {% endif %}
                 </nav>
 
@@ -121,6 +122,10 @@
                                 
                                 <a href="{% url 'profile_view' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors">
                                     <i class="fas fa-user-circle ml-2 w-5 text-center"></i> ملفي الشخصي
+                                </a>
+                                
+                                <a href="{% url 'chat_home' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors">
+                                    <i class="fas fa-comments ml-2 w-5 text-center"></i> المحادثات
                                 </a>
                                 
                                 {% if request.active_role == 'student' %}
