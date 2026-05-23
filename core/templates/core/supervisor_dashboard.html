@@ -59,6 +59,22 @@
 
     <!-- Main Student Directory Table Card -->
     <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
+        <!-- Search Bar (جديد) -->
+        <div class="p-5 border-b border-slate-200 bg-slate-50/50 flex flex-wrap gap-4 items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <i class="fas fa-users text-primary"></i> قائمة الطلاب
+            </h3>
+            <div class="flex items-center gap-2">
+                <div class="relative">
+                    <i class="fas fa-search absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="dashboard-search" placeholder="ابحث باسم الطالب..." class="w-64 sm:w-80 pr-10 pl-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-semibold" style="box-shadow: none;">
+                </div>
+                <button id="dashboard-search-btn" class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2" style="background-color: #6366f1;">
+                    <i class="fas fa-search"></i>
+                    <span>بحث</span>
+                </button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full text-right border-collapse min-w-[1100px]" aria-label="جدول متابعة الطلاب">
                 <thead>
@@ -263,4 +279,62 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('dashboard-search');
+        const searchBtn = document.getElementById('dashboard-search-btn');
+        const tableRows = document.querySelectorAll('tbody tr:not(:last-child)'); // باستثناء صف "لا توجد نتائج"
+        const emptyRow = document.querySelector('tbody tr:last-child'); // صف "لا توجد نتائج"
+
+        function filterStudents() {
+            const query = searchInput.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            tableRows.forEach(row => {
+                const studentNameEl = row.querySelector('.text-base.font-extrabold');
+                if (studentNameEl) {
+                    const studentName = studentNameEl.textContent.trim().toLowerCase();
+                    if (studentName.includes(query)) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+
+            // إظهار صف "لا توجد نتائج" إذا كان عدد الطلاب المطابقين 0
+            if (emptyRow && tableRows.length > 0) {
+                if (visibleCount === 0 && query.length > 0) {
+                    emptyRow.style.display = '';
+                    // تغيير الرسالة لتناسب البحث
+                    const emptyText = emptyRow.querySelector('p.text-base');
+                    if (emptyText) emptyText.textContent = 'لم نجد أي طالب يطابق البحث 🔍';
+                } else {
+                    // إذا لم يكن هناك بحث أو وجدنا نتائج، نخفي صف الفراغ المخصص للبحث
+                    if (query.length > 0) {
+                        emptyRow.style.display = 'none';
+                    } else {
+                        // إرجاع الحالة الافتراضية
+                        emptyRow.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        if (searchInput) {
+            // البحث الفوري بمجرد الكتابة
+            searchInput.addEventListener('input', filterStudents);
+
+            // تفعيل زر البحث للجمالية والضغط
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterStudents();
+                });
+            }
+        }
+    });
+</script>
 {% endblock %}
