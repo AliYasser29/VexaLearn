@@ -175,8 +175,8 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-# Run tasks synchronously in development if Redis/Celery is offline or by default
-CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', str(DEBUG)).lower() == 'true'
+# Run tasks synchronously directly in the request-response thread (since Redis/Celery workers are not running on VPS)
+CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

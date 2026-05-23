@@ -337,7 +337,9 @@ class Notification(models.Model):
 from core.tasks import (
     notify_supervisor_new_student_task,
     notify_teachers_new_student_task,
-    notify_attendance_change_task
+    notify_attendance_change_task,
+    notify_parent_new_course_task,
+    notify_teacher_new_enrollment_task
 )
 
 @receiver(post_save, sender=Student)
@@ -357,6 +359,14 @@ def notify_attendance_change(sender, instance, created, **kwargs):
     if created:
         notify_attendance_change_task.delay(instance.id)
         print(f"✅ تم تحويل إشعار الحضور إلى Celery")
+
+@receiver(post_save, sender=Enrollment)
+def notify_new_enrollment(sender, instance, created, **kwargs):
+    if created:
+        notify_parent_new_course_task.delay(instance.id)
+        if instance.teacher:
+            notify_teacher_new_enrollment_task.delay(instance.id)
+        print(f"✅ تم تحويل إرسال إشعارات الاشتراك الجديد للمعلم وولي الأمر إلى Celery")
 
 # --- User Model Helper Methods ---
 def has_student_profile(self):

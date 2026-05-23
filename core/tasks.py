@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 @shared_task(bind=True, max_retries=5)
 def send_email_task(self, subject, message, recipient_list):
     """
-    Celery task to send an email with exponential backoff retry mechanism.
+    Celery task to send an email with exponential backoff retry mechanism (only active if Celery is running with workers).
     """
     try:
         send_mail(
@@ -20,9 +20,13 @@ def send_email_task(self, subject, message, recipient_list):
         )
         logger.info(f"Successfully sent email to {recipient_list}")
     except Exception as exc:
-        logger.warning(f"Failed to send email to {recipient_list}. Retrying...")
-        # Exponential backoff: 60s, 120s, 240s, 480s, 960s
-        raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+        logger.warning(f"Failed to send email to {recipient_list}: {exc}")
+        # Only retry if celery is actually running with workers, not in eager mode
+        if not getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
+            # Exponential backoff: 60s, 120s, 240s, 480s, 960s
+            raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
+        else:
+            logger.error(f"Synchronous email delivery failed for {recipient_list} due to: {exc}")
 
 @shared_task
 def notify_supervisor_new_student_task(student_id):
@@ -110,6 +114,17 @@ def notify_attendance_change_task(attendance_id):
                     لقد انتهت جميع حصص هذا الكورس. يرجى التجديد فوراً.
                     """
 
+            progress_notice = ""
+            if total_sessions > 0:
+                if current_session_number == total_sessions // 2:
+                    progress_notice = """
+                    🎉 تهانينا! لقد أكمل الطالب نصف حصص الكورس (50%). نأمل أن تكونوا راضين عن تقدمه!
+                    """
+                elif current_session_number == int(total_sessions * 0.75):
+                    progress_notice = """
+                    🎉 تهانينا! لقد أكمل الطالب 75% من حصص الكورس. مستوى رائع ومتابعة ممتازة!
+                    """
+
             status_text = "حضور ✅" if attendance.status == 'present' else "غياب ❌"
 
             subject = f'تنبيه حصة: {student.name} - كورس {course.name}'
@@ -124,6 +139,7 @@ def notify_attendance_change_task(attendance_id):
             رقم الحصة: {current_session_number} من أصل {total_sessions}
             المتبقي في الكورس: {remaining_sessions} حصص
             --------------------------------------------------
+            {progress_notice}
             {renewal_notice}
             
             تاريخ التسجيل: {attendance.date}
@@ -132,4 +148,73 @@ def notify_attendance_change_task(attendance_id):
             """
             send_email_task.delay(subject, message, [parent_email])
     except Attendance.DoesNotExist:
+        pass
+
+
+@shared_task
+def notify_parent_new_course_task(enrollment_id):
+    from core.models import Enrollment
+    try:
+        enrollment = Enrollment.objects.get(id=enrollment_id)
+        student = enrollment.student
+        course = enrollment.course
+        parent_email = student.parent_email
+        
+        if parent_email:
+            subject = f'📚 تسجيل كورس جديد للطالب/ة: {student.name}'
+            message = f"""
+            مرحباً ولي أمر الطالب/ة {student.name}،
+            
+            يسعدنا إعلامكم بأنه تم تسجيل الطالب بنجاح في كورس جديد.
+            
+            تفاصيل الكورس:
+            --------------------------------------------------
+            اسم الكورس: {course.name}
+            المعلم: {enrollment.teacher.name if enrollment.teacher else 'سيتم تحديده لاحقاً'}
+            عدد الحصص الإجمالي: {course.sessions_count} حصة
+            تاريخ بدء الاشتراك: {enrollment.start_date}
+            --------------------------------------------------
+            
+            نتمنى للطالب رحلة تعليمية مميزة ومليئة بالنجاح.
+            
+            إدارة الأكاديمية
+            """
+            send_email_task.delay(subject, message, [parent_email])
+    except Enrollment.DoesNotExist:
+        pass
+
+
+@shared_task
+def notify_teacher_new_enrollment_task(enrollment_id):
+    from core.models import Enrollment
+    try:
+        enrollment = Enrollment.objects.get(id=enrollment_id)
+        student = enrollment.student
+        course = enrollment.course
+        teacher = enrollment.teacher
+        
+        if teacher and teacher.email:
+            site_url = "https://vexalearn.cloud"
+            subject = f'👨‍🏫 إسناد طالب جديد إليك - كورس {course.name}'
+            message = f"""
+            مرحباً أستاذ/ة {teacher.name}،
+            
+            تم إسناد طالب جديد إليك في كورس {course.name}.
+            
+            تفاصيل الطالب والكورس:
+            --------------------------------------------------
+            الاسم: {student.name}
+            السنة الدراسية: {student.academic_year.name if student.academic_year else 'غير محدد'}
+            الكورس: {course.name}
+            تاريخ بدء الاشتراك: {enrollment.start_date}
+            --------------------------------------------------
+            
+            يرجى التواصل مع الطالب ومتابعة تقدمه عبر منصة الشات.
+            🔗 رابط منصة التواصل: {site_url}/chat
+            
+            مع خالص التقدير،
+            إدارة الشؤون الأكاديمية
+            """
+            send_email_task.delay(subject, message, [teacher.email])
+    except Enrollment.DoesNotExist:
         pass
