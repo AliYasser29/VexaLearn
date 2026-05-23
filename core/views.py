@@ -221,12 +221,19 @@ def profile_view(request):
     if hasattr(user, 'student_profile'):
         student = user.student_profile
         
-        enrollments = Enrollment.objects.filter(student=student, is_completed=False)
+        enrollments = Enrollment.objects.filter(student=student, is_completed=False).select_related('course', 'teacher')
         courses_data = []
         for enroll in enrollments:
             total_sessions = enroll.course.sessions_count
             attended = Attendance.objects.filter(enrollment=enroll, status='present').count()
             percent = int((attended / total_sessions * 100)) if total_sessions > 0 else 0
+            
+            # جلب المواد والمرفقات المرفوعة لهذا الكورس من قبل المعلم
+            materials = []
+            if enroll.teacher:
+                materials = CourseMaterial.objects.filter(course=enroll.course, teacher=enroll.teacher).order_by('-created_at')
+            else:
+                materials = CourseMaterial.objects.filter(course=enroll.course).order_by('-created_at')
             
             courses_data.append({
                 'course_id': enroll.course.id, 
@@ -234,7 +241,9 @@ def profile_view(request):
                 'attended': attended,
                 'total': total_sessions,
                 'percent': percent,
-                'color': 'green' if percent >= 75 else 'red'
+                'color': 'green' if percent >= 75 else 'red',
+                'teacher_name': enroll.teacher.name if enroll.teacher else 'لم يحدد بعد',
+                'materials': materials
             })
         context['courses_data'] = courses_data
 
@@ -242,25 +251,53 @@ def profile_view(request):
     elif hasattr(user, 'teacher_profile'):
         teacher = user.teacher_profile
         
-        my_students = Student.objects.filter(teachers=teacher).distinct()
-        
-        # عرض الكورسات التي تقع ضمن اختصاص المعلم
-        teacher_subjects = teacher.subjects.all()
-        teacher_courses = Course.objects.filter(subject__in=teacher_subjects).distinct()
-        context['teacher_courses'] = teacher_courses
-        
-        students_with_grades = []
-        for std in my_students:
+        # جلب قائمة طلاب المعلم النشطين حالياً وتفاصيلهم
+        active_students_data = []
+        teacher_enrollments = Enrollment.objects.filter(teacher=teacher, is_completed=False).select_related('student', 'course')
+        for enroll in teacher_enrollments:
+            student = enroll.student
+            attended = enroll.attendances.filter(status='present').count()
+            total = enroll.course.sessions_count
+            
+            # جلب محاولات الاختبارات المسلمة لهذا الكورس
             attempts = []
             if QuizAttempt:
-                attempts = QuizAttempt.objects.filter(student=std).select_related('quiz')
-            
-            students_with_grades.append({
-                'student': std,
+                attempts = QuizAttempt.objects.filter(student=student, quiz__course=enroll.course).select_related('quiz')
+                
+            active_students_data.append({
+                'student_name': student.name,
+                'course_name': enroll.course.name,
+                'attended': attended,
+                'total': total,
+                'phone': student.parent_phone,
                 'attempts': attempts
             })
-            
-        context['students_with_grades'] = students_with_grades
+        context['active_students_data'] = active_students_data
+
+    # 4. منطق المشرف
+    elif hasattr(user, 'supervisor_profile'):
+        supervisor = user.supervisor_profile
+        supervisor_students = Student.objects.filter(supervisor=supervisor).select_related('academic_year', 'country')
+        
+        supervisor_students_data = []
+        for student in supervisor_students:
+            active_enrollments = Enrollment.objects.filter(student=student, is_completed=False).select_related('course')
+            courses = []
+            for enroll in active_enrollments:
+                attended = enroll.attendances.filter(status='present').count()
+                total = enroll.course.sessions_count
+                percent = int((attended / total * 100)) if total > 0 else 0
+                courses.append({
+                    'name': enroll.course.name,
+                    'attended': attended,
+                    'total': total,
+                    'percent': percent
+                })
+            supervisor_students_data.append({
+                'student': student,
+                'courses': courses
+            })
+        context['supervisor_students_data'] = supervisor_students_data
 
     return render(request, 'core/profile.html', context)
 

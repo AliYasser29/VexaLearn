@@ -50,6 +50,199 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- لوحات التحكم الأكاديمية الذكية (جديد) -->
+    <!-- ========================================== -->
+
+    {% if user.has_student_profile %}
+    <!-- 1️⃣ لوحة تحكم الطالب والتقدم -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100/60 text-primary flex items-center justify-center text-xl shadow-xs">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-extrabold text-slate-900">مقرراتي التعليمية ونسب التقدم</h3>
+                <p class="text-xs text-slate-500 font-semibold">متابعة الكورسات المشتركة والملفات التعليمية المرفوعة من أساتذتك.</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            {% for course in courses_data %}
+            <div class="bg-slate-50/50 border border-slate-200/40 rounded-2xl p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h4 class="text-base font-extrabold text-slate-800 leading-snug">{{ course.course }}</h4>
+                        <p class="text-xxs text-slate-450 font-bold mt-1">المعلم: {{ course.teacher_name }}</p>
+                    </div>
+                    <span class="inline-flex bg-white border border-slate-200 text-slate-700 text-xxs font-extrabold px-2.5 py-1 rounded-full shadow-xs">
+                        {{ course.attended }}/{{ course.total }} حصة
+                    </span>
+                </div>
+                
+                <!-- Progress Tracker -->
+                <div class="space-y-1.5 mb-6">
+                    <div class="flex justify-between text-xxs font-extrabold text-slate-500">
+                        <span>نسبة حضور الكورس</span>
+                        <span>{{ course.percent }}%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-300" style="width: {{ course.percent }}%;"></div>
+                    </div>
+                </div>
+                
+                <!-- Materials list -->
+                <div class="border-t border-slate-200/60 pt-4 space-y-3">
+                    <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fas fa-folder-open text-primary"></i> المحاضرات والملفات الدراسية المرفوعة لك:
+                    </h5>
+                    <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+                        {% for mat in course.materials %}
+                        <div class="flex items-center justify-between gap-3 p-2 bg-white rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
+                            <span class="text-xs font-bold text-slate-700 truncate max-w-[200px]" title="{{ mat.title }}">
+                                <i class="fas fa-file-pdf ml-1.5 text-red-500"></i> {{ mat.title }}
+                            </span>
+                            <a href="{{ mat.file.url }}" target="_blank" class="text-xxs font-extrabold bg-primary/10 text-primary hover:bg-primary hover:text-white px-2.5 py-1.5 rounded-lg transition-all">
+                                <i class="fas fa-download"></i> تحميل
+                            </a>
+                        </div>
+                        {% empty %}
+                        <p class="text-xxs text-slate-400 italic">لا توجد محاضرات أو مرفقات دراسية مرفوعة لك في هذا الكورس بعد.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-2 text-center py-12 text-slate-450 border border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
+                <i class="fas fa-folder-open text-4xl mb-3 opacity-60 text-slate-300"></i>
+                <p class="text-sm font-bold">أنت غير مسجل في أي كورس نشط حالياً.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.has_teacher_profile %}
+    <!-- 2️⃣ لوحة تحكم المعلم لمتابعة الطلاب -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100/60 text-primary flex items-center justify-center text-xl shadow-xs">
+                <i class="fas fa-chalkboard-user"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-extrabold text-slate-900">متابعة طلابي النشطين وإنجازاتهم</h3>
+                <p class="text-xs text-slate-500 font-semibold">قائمة بجميع الطلاب المشتركين معك حالياً ونسب حضورهم والاختبارات المسلمة.</p>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto border border-slate-200/60 rounded-2xl pt-2">
+            <table class="w-full text-right border-collapse min-w-[700px]">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الطالب</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الكورس المشترك به</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الحضور الفعلي</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">رقم ولي الأمر</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">سجل الاختبارات والتسليمات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for item in active_students_data %}
+                    <tr class="hover:bg-slate-50/30 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm font-extrabold text-slate-800">{{ item.student_name }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/45">{{ item.course_name }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex bg-primary/10 text-primary text-xxs font-extrabold px-2.5 py-1.5 rounded-full">
+                                {{ item.attended }}/{{ item.total }} حصة
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-xs font-semibold text-slate-500"><i class="fas fa-phone opacity-60 ml-1.5"></i> {{ item.phone }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                                {% for att in item.attempts %}
+                                <div class="text-xxs font-bold text-slate-650 flex justify-between gap-4 p-1.5 bg-slate-50 rounded-lg border border-slate-100">
+                                    <span>{{ att.quiz.title }}</span>
+                                    <span class="text-emerald-600 font-extrabold">{{ att.score }} / {{ att.quiz.questions.count }}</span>
+                                </div>
+                                {% empty %}
+                                <span class="text-xxs text-slate-400 italic">لا توجد اختبارات مسلمة بعد</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-450">
+                            <i class="fas fa-users-slash text-3xl mb-2 opacity-50 block"></i>
+                            لا يوجد طلاب نشطين مسندين إليك حالياً.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.has_supervisor_profile %}
+    <!-- 3️⃣ لوحة تحكم المشرف ومتابعة تقدم الطلاب -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100/60 text-primary flex items-center justify-center text-xl shadow-xs">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-extrabold text-slate-900">متابعة الطلاب المسندين لإشرافي</h3>
+                <p class="text-xs text-slate-500 font-semibold">متابعة نسب تقدم وحضور جميع الطلاب المسجلين تحت إشرافك الأكاديمي.</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            {% for item in supervisor_students_data %}
+            <div class="bg-slate-50/50 border border-slate-200/40 rounded-2xl p-6 hover:shadow-md transition-all duration-300">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h4 class="text-base font-extrabold text-slate-800 leading-tight">{{ item.student.name }}</h4>
+                        <p class="text-xxs text-slate-450 font-bold mt-1">{{ item.student.academic_year.name }} | {{ item.student.age }} سنة</p>
+                    </div>
+                    <span class="text-xxs font-extrabold text-primary bg-white border border-indigo-100 rounded-md px-2.5 py-1 shadow-xs">
+                        {{ item.student.country.name }}
+                    </span>
+                </div>
+                
+                <div class="border-t border-slate-200/60 pt-4 space-y-4">
+                    <h5 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">تقدم الكورسات النشطة:</h5>
+                    {% for course in item.courses %}
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xxs font-extrabold text-slate-500">
+                            <span>{{ course.name }}</span>
+                            <span>{{ course.attended }}/{{ course.total }} حصة ({{ course.percent }}%)</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: {{ course.percent }}%;"></div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-xxs text-slate-450 italic">غير مسجل في أي كورسات دراسية نشطة حالياً.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-2 text-center py-12 text-slate-450 border border-dashed border-slate-200 rounded-2xl bg-slate-50/30">
+                <i class="fas fa-users-slash text-4xl mb-3 opacity-60 text-slate-300"></i>
+                <p class="text-sm font-bold">لا يوجد طلاب مسجلين تحت إشرافك حالياً.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Navigation Grid -->
     <div>
         <h3 class="text-xl font-bold text-slate-800 mb-6">الوصول السريع</h3>
