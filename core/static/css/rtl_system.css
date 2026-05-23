@@ -1,0 +1,29 @@
+/* Global RTL Design System */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+
+:root {
+    --font-cairo: 'Cairo', sans-serif;
+    --bg-main: #f8fafc;
+    --bg-glass: rgba(255, 255, 255, 0.7);
+    --accent-blue: #004080;
+    --accent-blue-hover: #0056b3;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-soft: rgba(226, 232, 240, 0.8);
+}
+
+body {
+    font-family: var(--font-cairo);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+}
+
+.glass-morphism {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-soft);
+}
+
+/* RTL Utilities */
+[dir="rtl"] .sidebar-left { border-right: none; border-left: 1px solid var(--border-soft); }

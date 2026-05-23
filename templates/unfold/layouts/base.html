@@ -1,5 +1,11 @@
-{% extends "unfold/layouts/base.html" %}
+{% extends "unfold/layouts/base_simple.html" %}
 {% load i18n static %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
 {% block extrahead %}
 {{ block.super }}

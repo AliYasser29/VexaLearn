@@ -1,159 +1,263 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block content %}
+{% block extrastyle %}
+{{ block.super }}
 <style>
-    /* 1. متغيرات الألوان (تتغير تلقائياً حسب الوضع) */
+    /* Premium Gray/Blue Theme for VexaLearn Admin */
     :root {
+        --dash-bg: #f8fafc;
         --card-bg: #ffffff;
         --card-border: #e2e8f0;
-        --text-primary: #1e293b;
-        --text-secondary: #64748b;
-        --hover-bg: #f8fafc;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --primary-accent: #2563eb;
+        --primary-light: #eff6ff;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.025);
+        --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
     }
 
-    /* تغيير المتغيرات عند تفعيل الوضع الداكن */
-    html.dark {
-        --card-bg: #1e293b;       /* لون خلفية الكارت في الداكن */
-        --card-border: #334155;   /* لون الحدود في الداكن */
-        --text-primary: #f1f5f9;  /* النص الأساسي أبيض */
-        --text-secondary: #94a3b8;
-        --hover-bg: #0f172a;
+    html[data-theme="dark"], html.dark {
+        --dash-bg: #0f172a;
+        --card-bg: #1e293b;
+        --card-border: #334155;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --primary-accent: #3b82f6;
+        --primary-light: #1e3a8a;
     }
 
-    .dashboard-container { padding: 20px 0; }
-
-    /* شبكة الكروت */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 24px;
-        margin-bottom: 40px;
+    .dashboard-wrapper {
+        padding: 1.5rem;
+        background-color: var(--dash-bg);
+        min-height: calc(100vh - 64px);
+        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
     }
 
-    /* تصميم الكارت المتجاوب مع الوضعين */
-    .stat-card {
-        background-color: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 12px;
-        padding: 24px;
-        text-decoration: none;
-        display: flex;
-        flex-direction: column;
-        transition: transform 0.2s, border-color 0.2s;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-3px);
-        border-color: #6366f1; /* لون التمييز */
-    }
-
-    .stat-header {
+    .dash-header {
+        margin-bottom: 2rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 15px;
     }
 
-    .stat-title {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        font-weight: 600;
+    .dash-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
     }
 
-    .stat-value {
-        color: var(--text-primary);
-        font-size: 2rem;
-        font-weight: 800;
+    /* KPI Grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
-    .stat-icon {
-        font-size: 24px;
-        color: #6366f1;
-        background: rgba(99, 102, 241, 0.1);
-        padding: 10px;
-        border-radius: 10px;
-    }
-
-    /* قسم التطبيقات */
-    .app-card {
-        background-color: var(--card-bg);
+    .kpi-card {
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
         border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 24px;
-    }
-
-    .app-header {
-        padding: 15px 20px;
-        background-color: var(--hover-bg);
-        border-bottom: 1px solid var(--card-border);
-        color: var(--text-primary);
-        font-weight: 700;
-    }
-
-    .app-body {
-        padding: 20px;
+        padding: 1.5rem;
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .quick-link {
-        padding: 8px 16px;
-        background-color: var(--hover-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
-        color: var(--text-secondary);
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         text-decoration: none;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-accent);
+    }
+
+    .kpi-icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary-accent);
+    }
+
+    .kpi-icon-wrap svg, .kpi-icon-wrap i, .kpi-icon-wrap span {
+        font-size: 24px;
+    }
+
+    .kpi-info {
+        flex: 1;
+    }
+
+    .kpi-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .kpi-footer {
+        font-size: 0.75rem;
+        color: var(--success);
+        margin-top: 0.25rem;
+        font-weight: 500;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .chart-header {
+        font-size: 1.125rem;
         font-weight: 600;
-        font-size: 0.9rem;
-        transition: 0.2s;
+        color: var(--text-main);
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 0.75rem;
     }
 
-    .quick-link:hover {
-        border-color: #6366f1;
-        color: #6366f1;
-    }
 </style>
+{% endblock %}
 
-<div class="dashboard-container">
-    
-    <div class="dashboard-grid">
-        {% if kpi %}
-            {% for card in kpi %}
-            <a href="{{ card.link|default:'#' }}" class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-title">{{ card.title }}</span>
-                    <span class="material-symbols-outlined stat-icon">{{ card.icon|default:'analytics' }}</span>
-                </div>
-                <div class="stat-value">{{ card.metric }}</div>
-            </a>
-            {% endfor %}
-        {% else %}
-             <div class="stat-card">
-                <p style="color: var(--text-secondary);">لا توجد بيانات للعرض.</p>
-            </div>
-        {% endif %}
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="dash-header">
+        <h1 class="dash-title">Platform Overview</h1>
     </div>
 
-    {% if app_list %}
-    <div class="apps-section">
-        {% for app in app_list %}
-        <div class="app-card">
-            <div class="app-header">{{ app.name }}</div>
-            <div class="app-body">
-                {% for model in app.models %}
-                <a href="{{ model.admin_url }}" class="quick-link">
-                    {{ model.name }}
-                </a>
-                {% endfor %}
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        {% for card in kpi %}
+        <a href="{{ card.link|default:'#' }}" class="kpi-card">
+            <div class="kpi-icon-wrap">
+                <span class="material-symbols-outlined">{{ card.icon|default:'analytics' }}</span>
+            </div>
+            <div class="kpi-info">
+                <div class="kpi-label">{{ card.title }}</div>
+                <div class="kpi-value">{{ card.metric }}</div>
+                <div class="kpi-footer">{{ card.footer }}</div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="kpi-card">
+            <div class="kpi-info">
+                <div class="kpi-label">No Data</div>
+                <div class="kpi-value">-</div>
             </div>
         </div>
         {% endfor %}
     </div>
-    {% endif %}
 
+    <!-- Charts -->
+    <div class="charts-grid">
+        <!-- Enrollment Trends Chart -->
+        <div class="chart-card">
+            <div class="chart-header">Enrollment Trends (Last 7 Days)</div>
+            <div id="enrollmentChart"></div>
+        </div>
+
+        <!-- Quiz Success Rate Chart -->
+        <div class="chart-card">
+            <div class="chart-header">Quiz Success Rates</div>
+            <div id="quizChart"></div>
+        </div>
+    </div>
 </div>
+
+<!-- ApexCharts Integration -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+
+    // 1. Enrollment Trends Area Chart
+    const enrollmentData = {{ chart_enrollments|safe|default:"[]" }};
+    const enrollmentOptions = {
+        series: [{
+            name: 'New Enrollments',
+            data: enrollmentData.map(d => d.count)
+        }],
+        chart: {
+            type: 'area',
+            height: 300,
+            toolbar: { show: false },
+            fontFamily: 'Inter, sans-serif'
+        },
+        colors: ['#2563eb'],
+        fill: {
+            type: 'gradient',
+            gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] }
+        },
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 2 },
+        xaxis: {
+            categories: enrollmentData.map(d => d.date),
+            labels: { style: { colors: textColor } },
+            axisBorder: { show: false },
+            axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: { style: { colors: textColor } }
+        },
+        grid: {
+            borderColor: isDark ? '#334155' : '#e2e8f0',
+            strokeDashArray: 4,
+        },
+        theme: { mode: isDark ? 'dark' : 'light' }
+    };
+    new ApexCharts(document.querySelector("#enrollmentChart"), enrollmentOptions).render();
+
+    // 2. Quiz Success Rate Donut Chart
+    const quizData = {{ chart_quizzes|safe|default:"[]" }};
+    const quizOptions = {
+        series: quizData.length ? quizData.map(d => d.value) : [1],
+        labels: quizData.length ? quizData.map(d => d.label) : ['No Data'],
+        chart: {
+            type: 'donut',
+            height: 300,
+            fontFamily: 'Inter, sans-serif'
+        },
+        colors: ['#10b981', '#ef4444', '#f59e0b'],
+        plotOptions: {
+            pie: {
+                donut: { size: '70%' }
+            }
+        },
+        dataLabels: { enabled: false },
+        legend: {
+            position: 'bottom',
+            labels: { colors: textColor }
+        },
+        stroke: { show: false },
+        theme: { mode: isDark ? 'dark' : 'light' }
+    };
+    new ApexCharts(document.querySelector("#quizChart"), quizOptions).render();
+});
+</script>
 {% endblock %}

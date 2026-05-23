@@ -11,13 +11,13 @@
     <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
     <style>
         :root {
-            --primary-color: var(--primary-neon);
-            --primary-gradient: linear-gradient(135deg, var(--primary-neon) 0%, var(--primary-dark) 100%);
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --text-main: var(--text-primary);
-            --text-muted: var(--text-secondary);
-            --shadow-soft: var(--shadow-sm);
+            --primary-color: var(--brand-primary, #6366f1);
+            --primary-gradient: linear-gradient(135deg, var(--brand-primary, #6366f1) 0%, var(--brand-primary-hover, #4f46e5) 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-main: var(--text-primary, #0f172a);
+            --text-muted: var(--text-secondary, #475569);
+            --shadow-soft: var(--shadow-soft);
         }
 
         * {
@@ -32,8 +32,7 @@
             flex-direction: column;
             color: var(--text-main);
             overflow: hidden;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+            background: linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 100%);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
         }
@@ -544,7 +543,7 @@
 
     <div class="navbar">
         <div class="nav-left-controls">
-            <form action="{% url 'chat_logout' %}" method="post" style="margin: 0;">
+            <form action="{% url 'logout' %}" method="post" style="margin: 0;">
                 {% csrf_token %}
                 <button type="submit" class="btn-logout-stylish">
                     <i class="fas fa-power-off"></i>
@@ -777,9 +776,8 @@
         // --- كود الفيديو الجديد (يفتح Agora) ---
         function openVideoPage() {
             {% if current_user and selected_user %}
-            const myId = {{ current_user.id }
-        };
-        const partnerId = {{ selected_user.id }};
+            const myId = {{ current_user.id }};
+            const partnerId = {{ selected_user.id }};
         // ترتيب المعرفات لضمان نفس اسم الغرفة لكلا الطرفين
         const ids = [myId, partnerId].sort((a, b) => a - b);
 

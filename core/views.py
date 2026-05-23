@@ -17,7 +17,7 @@ from django.conf import settings
 from agora_token_builder import RtcTokenBuilder
 
 # استيراد الأدوات المساعدة
-from .utils import send_mail_async
+from core.tasks import send_email_task
 
 # استيراد الموديلات
 from .models import (
@@ -152,19 +152,20 @@ def complete_course(request, enrollment_id):
 # 2. لوحات التحكم (مشرف، مدير، بروفايل)
 # ==========================================
 
+from core.utils import is_active_manager, is_active_supervisor, is_active_teacher, is_active_student
+
 @never_cache
-@login_required(login_url='management_login')
+@login_required(login_url='login')
 def supervisor_dashboard(request):
     """لوحة تحكم المشرفين لمتابعة الطلاب."""
-    current_user = request.user
-    
-    if current_user.is_superuser:
+    if is_active_manager(request):
         students_queryset = Student.objects.all()
-    elif hasattr(current_user, 'supervisor_profile'):
-        students_queryset = Student.objects.filter(supervisor=current_user.supervisor_profile)
+    elif is_active_supervisor(request):
+        students_queryset = Student.objects.filter(supervisor=request.user.supervisor_profile)
     else:
-        messages.error(request, "غير مصرح لك بدخول لوحة المشرفين.")
+        messages.error(request, "غير مصرح لك بدخول لوحة المشرفين بهذا الدور.")
         return redirect('chat_home')
+
 
     active_enrollments = Enrollment.objects.filter(is_completed=False).select_related('course').prefetch_related('attendances')
 
@@ -172,7 +173,8 @@ def supervisor_dashboard(request):
         .select_related('country', 'education_type', 'academic_year')\
         .prefetch_related(
             Prefetch('enrollment_set', queryset=active_enrollments),
-            'teachers'
+            'teachers',
+            'daily_reports__teacher'
         )
 
     context = {
@@ -182,7 +184,7 @@ def supervisor_dashboard(request):
     return render(request, 'core/supervisor_dashboard.html', context)
 
 
-@login_required(login_url='plogin') 
+@login_required(login_url='login') 
 def profile_view(request):
     """الصفحة الشخصية للمستخدم (طالب، معلم، أو مستخدم عام)."""
     user = request.user
@@ -213,13 +215,10 @@ def profile_view(request):
     context = {
         'password_form': password_form,
         'notifications': Notification.objects.filter(recipient=user).order_by('-created_at')[:10],
-        'is_student': False,
-        'is_teacher': False,
     }
 
     # 2. منطق الطالب
     if hasattr(user, 'student_profile'):
-        context['is_student'] = True
         student = user.student_profile
         
         enrollments = Enrollment.objects.filter(student=student, is_completed=False)
@@ -241,7 +240,6 @@ def profile_view(request):
 
     # 3. منطق المعلم
     elif hasattr(user, 'teacher_profile'):
-        context['is_teacher'] = True
         teacher = user.teacher_profile
         
         my_students = Student.objects.filter(teachers=teacher).distinct()
@@ -271,13 +269,11 @@ def profile_view(request):
 # 3. لوحة الإدارة وتسجيل الطلاب
 # ==========================================
 
-@login_required(login_url='management_login') 
-def admin_panel(req):
-    """لوحة الإدارة الرئيسية: إحصائيات، بحث، وإضافة طلاب."""
-    is_authorized = req.user.is_superuser or hasattr(req.user, 'manager_profile')
-    
-    if not is_authorized:
-        messages.error(req, "عفواً، هذه الصفحة مخصصة للمديرين الإداريين فقط.")
+@login_required(login_url='login') 
+def admin_panel(req, student_id=None):
+    """بوابة البحث والاشتراكات للطلاب المسجلين مع تسجيل طلاب جدد."""
+    if not is_active_manager(req):
+        messages.error(req, "عفواً، هذه الصفحة مخصصة للمديرين الإداريين فقط بهذا الدور.")
         return redirect('chat_home')
 
     stats = {
@@ -287,41 +283,32 @@ def admin_panel(req):
         'active_enrollments': Enrollment.objects.filter(is_completed=False).count(),
     }
 
-    search_results = None
+    # دائماً ننشئ استمارة تسجيل طالب جديدة فارغة
     student_form = StudentForm(req.POST or None)
 
-    # منطق البحث
-    query = req.GET.get('q')
+    search_results = None
+    query = req.GET.get('q', '').strip()
     if query:
-        search_results = Student.objects.filter(
-            Q(name__icontains=query) |
-            Q(parent_name__icontains=query) |
-            Q(parent_phone__icontains=query) |
-            Q(parent_email__icontains=query)
-        ).only('name', 'id')
+        # البحث الذكي باستخدام الاسم، أو الهاتف، أو الإيميل، أو الرقم التعريفي
+        q_obj = Q(name__icontains=query) | Q(parent_phone__icontains=query) | Q(parent_email__icontains=query)
+        if query.isdigit():
+            q_obj |= Q(id=int(query))
+            
+        search_results = Student.objects.filter(q_obj).select_related('country', 'education_type', 'academic_year')
 
-    # منطق إضافة الطالب
-    if req.method == 'POST' and 'add_student' in req.POST:
+    # منطق تسجيل طالب جديد فقط (لا يوجد تعديل)
+    if req.method == 'POST':
         if student_form.is_valid():
             try:
                 parent_email = student_form.cleaned_data.get('parent_email')
-                
-                # --- [بداية التعديل] ---
-                # تنظيف رقم الهاتف من المسافات والعلامات لضمان اسم مستخدم صحيح
                 raw_phone = student_form.cleaned_data['parent_phone']
                 clean_username = raw_phone.replace(" ", "").replace("-", "").strip()
-                # -----------------------
 
-                # توليد كلمة مرور قوية
-                alphabet = string.ascii_letters + string.digits
-                password = ''.join(secrets.choice(alphabet) for i in range(10)) 
-
-                # استخدام الاسم المنظف
+                password = ''.join(secrets.choice(string.ascii_letters + string.digits) for i in range(10)) 
                 username = clean_username
                 if User.objects.filter(username=username).exists():
                     username = f"{username}_{secrets.randbelow(1000)}"
 
-                # إنشاء المستخدم
                 user = User.objects.create_user(username=username, password=password)
                 full_name = student_form.cleaned_data['name'].split()
                 if full_name:
@@ -333,16 +320,13 @@ def admin_panel(req):
                     user.email = parent_email
                 user.save()
 
-                # حفظ الطالب
                 student = student_form.save(commit=False)
                 student.user = user  
-                student.save() # هذا السطر سيقوم بتفعيل إشعار المشرف تلقائياً عبر Signals
+                student.save()
                 
-                # إرسال الإيميل
                 if parent_email:
                     subject = 'بيانات الدخول لمنصة VexaLearn'
                     site_url = f"{req.scheme}://{req.get_host()}"
-                    
                     message = f"""
                     مرحباً ولي أمر الطالب/ة {student.name}،
                     
@@ -350,24 +334,20 @@ def admin_panel(req):
                     
                     بيانات الدخول:
                     اسم المستخدم: {username}
-                    كلمة المرور: {password}
+                    word: {password}
                     
                     رابط المنصة: {site_url}
-                    
-                    يرجى الاحتفاظ بهذه البيانات.
                     """
-                    send_mail_async(subject, message, [parent_email])
+                    send_email_task.delay(subject, message, [parent_email])
                     messages.info(req, f"تم إرسال بيانات الدخول إلى: {parent_email}")
 
-                # عرض كلمة المرور للمدير لنسخها في حال لم يصل الإيميل
-                messages.success(req, f"تم إنشاء ملف الطالب {student.name}. Generated credentials: {username} / {password}")
-                messages.warning(req, "يرجى الآن إضافة الكورسات واختيار المعلمين لهذا الطالب.")
+                messages.success(req, f"تم إنشاء ملف الطالب {student.name} بنجاح. Credentials: {username} / {password} ✅")
                 return redirect('add_enrollment', student_id=student.id)
             
             except Exception as e:
                 messages.error(req, f"حدث خطأ أثناء الحفظ: {e}")
         else:
-            messages.error(req, "يرجى التأكد من صحة البيانات المدخلة.")
+            messages.error(req, "يرجى التأكد من صحة البيانات المدخلة في استمارة التسجيل.")
 
     context = {
         'search_results': search_results,
@@ -430,7 +410,7 @@ def add_enrollment(request, student_id):
                 نتمنى له التوفيق.
                 إدارة الأكاديمية
                 """
-                send_mail_async(subject, message, [student.parent_email])
+                send_email_task.delay(subject, message, [student.parent_email])
                 messages.info(request, f"تم إرسال إشعار الاشتراك لولي الأمر 📧")
 
             messages.success(request, f"تم إضافة اشتراك كورس {enrollment.course.name} للطالب {student.name} ✅")
@@ -438,11 +418,33 @@ def add_enrollment(request, student_id):
 
     return render(request, 'core/add_enrollment.html', {'form': form, 'student': student})
 
+@login_required
+def switch_role(request, role_name):
+    """
+    يتيح للمستخدم التبديل بين أدواره المختلفة (طالب، معلم، إلخ)
+    """
+    # التحقق من أن الدور المطلوب هو من ضمن الأدوار المتاحة للمستخدم
+    available_roles = []
+    if hasattr(request.user, 'student_profile'): available_roles.append('student')
+    if hasattr(request.user, 'teacher_profile'): available_roles.append('teacher')
+    if hasattr(request.user, 'supervisor_profile'): available_roles.append('supervisor')
+    if hasattr(request.user, 'manager_profile') or request.user.is_superuser: 
+        available_roles.append('manager')
+    
+    if role_name in available_roles:
+        request.session['active_role'] = role_name
+        messages.success(request, f"تم التبديل إلى واجهة {role_name} بنجاح.")
+    else:
+        messages.error(request, "ليس لديك صلاحية لهذه الواجهة.")
+        
+    return redirect('dashboard')
+
+
 # ==========================================
 # 4. الشات والمراسلة
 # ==========================================
 
-@login_required(login_url='chat_login')
+@login_required(login_url='login')
 def chat_room(request, user_id=None):
     """غرفة الدردشة الرئيسية مع إصلاح خطأ الدمج (Fix Query Error)."""
     current_user = request.user
@@ -706,62 +708,6 @@ def course_materials(request, course_id):
 # 6. صفحات الدخول والصفحات العامة
 # ==========================================
 
-def management_login(request):
-    """تسجيل دخول الإداريين فقط."""
-    if request.user.is_authenticated:
-        return redirect('supervisor_dashboard')
-
-    form = AuthenticationForm(request, data=request.POST or None)
-    
-    if request.method == 'POST':
-        if form.is_valid():
-            user = form.get_user()
-            if user.is_superuser or hasattr(user, 'manager_profile'):
-                auth_login(request, user)
-                return redirect('admin_panel')
-            else:
-                messages.error(request, "عفواً، غير مصرح لك بدخول لوحة الإدارة.")
-        else:
-            messages.error(request, "اسم المستخدم أو كلمة المرور غير صحيحة.")
-
-    return render(request, 'core/management_login.html', {'form': form})
-
-
-def public_login(request):
-    """تسجيل دخول عام (طلاب، معلمين، أولياء أمور)."""
-    if request.user.is_authenticated:
-        return redirect('profile_view')
-
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            
-            has_role = (
-                user.is_superuser or 
-                hasattr(user, 'student_profile') or 
-                hasattr(user, 'teacher_profile') or 
-                hasattr(user, 'manager_profile') or 
-                hasattr(user, 'supervisor_profile')
-            )
-
-            if not has_role:
-                 messages.error(request, "هذا الحساب غير نشط أو لا يملك صلاحية.")
-                 return redirect('plogin')
-
-            auth_login(request, user)
-            
-            if user.is_superuser:
-                return redirect('admin_panel')
-            else:
-                return redirect('profile_view')
-        else:
-            messages.error(request, "اسم المستخدم أو كلمة المرور غير صحيحة.")
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'core/public_login.html', {'form': form})
-
 
 def landing_page(request):
     """الصفحة الرئيسية للموقع."""
@@ -905,25 +851,7 @@ def student_full_chat_log(request, student_id):
     return render(request, 'core/student_full_chat_log.html', context)
 
 
-def superuser_custom_login(request):
-    """تسجيل دخول مخصص للمدير العام."""
-    if request.user.is_authenticated and request.user.is_superuser:
-        return redirect('universal_chat_monitor')
-    
-    form = AuthenticationForm(request, data=request.POST or None)
-    if request.method == 'POST':
-        if form.is_valid():
-            user = form.get_user()
-            if user.is_superuser:
-                auth_login(request, user)
-                return redirect('universal_chat_monitor')
-            else:
-                messages.error(request, "عفواً، هذه الصفحة مخصصة للمدير العام فقط.")
-    
-    return render(request, 'core/superuser_login.html', {'form': form})
-
-
-@user_passes_test(lambda u: u.is_superuser, login_url='superuser_custom_login')
+@user_passes_test(lambda u: u.is_superuser, login_url='login')
 def universal_chat_monitor(request):
     """مراقبة شاملة لكل المحادثات في النظام (God Mode)."""
     all_users = User.objects.filter(is_active=True).select_related(
@@ -1023,16 +951,110 @@ def video_call_view(request, room_name):
         return redirect('chat_home')
 
     # Authorization Check
+    import re
     is_authorized = False
-    if request.user.is_superuser or hasattr(request.user, 'manager_profile'):
-        is_authorized = True
-    elif hasattr(request.user, 'teacher_profile'):
-        # Check if teacher has an enrollment assignment for this specific course
-        if Enrollment.objects.filter(course_id=room_name, teacher=request.user.teacher_profile).exists():
+    
+    # 1. Match VexaLearn_<user1_id>_<user2_id> format
+    match = re.match(r'^VexaLearn_(\d+)_(\d+)$', room_name)
+    if match:
+        try:
+            u1_id = int(match.group(1))
+            u2_id = int(match.group(2))
+            
+            current_user = request.user
+            if current_user.id in [u1_id, u2_id]:
+                other_user_id = u2_id if current_user.id == u1_id else u1_id
+                
+                try:
+                    other_user = User.objects.get(id=other_user_id, is_active=True)
+                    
+                    # A. Superuser or Manager on either side has global relationship
+                    if (current_user.is_superuser or hasattr(current_user, 'manager_profile') or 
+                            other_user.is_superuser or hasattr(other_user, 'manager_profile')):
+                        is_authorized = True
+                    else:
+                        # B. Check student-teacher, student-supervisor, or teacher-supervisor relations
+                        def check_student_teacher(u_student, u_teacher):
+                            if hasattr(u_student, 'student_profile') and hasattr(u_teacher, 'teacher_profile'):
+                                student = u_student.student_profile
+                                teacher = u_teacher.teacher_profile
+                                if Enrollment.objects.filter(student=student, teacher=teacher, is_completed=False).exists():
+                                    return True
+                                if student.teachers.filter(id=teacher.id).exists():
+                                    return True
+                            return False
+
+                        def check_student_supervisor(u_student, u_supervisor):
+                            if hasattr(u_student, 'student_profile') and hasattr(u_supervisor, 'supervisor_profile'):
+                                student = u_student.student_profile
+                                supervisor = u_supervisor.supervisor_profile
+                                if student.supervisor == supervisor:
+                                    return True
+                            return False
+
+                        def check_teacher_supervisor(u_teacher, u_supervisor):
+                            if hasattr(u_teacher, 'teacher_profile') and hasattr(u_supervisor, 'supervisor_profile'):
+                                teacher = u_teacher.teacher_profile
+                                supervisor = u_supervisor.supervisor_profile
+                                if Enrollment.objects.filter(teacher=teacher, student__supervisor=supervisor, is_completed=False).exists():
+                                    return True
+                            return False
+
+                        if check_student_teacher(current_user, other_user) or check_student_teacher(other_user, current_user):
+                            is_authorized = True
+                        elif check_student_supervisor(current_user, other_user) or check_student_supervisor(other_user, current_user):
+                            is_authorized = True
+                        elif check_teacher_supervisor(current_user, other_user) or check_teacher_supervisor(other_user, current_user):
+                            is_authorized = True
+                        
+                        # C. Fallback to general chat permission logic (Q objects)
+                        if not is_authorized:
+                            q_objects = Q()
+                            if hasattr(current_user, 'supervisor_profile'):
+                                supervisor_profile = current_user.supervisor_profile
+                                q_objects = Q(student_profile__supervisor=supervisor_profile) | \
+                                            Q(teacher_profile__student__supervisor=supervisor_profile)
+                            elif hasattr(current_user, 'teacher_profile'):
+                                teacher_profile = current_user.teacher_profile
+                                q_objects = Q(student_profile__enrollment__teacher=teacher_profile) | \
+                                            Q(supervisor_profile__students__enrollment__teacher=teacher_profile)
+                            elif hasattr(current_user, 'student_profile'):
+                                student_profile = current_user.student_profile
+                                q_objects = Q(teacher_profile__enrollment__student=student_profile) | \
+                                            Q(supervisor_profile__students=student_profile)
+                            
+                            if q_objects and User.objects.filter(q_objects).filter(id=other_user_id).exists():
+                                is_authorized = True
+                except User.DoesNotExist:
+                    is_authorized = False
+        except ValueError:
+            is_authorized = False
+
+    # 2. Match 'general' format
+    elif room_name == 'general':
+        if (request.user.is_superuser or 
+                hasattr(request.user, 'manager_profile') or 
+                hasattr(request.user, 'supervisor_profile') or 
+                hasattr(request.user, 'teacher_profile')):
             is_authorized = True
-    elif hasattr(request.user, 'student_profile'):
-        if Enrollment.objects.filter(course_id=room_name, student=request.user.student_profile, is_completed=False).exists():
-            is_authorized = True
+        elif hasattr(request.user, 'student_profile'):
+            if Enrollment.objects.filter(student=request.user.student_profile, is_completed=False).exists():
+                is_authorized = True
+
+    # 3. Match numeric course_id
+    else:
+        try:
+            course_id_int = int(room_name)
+            if request.user.is_superuser or hasattr(request.user, 'manager_profile'):
+                is_authorized = True
+            elif hasattr(request.user, 'teacher_profile'):
+                if Enrollment.objects.filter(course_id=course_id_int, teacher=request.user.teacher_profile).exists():
+                    is_authorized = True
+            elif hasattr(request.user, 'student_profile'):
+                if Enrollment.objects.filter(course_id=course_id_int, student=request.user.student_profile, is_completed=False).exists():
+                    is_authorized = True
+        except ValueError:
+            is_authorized = False
 
     if not is_authorized:
         messages.error(request, "غير مصرح لك بدخول هذه الجلسة.")
@@ -1097,3 +1119,65 @@ def load_academic_years(request):
         years = AcademicYear.objects.filter(country_id=country_id).values('id', 'name')
         return JsonResponse(list(years), safe=False)
     return JsonResponse([], safe=False)
+
+@login_required
+def student_directory(request):
+    # Fetch active students with related data to avoid N+1 queries
+    students = Student.objects.filter(is_deleted=False).select_related('academic_year', 'country', 'education_type')
+    return render(request, 'core/student_directory.html', {'students': students})
+
+# --- Unified Login System ---
+from django.urls import reverse
+
+def get_dashboard_url_for_user(user):
+    """Returns the correct dashboard URL based on the user's role.
+    Now redirects all users to the centralized profile view dashboard."""
+    return reverse('profile_view')
+
+def unified_login_view(request):
+    """Unified login endpoint for all users."""
+    if request.user.is_authenticated:
+        return redirect(get_dashboard_url_for_user(request.user))
+        
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            
+            # Additional logic from public_login to verify the user has a valid role
+            has_role = (
+                user.is_superuser or 
+                hasattr(user, 'student_profile') or 
+                hasattr(user, 'teacher_profile') or 
+                hasattr(user, 'manager_profile') or 
+                hasattr(user, 'supervisor_profile')
+            )
+            
+            if not has_role:
+                 messages.error(request, "This account is inactive or has no valid role assigned.")
+                 return redirect('login')
+                 
+            auth_login(request, user)
+            
+            # Use 'next' parameter if available, otherwise redirect to dashboard
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+                
+            return redirect(get_dashboard_url_for_user(user))
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'core/login.html', {'form': form})
+
+@login_required
+def student_dashboard(request):
+    return render(request, 'core/student_dashboard.html', {})
+
+@login_required
+def instructor_dashboard(request):
+    return render(request, 'core/instructor_dashboard.html', {})
+
+

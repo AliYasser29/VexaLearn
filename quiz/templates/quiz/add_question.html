@@ -28,11 +28,13 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 800px;
             width: 100%;
+            min-width: 0;
         }
 
         /* Card Styling */
@@ -99,6 +101,7 @@
             border-radius: 12px;
             border: 1px solid var(--border);
             margin-top: 10px;
+            min-width: 0;
         }
         
         .option-row {
@@ -150,6 +153,16 @@
         /* Buttons */
         .btn-group {
             display: flex; gap: 15px; margin-top: 30px;
+        }
+
+        @media (max-width: 760px) {
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
         }
         .btn {
             padding: 14px 24px; border: none; border-radius: 10px;

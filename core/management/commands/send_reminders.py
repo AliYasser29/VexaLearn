@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django.core.mail import send_mail
+from core.tasks import send_email_task
 from django.utils import timezone
 from core.models import Enrollment
 from django.conf import settings
@@ -35,12 +35,10 @@ class Command(BaseCommand):
                 
                 if recipient:
                     try:
-                        send_mail(
+                        send_email_task.delay(
                             subject,
                             message,
-                            settings.EMAIL_HOST_USER, # المرسل
-                            [recipient], # المستقبل
-                            fail_silently=False,
+                            [recipient]
                         )
                         self.stdout.write(self.style.SUCCESS(f'تم إرسال إيميل لولي أمر الطالب: {enrollment.student.name}'))
                         count += 1

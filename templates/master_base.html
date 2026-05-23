@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VexaLearn Portal{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-sidebar { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border-right: 1px solid rgba(226, 232, 240, 0.6); }
+        .accent-blue { color: #004080; }
+        .bg-accent-blue { background-color: #004080; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 glass-sidebar hidden md:flex flex-col h-full shadow-lg z-20">
+        <div class="p-6">
+            <h1 class="text-xl font-bold accent-blue flex items-center gap-2">
+                <i class="fas fa-cube"></i> VexaLearn
+            </h1>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2">
+            {% block nav_items %}
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white shadow-sm text-blue-900 font-semibold border border-slate-100">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-white hover:shadow-sm transition-all">
+                <i class="fas fa-graduation-cap"></i> Courses
+            </a>
+            {% endblock %}
+        </nav>
+
+        <div class="p-6 border-t border-slate-200">
+            <a href="{% url 'logout' %}" class="flex items-center gap-3 text-slate-500 hover:text-red-600 transition-colors">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 h-full overflow-y-auto">
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-slate-200 p-4 px-8 flex justify-between items-center shadow-sm">
+            <h2 class="text-lg font-semibold text-slate-700">{% block page_title %}Dashboard{% endblock %}</h2>
+            <div class="flex items-center gap-4">
+                <div class="text-sm text-slate-500">{{ user.username }}</div>
+            </div>
+        </header>
+
+        <div class="p-8">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-6 p-4 rounded-xl border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} flex items-center gap-3">
+                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</body>
+</html>

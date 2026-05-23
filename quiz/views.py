@@ -96,14 +96,106 @@ def take_quiz(request, quiz_id):
         is_enrolled = Enrollment.objects.filter(student=student, course=quiz.course).exists()
         if not is_enrolled:
             messages.error(request, "أنت غير مشترك في هذا الكورس.")
-            return redirect('profile_view')
+            return redirect('quiz:quiz_dashboard')
 
         if quiz.specific_students.exists():
             if student not in quiz.specific_students.all():
                 messages.error(request, "هذا الاختبار غير مخصص لك.")
-                return redirect('profile_view')
-        # ----------------------------------------------------
+                return redirect('quiz:quiz_dashboard')
 
         if QuizAttempt.objects.filter(student=student, quiz=quiz).exists():
             messages.warning(request, "لقد قمت بأداء هذا الاختبار مسبقاً.")
-            return redirect('profile_view')
+            return redirect('quiz:quiz_dashboard')
+
+    if request.method == 'POST':
+        questions = quiz.questions.all().prefetch_related('choices')
+        total_marks = sum(q.marks for q in questions)
+        earned_marks = 0
+        
+        for question in questions:
+            selected_choice_id = request.POST.get(f'question_{question.id}')
+            if selected_choice_id:
+                try:
+                    selected_choice = Choice.objects.get(id=int(selected_choice_id), question=question)
+                    if selected_choice.is_correct:
+                        earned_marks += question.marks
+                except (ValueError, Choice.DoesNotExist):
+                    pass
+                    
+        percentage = (earned_marks / total_marks) * 100 if total_marks > 0 else 0
+        passed = percentage >= quiz.pass_score
+        
+        if student:
+            QuizAttempt.objects.create(
+                student=student,
+                quiz=quiz,
+                score=percentage,
+                passed=passed
+            )
+            messages.success(request, f"تم تسليم إجاباتك بنجاح! درجتك: {percentage:.1f}%")
+        else:
+            messages.info(request, f"حساب مسؤول: تم تقييم إجاباتك بنجاح! النتيجة: {percentage:.1f}% (لم يتم تسجيل محاولة للـ Admin)")
+            
+        return redirect('quiz:quiz_dashboard')
+        
+    else:
+        questions = quiz.questions.all().prefetch_related('choices')
+        return render(request, 'quiz/take_quiz.html', {
+            'quiz': quiz,
+            'questions': questions
+        })
+
+
+@login_required
+def quiz_dashboard(request):
+    """لوحة التحكم للاختبارات (عرض الاختبارات المتاحة للطلاب والمنشأة للمعلمين)."""
+    user = request.user
+    
+    if hasattr(user, 'student_profile'):
+        student = user.student_profile
+        active_enrollments = Enrollment.objects.filter(student=student, is_completed=False)
+        enrolled_courses = [e.course for e in active_enrollments]
+        
+        from django.db.models import Q
+        quizzes = Quiz.objects.filter(course__in=enrolled_courses).filter(
+            Q(specific_students__isnull=True) | Q(specific_students=student)
+        ).distinct().select_related('course')
+        
+        completed_attempts = QuizAttempt.objects.filter(student=student).select_related('quiz')
+        attempts_dict = {attempt.quiz_id: attempt for attempt in completed_attempts}
+        
+        for quiz in quizzes:
+            quiz.user_attempt = attempts_dict.get(quiz.id)
+            
+        completed_count = sum(1 for q in quizzes if q.user_attempt is not None)
+        pending_count = sum(1 for q in quizzes if q.user_attempt is None)
+        
+        context = {
+            'role': 'student',
+            'quizzes': quizzes,
+            'completed_count': completed_count,
+            'pending_count': pending_count,
+        }
+        
+    elif hasattr(user, 'teacher_profile') or user.is_superuser:
+        courses = Course.objects.all()
+        if hasattr(user, 'teacher_profile'):
+            teacher_profile = user.teacher_profile
+            courses_via_enrollment = Course.objects.filter(enrollment__teacher=teacher_profile)
+            courses_via_subject = Course.objects.filter(subject__in=teacher_profile.subjects.all())
+            courses = (courses_via_enrollment | courses_via_subject).distinct()
+            
+        quizzes = Quiz.objects.filter(course__in=courses).distinct().select_related('course')
+        
+        context = {
+            'role': 'teacher',
+            'courses': courses,
+            'quizzes': quizzes,
+        }
+    else:
+        context = {
+            'role': 'other',
+            'quizzes': [],
+        }
+        
+    return render(request, 'quiz/quiz_dashboard.html', context)

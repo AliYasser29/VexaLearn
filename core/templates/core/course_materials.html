@@ -4,134 +4,283 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مكتبة {{ course.name }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
     <style>
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--bg-main);
-            padding: 40px;
-            color: var(--text-primary);
+        :root {
+            --page-bg: #f7f8fb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --surface-warm: #eef2ff;
+            --border-soft: #e2e8f0;
+            --text-strong: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --accent: #1d4ed8;
+            --accent-strong: #0f172a;
+            --accent-soft: #dbeafe;
+            --success-soft: #ecfdf5;
+            --success-text: #166534;
         }
 
-        .header {
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at top right, #eef2ff 0, #f7f8fb 38%, #f7f8fb 100%);
+            margin: 0;
+            padding: 0;
+            color: var(--text-body);
+            line-height: 1.7;
+        }
+
+        .page-shell {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px 56px;
+        }
+
+        .hero {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--border-color);
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 24px 26px;
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.98) 100%);
+            box-shadow: 0 18px 40px -28px rgba(15, 23, 42, 0.28);
+        }
+
+        .hero-copy {
+            max-width: 60ch;
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 0;
+            color: var(--text-strong);
+            font-size: clamp(1.5rem, 2.2vw, 2.2rem);
+            line-height: 1.15;
+            font-weight: 800;
+        }
+
+        .hero-meta {
+            margin-top: 10px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .hero-meta strong {
+            color: var(--text-strong);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            background: var(--surface);
+            color: var(--text-body);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .back-link:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .materials {
+            display: grid;
+            gap: 16px;
         }
 
         .material-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            padding: 24px;
             display: flex;
             align-items: center;
-            gap: 24px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-sm);
+            gap: 18px;
+            padding: 18px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border-soft);
+            background: var(--surface);
+            box-shadow: 0 12px 28px -24px rgba(15, 23, 42, 0.25);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .material-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            border-color: #c7d2fe;
+            box-shadow: 0 18px 34px -24px rgba(15, 23, 42, 0.32);
         }
 
         .icon-box {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
-            border-radius: var(--radius-md);
-            background: var(--bg-main);
-            color: var(--primary-neon);
+            flex: 0 0 auto;
+            font-size: 1.5rem;
+            border-radius: 18px;
+            background: var(--surface-warm);
+            color: var(--accent);
         }
 
         .info {
             flex-grow: 1;
+            min-width: 0;
         }
 
         .info h3 {
-            margin: 0 0 4px;
+            margin: 0 0 6px;
+            color: var(--text-strong);
+            font-size: 1.04rem;
+            line-height: 1.35;
             font-weight: 800;
-            color: var(--secondary);
         }
 
         .info p {
             margin: 0;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.65;
         }
 
         .btn-download {
-            background: var(--primary-light);
-            color: var(--primary-neon);
-            padding: 12px 24px;
-            border-radius: var(--radius-md);
-            text-decoration: none;
-            font-weight: 800;
-            transition: 0.3s;
-            display: flex;
+            flex: 0 0 auto;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            padding: 12px 18px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, var(--accent) 0%, var(--accent-strong) 100%);
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 800;
+            box-shadow: 0 10px 24px -14px rgba(29, 78, 216, 0.7);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
         }
 
         .btn-download:hover {
-            background: var(--primary-neon);
-            color: white;
-            transform: scale(1.05);
+            transform: translateY(-1px);
+            filter: brightness(1.03);
+            box-shadow: 0 16px 30px -16px rgba(29, 78, 216, 0.8);
+        }
+
+        .btn-download:focus-visible,
+        .back-link:focus-visible {
+            outline: 3px solid rgba(29, 78, 216, 0.22);
+            outline-offset: 3px;
+        }
+
+        .empty-state {
+            display: grid;
+            place-items: center;
+            gap: 10px;
+            padding: 48px 24px;
+            border-radius: 20px;
+            border: 1px dashed var(--border-soft);
+            background: var(--surface);
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state p {
+            margin: 0;
+            max-width: 42ch;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 720px) {
+            .page-shell {
+                padding: 20px 14px 40px;
+            }
+
+            .hero {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .material-card {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .btn-download {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container" style="max-width: 800px; margin: 0 auto;">
-
-        <div class="header">
-            <div>
-                <h2 style="margin:0;">📂 مكتبة كورس: {{ course.name }}</h2>
-                {% if teacher %}
-                <p style="margin:5px 0 0; color:#64748b;">بإشراف المعلم: <strong>{{ teacher.name }}</strong></p>
-                {% endif %}
-            </div>
-            <a href="{% url 'profile_view' %}" style="color: #64748b; text-decoration:none;"><i
-                    class="fas fa-arrow-right"></i> عودة</a>
-        </div>
-
-        {% for file in materials %}
-        <div class="material-card">
-            <div class="icon-box">
-                <i class="fas {{ file.icon_class }}"></i>
-            </div>
-            <div class="info">
-                <h3 style="margin:0 0 5px; font-size:1.1rem;">{{ file.title }}</h3>
-                <p style="margin:0; color:#94a3b8; font-size:0.9rem;">
-                    {{ file.description|default:"" }} • <i class="far fa-clock"></i> {{ file.created_at|date:"d/m/Y" }}
+    <main class="page-shell">
+        <section class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Course materials</p>
+                <h1>مكتبة كورس: {{ course.name }}</h1>
+                <p class="hero-meta">
+                    {% if teacher %}
+                    بإشراف المعلم <strong>{{ teacher.name }}</strong>
+                    {% else %}
+                    الملفات المرتبطة بهذا الكورس تظهر هنا بشكل منظم وواضح.
+                    {% endif %}
                 </p>
             </div>
-            <a href="{{ file.file.url }}" download class="btn-download">
-                <i class="fas fa-download"></i> تحميل
+            <a href="{% url 'profile_view' %}" class="back-link">
+                <i class="fas fa-arrow-right"></i>
+                <span>العودة إلى الملف الشخصي</span>
             </a>
-        </div>
-        {% empty %}
-        <div style="text-align:center; padding:50px; color:#94a3b8; background:white; border-radius:12px;">
-            <i class="fas fa-folder-open" style="font-size:3rem; margin-bottom:15px; opacity:0.5;"></i>
-            <p>لم يقم المعلم برفع أي ملفات لهذا الكورس حتى الآن.</p>
-        </div>
-        {% endfor %}
+        </section>
 
+        <section class="materials" aria-label="قائمة ملفات الكورس">
+            {% for file in materials %}
+            <article class="material-card">
+                <div class="icon-box" aria-hidden="true">
+                    <i class="fas {{ file.icon_class }}"></i>
+                </div>
+                <div class="info">
+                    <h3>{{ file.title }}</h3>
+                    <p>
+                        {{ file.description|default:"" }}
+                        <span style="color: var(--text-muted);">&bull;</span>
+                        <span><i class="far fa-clock"></i> {{ file.created_at|date:"d/m/Y" }}</span>
+                    </p>
+                </div>
+                <a href="{{ file.file.url }}" download class="btn-download">
+                    <i class="fas fa-download"></i>
+                    <span>تحميل الملف</span>
+                </a>
+            </article>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-folder-open" aria-hidden="true"></i>
+                <p>لم يرفع المعلم أي ملفات لهذا الكورس بعد. ستظهر المواد هنا بمجرد إضافتها.</p>
+            </div>
+            {% endfor %}
+        </section>
     </div>
 </body>
 

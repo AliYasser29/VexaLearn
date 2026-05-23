@@ -110,10 +110,39 @@ def dashboard_callback(request, context):
                 "icon": "domain", 
             })
 
+    # --- Charts Data Generation ---
+    import json
+    
+    # Chart 1: Enrollment Trends (Last 7 Days)
+    chart_enrollments = []
+    for i in range(6, -1, -1):
+        target_date = today - timedelta(days=i)
+        count = Enrollment.objects.filter(start_date=target_date).count()
+        chart_enrollments.append({
+            "date": target_date.strftime("%b %d"),
+            "count": count
+        })
+        
+    # Chart 2: Quiz Attempt Success Rates
+    chart_quizzes = []
+    try:
+        from quiz.models import QuizAttempt
+        passed_count = QuizAttempt.objects.filter(passed=True).count()
+        failed_count = QuizAttempt.objects.filter(passed=False).count()
+        if passed_count > 0 or failed_count > 0:
+            chart_quizzes = [
+                {"label": "Passed", "value": passed_count},
+                {"label": "Failed", "value": failed_count}
+            ]
+    except ImportError:
+        pass
+
     # تحديث البيانات
     context.update({
         "kpi": kpi_data,
         "income_period": period,
+        "chart_enrollments": json.dumps(chart_enrollments),
+        "chart_quizzes": json.dumps(chart_quizzes),
     })
 
     return context

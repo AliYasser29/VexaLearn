@@ -37,22 +37,21 @@
             /* منع النسخ للحماية */
             padding-bottom: 80px;
             /* مساحة للزر العائم */
+            overflow-x: hidden;
         }
 
         /* --- Sticky Timer Header --- */
         .timer-header {
-            position: fixed;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 15px 5%;
+            padding: 15px 20px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000;
+            z-index: 20;
             border-bottom: 1px solid var(--border);
         }
 
@@ -104,8 +103,7 @@
         /* --- Container --- */
         .container {
             max-width: 800px;
-            margin: 100px auto 40px;
-            /* Top margin for sticky header */
+            margin: 40px auto;
             padding: 0 20px;
         }
 
@@ -152,6 +150,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            gap: 12px;
             margin-bottom: 25px;
         }
 
@@ -171,7 +170,25 @@
             font-size: 0.85rem;
             font-weight: 700;
             white-space: nowrap;
-            margin-right: 15px;
+            margin-right: 0;
+        }
+
+        @media (max-width: 768px) {
+            .timer-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .container {
+                margin-top: 24px;
+                padding: 0 14px;
+            }
+
+            .question-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         /* --- Choices (Radio Options) --- */

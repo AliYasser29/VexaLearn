@@ -62,6 +62,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'core.middleware.RoleContextMiddleware',
+    'core.middleware.RoleAccessMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -81,6 +83,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.unfold_dashboard', # Unfold Dashboard KPI
+                'core.context_processors.nav_items',
             ],
         },
     },
@@ -90,12 +93,24 @@ WSGI_APPLICATION = 'academy_project.wsgi.application'
 
 
 # --- Database ---
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ.get('DB_NAME'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': os.environ.get('DB_PORT'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # --- Password Validation ---
@@ -141,12 +156,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # --- Auth Redirects ---
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/login/' # Fallback; custom logic handles redirection based on role.
 LOGOUT_REDIRECT_URL = '/admin/'
 
 
 # --- Email Configuration (Gmail SMTP) ---
 # هذه الإعدادات لإرسال إيميلات حقيقية
+
+# --- Celery and Redis Configuration ---
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://127.0.0.1:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+# Run tasks synchronously in development if Redis/Celery is offline or by default
+CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER', str(DEBUG)).lower() == 'true'
+CELERY_TASK_EAGER_PROPAGATES = True
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587

@@ -3,11 +3,13 @@ import string
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.core.mail import send_mail
+from core.tasks import send_email_task
 from django.conf import settings
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from simple_history.admin import SimpleHistoryAdmin
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 # استيراد الموديلات (تم إضافة الموديلات الجديدة هنا)
 from .models import (
@@ -39,7 +41,16 @@ class BaseRoleAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
             try:
                 # --- أ) إنشاء المستخدم والباسوورد ---
                 password = generate_random_password()
-                username = obj.phone
+                
+                # جلب رقم الهاتف والبريد المناسب بناءً على نوع الكائن
+                if isinstance(obj, Student):
+                    raw_phone = obj.parent_phone
+                    target_email = obj.parent_email
+                else:
+                    raw_phone = obj.phone
+                    target_email = obj.email if hasattr(obj, 'email') else None
+
+                username = raw_phone.replace(" ", "").replace("-", "").strip()
                 
                 # حل مشكلة تكرار اسم المستخدم
                 if User.objects.filter(username=username).exists():
@@ -55,14 +66,14 @@ class BaseRoleAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
                     if len(full_name_parts) > 1:
                         user.last_name = full_name_parts[-1]
                 
-                if hasattr(obj, 'email') and obj.email:
-                    user.email = obj.email
+                if target_email:
+                    user.email = target_email
                 
                 user.save()
                 obj.user = user # ربط الكائن بالمستخدم
 
                 # --- ب) إعداد الرسالة المنفصلة تماماً ---
-                if hasattr(obj, 'email') and obj.email:
+                if target_email:
                     site_url = request.build_absolute_uri('/')
                     
                     # 1️⃣ رسالة المعلم (Teacher)
@@ -150,6 +161,29 @@ class BaseRoleAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
                         🔗رابط المنصة: {request.build_absolute_uri('/')}
                         """
 
+                    # 4️⃣ رسالة الطالب (Student)
+                    elif isinstance(obj, Student):
+                        subject = f'🔑 بيانات الحساب للطالب/ة - {obj.name}'
+                        message = f"""
+                        مرحباً ولي أمر الطالب/ة {obj.name}،
+                        
+                        تم تسجيل حساب الطالب بنجاح في المنصة.
+                        
+                        بيانات الدخول الخاصة بالطالب:
+                        --------------------------------
+                        
+                        👤 اسم المستخدم: 
+                        {username}
+                        🔑 كلمة المرور: 
+                        {password}
+                        
+                        --------------------------------
+                        🔗 رابط المنصة: {site_url}
+                        
+                        يرجى الاحتفاظ بهذه البيانات لمتابعة الدروس والتواصل.
+                        إدارة المنصة
+                        """
+
                     # حالة افتراضية (احتياطي)
                     else:
                         subject = f'بيانات الحساب الجديد - {obj.name}'
@@ -166,7 +200,7 @@ class BaseRoleAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
 
                     # --- ج) إرسال الإيميل ---
                     try:
-                        send_mail(subject, message, settings.EMAIL_HOST_USER, [obj.email])
+                        send_email_task.delay(subject, message, [target_email])
                         self.message_user(request, f"تم إرسال إيميل الترحيب المخصص لـ {obj.name} ✅")
                     except Exception as e:
                         self.message_user(request, f"تم الحفظ ولكن فشل إرسال الإيميل: {e}", level='warning')
@@ -308,29 +342,83 @@ class AttendanceAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
     autocomplete_fields = ['enrollment']
 
 @admin.register(Student)
-class StudentAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
+class StudentAdmin(BaseRoleAdmin):
     resource_classes = [StudentResource]
-    list_display = ('name', 'academic_year', 'country', 'parent_phone', 'user', 'supervisor', 'get_active_enrollments')
+    change_list_template = "admin/core/student/change_list.html"
+    list_display = ('name', 'academic_year', 'country', 'parent_phone', 'user', 'supervisor', 'get_courses_and_attendance')
 
-    search_fields = ('name', 'parent_name', 'parent_phone', 'student_phone', 'user__username', 'user__email')
+    search_fields = ('name', 'parent_name', 'parent_phone', 'user__username', 'user__email')
     list_filter = ('country', 'education_type', 'academic_year', 'supervisor', 'teachers')
     list_per_page = 50
-    
-    exclude = ('user',)
-    readonly_fields = ('user',)
     
     inlines = [EnrollmentInline]
     
     autocomplete_fields = ['country', 'education_type', 'academic_year', 'teachers', 'supervisor']
 
-    def get_queryset(self, request):
-        # Prevent N+1 queries when fetching related enrollments for the custom column
-        return super().get_queryset(request).select_related('academic_year', 'country', 'supervisor', 'user').prefetch_related('enrollment_set__course')
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        
+        # Get current view from GET parameters, default to 'table'
+        current_view = request.GET.get('view', 'table')
+        if current_view not in ['table', 'grid']:
+            current_view = 'table'
+            
+        extra_context['current_view'] = current_view
+        
+        # Build query dicts for URLs to preserve filters
+        query_params = request.GET.copy()
+        
+        # Build Table View URL
+        query_params['view'] = 'table'
+        extra_context['table_view_url'] = f"?{query_params.urlencode()}"
+        
+        # Build Grid View URL
+        query_params['view'] = 'grid'
+        extra_context['grid_view_url'] = f"?{query_params.urlencode()}"
+        
+        # CRITICAL: Django Admin ChangeList parses all GET parameters as field lookups.
+        # We must remove 'view' from request.GET before calling super() to prevent FieldError / DatabaseError!
+        if 'view' in request.GET:
+            request.GET = request.GET.copy()
+            request.GET.pop('view', None)
+            
+        return super().changelist_view(request, extra_context=extra_context)
 
-    def get_active_enrollments(self, obj):
-        active_courses = [enrollment.course.name for enrollment in obj.enrollment_set.all() if not enrollment.is_completed]
-        return ", ".join(active_courses) if active_courses else "لا يوجد"
-    get_active_enrollments.short_description = "الكورسات النشطة"
+    def get_queryset(self, request):
+        # Prevent N+1 queries when fetching related enrollments and attendances for the custom column
+        return super().get_queryset(request).select_related('academic_year', 'country', 'supervisor', 'user').prefetch_related('enrollment_set__course', 'enrollment_set__attendances')
+
+    def get_courses_and_attendance(self, obj):
+        enrollments = obj.enrollment_set.all()
+        if not enrollments:
+            return "لا يوجد"
+        
+        badges = []
+        for e in enrollments:
+            attended = sum(1 for a in e.attendances.all() if a.status == 'present')
+            total = e.course.sessions_count
+            
+            # Choose a visually stunning badge styling based on attendance ratio
+            ratio = attended / total if total > 0 else 0
+            if ratio >= 0.75:
+                # Emerald / Green Badge
+                color_class = "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-250 dark:border-emerald-800"
+            elif ratio >= 0.5:
+                # Amber / Orange Badge
+                color_class = "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border-amber-250 dark:border-amber-800"
+            else:
+                # Rose / Red Badge
+                color_class = "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400 border-rose-250 dark:border-rose-800"
+                
+            badges.append(format_html(
+                '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold border {}">{} <span class="opacity-75">({}/{})</span></span>',
+                color_class,
+                e.course.name,
+                attended,
+                total
+            ))
+        return format_html('<div class="flex flex-wrap gap-1.5">{}</div>', mark_safe(''.join(badges)))
+    get_courses_and_attendance.short_description = "الكورسات والحضور"
 
 @admin.register(Message)
 class MessageAdmin(SimpleHistoryAdmin, ModelAdmin):

@@ -8,206 +8,476 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
+            --primary: #1d4ed8;
+            --primary-dark: #0f172a;
+            --primary-soft: #dbeafe;
             --dark: #0f172a;
             --gray: #64748b;
-            --light: #f1f5f9;
-            --white: #ffffff;
+            --muted: #475569;
+            --light: #f8fafc;
+            --surface: #ffffff;
             --border: #e2e8f0;
+            --border-strong: #cbd5e1;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            margin: 0; background-color: var(--white);
-            color: var(--dark); line-height: 1.6;
+            margin: 0;
+            background: radial-gradient(circle at top right, #eef2ff 0, #f8fafc 36%, #ffffff 100%);
+            color: var(--dark);
+            line-height: 1.7;
         }
 
-        /* --- Navbar --- */
+        .page-shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 20px 72px;
+        }
+
         .navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 5%; border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px); z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            position: sticky;
+            top: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 12px 28px -24px rgba(15, 23, 42, 0.34);
         }
-        .logo { font-size: 1.4rem; font-weight: 900; color: var(--dark); text-decoration: none; display: flex; align-items: center; gap: 10px; }
-        .logo i { color: var(--primary); }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 1.15rem;
+            font-weight: 900;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
         .nav-btn {
-            text-decoration: none; color: var(--gray); font-weight: 700; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px; transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
-        .nav-btn:hover { color: var(--primary); }
 
-        /* --- Academy Header --- */
+        .nav-btn:hover {
+            transform: translateY(-1px);
+            color: var(--primary);
+            border-color: var(--border-strong);
+        }
+
         .academy-header {
-            background: linear-gradient(to bottom, #f8fafc, #ffffff);
-            padding: 60px 5%; text-align: center; border-bottom: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            text-align: center;
+            gap: 16px;
+            margin: 24px 0 28px;
+            padding: 44px 24px 32px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.98) 100%);
+            box-shadow: 0 18px 40px -30px rgba(15, 23, 42, 0.35);
         }
+
         .logo-container {
-            width: 100px; height: 100px; margin: 0 auto 20px;
-            background: white; border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            width: 104px;
+            height: 104px;
+            background: var(--surface);
+            border-radius: 24px;
+            box-shadow: 0 12px 28px -24px rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-        .logo-container img { width: 90%; height: 90%; object-fit: contain; }
-        .logo-container i { font-size: 3rem; color: var(--gray); opacity: 0.5; }
 
-        .academy-title { font-size: 2.5rem; font-weight: 900; margin: 0 0 10px; color: var(--dark); }
-        .academy-desc { font-size: 1.1rem; color: var(--gray); max-width: 700px; margin: 0 auto; }
+        .logo-container img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+        }
 
-        /* --- Filter Bar --- */
+        .logo-container i {
+            font-size: 2.8rem;
+            color: var(--gray);
+            opacity: 0.5;
+        }
+
+        .academy-kicker {
+            margin: 0;
+            color: var(--primary);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .academy-title {
+            margin: 0;
+            color: var(--dark);
+            font-size: clamp(2rem, 3vw, 3rem);
+            line-height: 1.08;
+            font-weight: 900;
+            max-width: 18ch;
+        }
+
+        .academy-desc {
+            margin: 0;
+            max-width: 68ch;
+            color: var(--muted);
+            font-size: 1.03rem;
+            line-height: 1.8;
+        }
+
+        .academy-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
         .filter-wrapper {
-            max-width: 600px; margin: -25px auto 40px; position: relative; z-index: 10;
+            max-width: 760px;
+            margin: -18px auto 28px;
             padding: 0 20px;
-        }
-        .filter-box {
-            background: white; padding: 10px 20px; border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid var(--border);
-            display: flex; align-items: center; gap: 15px;
-        }
-        .filter-select {
-            flex: 1; border: none; outline: none; background: transparent;
-            font-family: 'Cairo'; font-size: 1rem; color: var(--dark); cursor: pointer;
+            position: relative;
+            z-index: 10;
         }
 
-        /* --- Courses Grid --- */
-        .container { padding: 40px 5% 80px; }
-        .section-label { 
-            font-size: 1.2rem; font-weight: 800; margin-bottom: 30px; 
-            display: flex; align-items: center; gap: 10px;
+        .filter-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            box-shadow: 0 14px 28px -28px rgba(15, 23, 42, 0.35);
         }
-        .section-label::before { content: ''; width: 5px; height: 25px; background: var(--primary); border-radius: 10px; }
+
+        .filter-select {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--dark);
+            cursor: pointer;
+            font-family: 'Cairo';
+            font-size: 0.98rem;
+            font-weight: 700;
+        }
+
+        .container {
+            padding: 12px 0 0;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+            color: var(--dark);
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 5px;
+            height: 22px;
+            border-radius: 999px;
+            background: var(--primary);
+        }
 
         .grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
         }
 
-        /* --- Minimalist Card --- */
         .course-card {
-            background: white; border: 1px solid var(--border); border-radius: 12px;
-            overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: var(--surface);
+            box-shadow: 0 18px 34px -30px rgba(15, 23, 42, 0.4);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
+
         .course-card:hover {
-            transform: translateY(-5px); border-color: var(--primary);
-            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            border-color: #c7d2fe;
+            box-shadow: 0 24px 44px -34px rgba(15, 23, 42, 0.45);
         }
 
-        .card-body { padding: 25px; flex: 1; display: flex; flex-direction: column; }
-        
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 22px;
+            min-height: 100%;
+        }
+
         .price-tag {
-            position: absolute; top: 20px; left: 20px;
-            background: #ecfdf5; color: #059669; padding: 6px 12px;
-            border-radius: 6px; font-weight: 700; font-size: 0.85rem;
+            position: relative;
+            align-self: flex-start;
+            margin-bottom: 18px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: var(--primary-soft);
+            color: #1e40af;
+            font-size: 0.82rem;
+            font-weight: 800;
         }
 
-        .course-title { font-size: 1.25rem; font-weight: 800; margin: 0 0 10px; color: var(--dark); padding-right: 50px; }
-        .course-desc { font-size: 0.95rem; color: var(--gray); margin-bottom: 20px; flex: 1; line-height: 1.5; }
+        .course-title {
+            margin: 0 0 10px;
+            color: var(--dark);
+            font-size: 1.2rem;
+            line-height: 1.35;
+            font-weight: 900;
+        }
+
+        .course-desc {
+            flex: 1;
+            margin: 0;
+            color: var(--gray);
+            font-size: 0.96rem;
+            line-height: 1.75;
+        }
 
         .card-footer {
-            margin-top: auto; padding-top: 15px; border-top: 1px solid var(--light);
-            display: flex; gap: 10px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--light);
+            display: flex;
+            gap: 10px;
         }
 
         .btn-buy {
-            flex: 1; background: var(--dark); color: white; border: none;
-            padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer;
-            transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;
+            width: 100%;
+            border: none;
+            padding: 13px 16px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, var(--dark) 0%, #111827 100%);
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 14px 28px -22px rgba(15, 23, 42, 0.7);
         }
-        .btn-buy:hover { background: var(--primary); }
+
+        .btn-buy:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 18px 32px -22px rgba(29, 78, 216, 0.75);
+        }
+
+        .btn-buy:focus-visible,
+        .filter-select:focus-visible,
+        .nav-btn:focus-visible {
+            outline: 3px solid rgba(29, 78, 216, 0.22);
+            outline-offset: 3px;
+        }
 
         .empty-state {
-            grid-column: 1/-1; text-align: center; padding: 60px;
-            border: 2px dashed var(--border); border-radius: 16px; color: var(--gray);
+            grid-column: 1 / -1;
+            display: grid;
+            place-items: center;
+            gap: 10px;
+            padding: 56px 24px;
+            border: 1px dashed var(--border-strong);
+            border-radius: 22px;
+            background: var(--surface);
+            color: var(--gray);
+            text-align: center;
         }
 
-        /* --- Footer --- */
-        .footer { text-align: center; padding: 40px; color: var(--gray); font-size: 0.9rem; border-top: 1px solid var(--border); }
+        .empty-state h3,
+        .empty-state p {
+            margin: 0;
+        }
+
+        .empty-state h3 {
+            color: var(--dark);
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .empty-state p {
+            max-width: 40ch;
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        .footer {
+            margin-top: 36px;
+            padding: 22px 10px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-shell {
+                padding: 16px 14px 56px;
+            }
+
+            .navbar {
+                position: static;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .academy-header {
+                padding: 34px 18px 24px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-wrapper {
+                margin-top: -12px;
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
+    <main class="page-shell">
+        <nav class="navbar">
+            <a href="{% url 'landing_page' %}" class="logo">
+                <i class="fas fa-cube"></i>
+                <span>VexaLearn</span>
+            </a>
+            <a href="{% url 'landing_page' %}" class="nav-btn">
+                <i class="fas fa-arrow-right"></i>
+                <span>العودة للرئيسية</span>
+            </a>
+        </nav>
 
-    <nav class="navbar">
-        <a href="{% url 'landing_page' %}" class="logo">
-            <i class="fas fa-cube"></i> VexaLearn
-        </a>
-        <a href="{% url 'landing_page' %}" class="nav-btn">
-            <i class="fas fa-arrow-right"></i> العودة للرئيسية
-        </a>
-    </nav>
-
-    <header class="academy-header">
-        <div class="logo-container">
-            {% if academy.logo %}
+        <header class="academy-header">
+            <div class="logo-container">
+                {% if academy.logo %}
                 <img src="{{ academy.logo.url }}" alt="{{ academy.name }}">
-            {% else %}
-                <i class="fas fa-building"></i>
-            {% endif %}
-        </div>
-        <h1 class="academy-title">{{ academy.name }}</h1>
-        <p class="academy-desc">{{ academy.description|default:"منصة تعليمية تهدف لتطوير المهارات وبناء المستقبل." }}</p>
-    </header>
+                {% else %}
+                <i class="fas fa-building" aria-hidden="true"></i>
+                {% endif %}
+            </div>
+            <p class="academy-kicker">Academy profile</p>
+            <h1 class="academy-title">{{ academy.name }}</h1>
+            <p class="academy-desc">{{ academy.description|default:"منصة تعليمية تهدف لتطوير المهارات وبناء المستقبل." }}</p>
+            <div class="academy-stats">
+                <span class="stat-chip"><i class="fas fa-book-open"></i> {{ courses|length }} كورس ظاهر</span>
+                <span class="stat-chip"><i class="fas fa-globe"></i> {{ countries|length }} دولة متاحة</span>
+            </div>
+        </header>
 
-    <div class="filter-wrapper">
-        <form method="GET" id="filterForm">
-            <div class="filter-box">
-                <i class="fas fa-globe" style="color: var(--primary);"></i>
-                <select name="country" class="filter-select" onchange="document.getElementById('filterForm').submit()">
-                    <option value="">عرض جميع الكورسات (كل الدول)</option>
-                    {% for country in countries %}
+        <div class="filter-wrapper">
+            <form method="GET" id="filterForm">
+                <div class="filter-box">
+                    <i class="fas fa-globe" style="color: var(--primary);"></i>
+                    <select name="country" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                        <option value="">عرض جميع الكورسات حسب الدولة</option>
+                        {% for country in countries %}
                         <option value="{{ country.id }}" {% if selected_country_id == country.id %}selected{% endif %}>
                             {{ country.name }} ({{ country.currency }})
                         </option>
-                    {% empty %}
+                        {% empty %}
                         <option value="" disabled>لا توجد دول مسجلة حالياً</option>
-                    {% endfor %}
-                </select>
-                <i class="fas fa-chevron-down" style="color: var(--gray); font-size: 0.8rem;"></i>
-            </div>
-        </form>
-    </div>
-
-    <div class="container">
-        <div class="section-label">الكورسات المتاحة</div>
-
-        <div class="grid">
-            {% for course in courses %}
-            <div class="course-card">
-                <div class="card-body">
-                    <span class="price-tag">
-                        {% if course.price > 0 %}
-                            {{ course.price }} <span style="font-size: 0.8em;">{{ course.country.currency }}</span>
-                        {% else %}
-                            مجاني
-                        {% endif %}
-                    </span>
-
-                    <h3 class="course-title">{{ course.name }}</h3>
-                    <p class="course-desc">
-                        {{ course.description|default:"محتوى تعليمي تفاعلي مصمم لتنمية مهارات الطلاب..."|truncatewords:20 }}
-                    </p>
-
-                    <div class="card-footer">
-                        <button class="btn-buy" onclick="tryToBuy('{{ course.name }}')">
-                            اشترك الآن <i class="fas fa-arrow-left" style="font-size: 0.8rem;"></i>
-                        </button>
-                    </div>
+                        {% endfor %}
+                    </select>
+                    <i class="fas fa-chevron-down" style="color: var(--gray); font-size: 0.8rem;"></i>
                 </div>
-            </div>
-            {% empty %}
-                <div class="empty-state">
-                    <i class="far fa-folder-open" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
-                    <h3>لا توجد كورسات متاحة حالياً</h3>
-                    <p>جرب تغيير فلتر الدولة أو عد لاحقاً.</p>
-                </div>
-            {% endfor %}
+            </form>
         </div>
-    </div>
 
-    <footer class="footer">
-        © 2026 VexaLearn Inc. جميع الحقوق محفوظة
-    </footer>
+        <section class="container">
+            <div class="section-label">الكورسات المتاحة</div>
+
+            <div class="grid">
+                {% for course in courses %}
+                <article class="course-card">
+                    <div class="card-body">
+                        <span class="price-tag">
+                            {% if course.price > 0 %}
+                            {{ course.price }} <span style="font-size: 0.8em;">{{ course.country.currency }}</span>
+                            {% else %}
+                            مجاني
+                            {% endif %}
+                        </span>
+
+                        <h3 class="course-title">{{ course.name }}</h3>
+                        <p class="course-desc">
+                            {{ course.description|default:"محتوى تعليمي تفاعلي مصمم لتنمية مهارات الطلاب..."|truncatewords:20 }}
+                        </p>
+
+                        <div class="card-footer">
+                            <button class="btn-buy" onclick="tryToBuy('{{ course.name }}')">
+                                <span>اشترك الآن</span>
+                                <i class="fas fa-arrow-left" style="font-size: 0.8rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="far fa-folder-open" style="font-size: 3rem; opacity: 0.45;" aria-hidden="true"></i>
+                    <h3>لا توجد كورسات متاحة حالياً</h3>
+                    <p>جرّب تغيير فلتر الدولة أو عد لاحقاً عندما تتوفر برامج جديدة.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <footer class="footer">
+            © 2026 VexaLearn Inc. جميع الحقوق محفوظة
+        </footer>
+    </main>
 
     <script>
         function tryToBuy(courseName) {

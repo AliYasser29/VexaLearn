@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VexaLearn | منصة التعلم الذكي{% endblock %}</title>
+    
+    <!-- Cairo Font for Premium Arabic Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#6366f1',
+                            hover: '#4f46e5',
+                            light: '#f5f3ff',
+                        },
+                        secondary: '#0f172a',
+                        accent: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        /* Dropdown transition */
+        .dropdown-menu {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            transform-origin: top left;
+        }
+        .dropdown-menu.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col">
+
+    <!-- Dynamic Global Header (الهيدر الذكي الموحد) -->
+    <header class="glass-header sticky top-0 z-50 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <!-- Right: Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{% url 'landing_page' %}" class="flex items-center gap-2 text-2xl font-bold text-primary">
+                        <i class="fas fa-cube text-3xl"></i>
+                        <span>VexaLearn</span>
+                    </a>
+                </div>
+
+                <!-- Center: Public Navigation Links -->
+                <nav class="hidden md:flex space-x-8 space-x-reverse">
+                    <a href="{% url 'landing_page' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">الرئيسية</a>
+                    <a href="#" class="text-slate-600 hover:text-primary font-semibold transition-colors">من نحن</a>
+                    <a href="#" class="text-slate-600 hover:text-primary font-semibold transition-colors">المسارات التعليمية</a>
+                    {% if user.is_authenticated %}
+                        {% if request.active_role == 'student' %}
+                            <a href="{% url 'student_dashboard' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">لوحتي</a>
+                        {% elif request.active_role == 'teacher' %}
+                            <a href="{% url 'instructor_dashboard' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">لوحة التدريس</a>
+                        {% elif request.active_role == 'supervisor' %}
+                            <a href="{% url 'supervisor_dashboard' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">المتابعة</a>
+                        {% elif user.is_superuser or request.active_role == 'manager' %}
+                            <a href="{% url 'admin:index' %}" class="text-slate-600 hover:text-primary font-semibold transition-colors">الإدارة</a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
+
+                <!-- Left: Auth Buttons / User Dropdown -->
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                        <!-- Authenticated User Menu -->
+                        <div class="relative">
+                            <button id="user-menu-btn" class="flex items-center gap-3 bg-white border border-slate-200 rounded-full px-4 py-2 shadow-sm hover:shadow transition-all focus:outline-none">
+                                <div class="w-8 h-8 rounded-full bg-primary-light text-primary flex items-center justify-center font-bold text-sm">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                                <div class="text-right hidden sm:block">
+                                    <div class="text-sm font-bold text-slate-800 leading-none">{{ user.username }}</div>
+                                    <div class="text-xs text-slate-500 mt-1">
+                                        {% if request.active_role == 'student' %}طالب
+                                        {% elif request.active_role == 'teacher' %}محاضر
+                                        {% elif request.active_role == 'supervisor' %}مشرف
+                                        {% elif request.active_role == 'manager' or user.is_superuser %}مدير النظام
+                                        {% else %}مستخدم{% endif %}
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-down text-xs text-slate-400 mr-2"></i>
+                            </button>
+                            
+                            <!-- Dropdown -->
+                            <div id="user-menu-dropdown" class="dropdown-menu hidden absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50">
+                                <div class="px-4 py-2 border-b border-slate-50 mb-2">
+                                    <p class="text-sm text-slate-500">مرحباً بك،</p>
+                                    <p class="text-sm font-bold text-slate-800">{{ user.username }}</p>
+                                </div>
+                                
+                                <a href="{% url 'profile_view' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors">
+                                    <i class="fas fa-user-circle ml-2 w-5 text-center"></i> ملفي الشخصي
+                                </a>
+                                
+                                {% if request.active_role == 'student' %}
+                                    <a href="{% url 'student_dashboard' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors">
+                                        <i class="fas fa-chart-pie ml-2 w-5 text-center"></i> لوحة التحكم
+                                    </a>
+                                {% elif request.active_role == 'teacher' %}
+                                    <a href="{% url 'instructor_dashboard' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors">
+                                        <i class="fas fa-chalkboard-teacher ml-2 w-5 text-center"></i> لوحة الأستاذ
+                                    </a>
+                                {% elif user.is_superuser or request.active_role == 'manager' %}
+                                    <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors">
+                                        <i class="fas fa-cogs ml-2 w-5 text-center"></i> لوحة الإدارة
+                                    </a>
+                                {% endif %}
+                                
+                                <div class="border-t border-slate-100 my-2"></div>
+                                <form action="{% url 'logout' %}" method="post" class="w-full">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full text-right block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                        <i class="fas fa-sign-out-alt ml-2 w-5 text-center"></i> تسجيل خروج
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Anonymous Guest Buttons -->
+                        <a href="{% url 'login' %}" class="text-slate-600 hover:text-primary font-bold px-4 py-2 transition-colors">تسجيل الدخول</a>
+                        <a href="{% url 'login' %}" class="bg-primary text-white hover:bg-primary-hover font-bold px-6 py-2 rounded-xl shadow-sm shadow-indigo-200 transition-all transform hover:-translate-y-0.5">إنشاء حساب</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 w-full relative">
+        <!-- Flash Messages -->
+        {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            {% for message in messages %}
+            <div class="p-4 rounded-xl border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-primary{% endif %} flex items-center gap-3 shadow-sm animate-fade-in-down">
+                <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} text-lg"></i>
+                <span class="font-semibold">{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Block Content -->
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
+            <p>&copy; 2026 VexaLearn. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Dropdown toggle logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuBtn = document.getElementById('user-menu-btn');
+            const dropdown = document.getElementById('user-menu-dropdown');
+            
+            if (menuBtn && dropdown) {
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

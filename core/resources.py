@@ -9,7 +9,7 @@ class StudentResource(resources.ModelResource):
 
     class Meta:
         model = Student
-        fields = ('id', 'name', 'parent_name', 'parent_phone', 'student_phone', 'country', 'education_type', 'academic_year')
+        fields = ('id', 'name', 'parent_name', 'parent_phone', 'country', 'education_type', 'academic_year')
         export_order = fields
 
 class TeacherResource(resources.ModelResource):

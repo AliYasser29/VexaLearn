@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block inner_content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-[var(--border)] pb-4 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-[var(--accent-primary)] flex items-center gap-3">
+                <i class="fas fa-users-viewfinder opacity-70"></i> Student Directory
+            </h1>
+            <p class="text-[var(--text-secondary)] mt-2">Manage and view active students in VexaLearn.</p>
+        </div>
+        
+        <!-- Toggle Controls -->
+        <div class="flex items-center gap-2 bg-[var(--bg-soft)] p-1.5 rounded-lg border border-[var(--border)] shadow-sm">
+            <button id="btn-table" class="view-toggle-btn active p-2 px-4 rounded-md text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-[var(--accent-primary)] bg-white shadow-sm border border-[var(--border)]" onclick="switchView('table')">
+                <i class="fas fa-table"></i> <span class="hidden sm:inline">Table View</span>
+            </button>
+            <button id="btn-grid" class="view-toggle-btn p-2 px-4 rounded-md text-sm font-semibold transition-all duration-300 flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-soft)]" onclick="switchView('grid')">
+                <i class="fas fa-grip"></i> <span class="hidden sm:inline">Grid View</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Table View -->
+    <div id="table-view" class="view-section animate-fade-in block">
+        <div class="glass-container overflow-hidden rounded-xl border border-white/40 shadow-[var(--shadow-soft)] bg-white/70 backdrop-blur-md">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-[var(--accent-subtle)] border-b border-[var(--border)] text-[var(--accent-primary)]">
+                            <th class="py-4 px-6 font-semibold">Student Name</th>
+                            <th class="py-4 px-6 font-semibold">Age</th>
+                            <th class="py-4 px-6 font-semibold">Academic Year</th>
+                            <th class="py-4 px-6 font-semibold">Country</th>
+                            <th class="py-4 px-6 font-semibold text-right">Parent Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--border-strong)]/30">
+                        {% for student in students %}
+                        <tr class="hover:bg-white/90 transition-colors duration-200">
+                            <td class="py-4 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-[#0056b3] text-white flex items-center justify-center font-bold shadow-sm">
+                                        {{ student.name|slice:":1"|upper }}
+                                    </div>
+                                    <div class="font-semibold text-[var(--text-primary)]">{{ student.name }}</div>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 text-[var(--text-secondary)]">{{ student.age }}</td>
+                            <td class="py-4 px-6 text-[var(--text-secondary)]">
+                                <span class="bg-[var(--bg-card-strong)] px-2.5 py-1 rounded-md text-xs font-medium border border-[var(--border)]">
+                                    {{ student.academic_year.name|default:"-" }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-[var(--text-secondary)]">{{ student.country.name|default:"-" }}</td>
+                            <td class="py-4 px-6 text-right">
+                                <div class="text-[var(--text-secondary)] text-sm flex flex-col items-end">
+                                    <span class="font-medium text-[var(--text-primary)]">{{ student.parent_name|default:"-" }}</span>
+                                    {% if student.parent_phone %}
+                                    <a href="tel:{{ student.parent_phone }}" class="text-[var(--accent-primary)] hover:underline mt-0.5 inline-flex items-center gap-1">
+                                        <i class="fas fa-phone-alt fa-xs"></i> {{ student.parent_phone }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-[var(--text-muted)] text-xs mt-0.5">-</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-12 text-center text-[var(--text-muted)] italic">
+                                <div class="flex flex-col items-center justify-center gap-3 opacity-60">
+                                    <i class="fas fa-user-graduate text-4xl"></i>
+                                    <p>No students found in the directory.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid View -->
+    <div id="grid-view" class="view-section animate-fade-in hidden">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for student in students %}
+            <div class="glass-card flex flex-col rounded-xl border border-white/60 bg-white/60 backdrop-blur-lg shadow-[var(--shadow-soft)] hover:shadow-lg transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                <div class="p-6 flex-grow relative">
+                    <!-- Subtle background decoration -->
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-[var(--accent-subtle)] rounded-bl-full opacity-50 -z-10"></div>
+                    
+                    <div class="flex items-center gap-4 mb-5 z-10 relative">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[#0056b3] text-white flex items-center justify-center text-xl font-bold shadow-md ring-2 ring-white/50">
+                            {{ student.name|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-[var(--text-primary)] text-lg leading-tight">{{ student.name }}</h3>
+                            <span class="inline-flex items-center mt-1.5 px-2.5 py-0.5 rounded-full bg-[var(--bg-main)] border border-[var(--border)] text-[var(--text-secondary)] text-xs font-semibold shadow-sm">
+                                Age: {{ student.age }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 text-sm text-[var(--text-secondary)] mt-4 border-t border-white/50 pt-4 z-10 relative">
+                        <div class="flex justify-between items-center bg-[var(--bg-soft)] p-2 rounded-lg border border-white/40">
+                            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]"><i class="fas fa-graduation-cap w-4"></i> Year</span>
+                            <span class="font-medium text-[var(--text-primary)] text-right">{{ student.academic_year.name|default:"-" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-[var(--bg-soft)] p-2 rounded-lg border border-white/40">
+                            <span class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]"><i class="fas fa-globe w-4"></i> Country</span>
+                            <span class="font-medium text-[var(--text-primary)] text-right">{{ student.country.name|default:"-" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-[var(--bg-card-strong)]/40 border-t border-[var(--border)] p-4 flex flex-col gap-1 backdrop-blur-md">
+                    <div class="text-[0.65rem] text-[var(--text-muted)] uppercase tracking-wider font-bold">Parent Contact</div>
+                    <div class="flex items-center justify-between">
+                        <div class="font-medium text-sm text-[var(--text-primary)] truncate pr-2" title="{{ student.parent_name|default:'No Name' }}">
+                            {{ student.parent_name|default:"-" }}
+                        </div>
+                        {% if student.parent_phone %}
+                        <a href="tel:{{ student.parent_phone }}" class="text-[var(--accent-primary)] bg-white shadow-sm border border-[var(--border)] hover:bg-[var(--accent-primary)] hover:text-white transition-colors p-2 rounded-full flex items-center justify-center" title="Call {{ student.parent_phone }}">
+                            <i class="fas fa-phone-alt fa-xs"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full py-16 text-center text-[var(--text-muted)] italic glass-card rounded-xl border border-white/60 bg-white/60 backdrop-blur-lg shadow-sm">
+                <div class="flex flex-col items-center justify-center gap-3 opacity-60">
+                    <i class="fas fa-user-graduate text-5xl"></i>
+                    <p class="text-lg mt-2">No students found in the directory.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Styles and Scripts -->
+<style>
+    /* Glassmorphism utility classes and animations */
+    .glass-container {
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+    .glass-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    function switchView(view) {
+        const btnTable = document.getElementById('btn-table');
+        const btnGrid = document.getElementById('btn-grid');
+        const viewTable = document.getElementById('table-view');
+        const viewGrid = document.getElementById('grid-view');
+        
+        // Base button styles for inactive state
+        const inactiveClasses = ['text-[var(--text-secondary)]', 'hover:text-[var(--accent-primary)]', 'hover:bg-[var(--accent-soft)]', 'border-transparent'];
+        // Base button styles for active state
+        const activeClasses = ['text-[var(--accent-primary)]', 'bg-white', 'shadow-sm', 'border', 'border-[var(--border)]'];
+
+        if (view === 'table') {
+            viewGrid.classList.add('hidden');
+            viewGrid.classList.remove('block');
+            viewTable.classList.remove('hidden');
+            viewTable.classList.add('block');
+            
+            // Update Table Button (Active)
+            btnTable.classList.remove(...inactiveClasses);
+            btnTable.classList.add(...activeClasses);
+            
+            // Update Grid Button (Inactive)
+            btnGrid.classList.remove(...activeClasses);
+            btnGrid.classList.add(...inactiveClasses);
+            
+        } else if (view === 'grid') {
+            viewTable.classList.add('hidden');
+            viewTable.classList.remove('block');
+            viewGrid.classList.remove('hidden');
+            viewGrid.classList.add('block');
+            
+            // Update Grid Button (Active)
+            btnGrid.classList.remove(...inactiveClasses);
+            btnGrid.classList.add(...activeClasses);
+            
+            // Update Table Button (Inactive)
+            btnTable.classList.remove(...activeClasses);
+            btnTable.classList.add(...inactiveClasses);
+        }
+    }
+</script>
+{% endblock %}

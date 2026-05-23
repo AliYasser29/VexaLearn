@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.conf import settings
-from .utils import send_mail_async 
 from simple_history.models import HistoricalRecords
 
 class SoftDeleteManager(models.Manager):
@@ -70,6 +69,32 @@ class Subject(models.Model):
         return f"{self.name} - {self.education_type.name}"
     
     class Meta: verbose_name = "مادة دراسية"; verbose_name_plural = "المواد الدراسية"
+
+class RoleChoices(models.TextChoices):
+    STUDENT = 'student', 'Student'
+    TEACHER = 'teacher', 'Teacher'
+    SUPERVISOR = 'supervisor', 'Supervisor'
+    MANAGER = 'manager', 'Manager'
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='unified_profile', verbose_name="المستخدم")
+    default_role = models.CharField(max_length=20, choices=RoleChoices.choices, null=True, blank=True, verbose_name="الدور الافتراضي")
+    history = HistoricalRecords()
+
+    def get_available_roles(self):
+        roles = []
+        if hasattr(self.user, 'student_profile'): roles.append(RoleChoices.STUDENT.value)
+        if hasattr(self.user, 'teacher_profile'): roles.append(RoleChoices.TEACHER.value)
+        if hasattr(self.user, 'supervisor_profile'): roles.append(RoleChoices.SUPERVISOR.value)
+        if hasattr(self.user, 'manager_profile'): roles.append(RoleChoices.MANAGER.value)
+        return roles
+
+    def __str__(self):
+        return f"ملف {self.user.username}"
+
+    class Meta:
+        verbose_name = "ملف مستخدم موحد"
+        verbose_name_plural = "ملفات المستخدمين الموحدة"
 
 # 5. الأكاديمية
 class Academy(models.Model):
@@ -163,6 +188,11 @@ class Student(SoftDeleteModel):
     courses = models.ManyToManyField(Course, through='Enrollment', verbose_name="الكورسات المسجلة")
 
     def __str__(self): return self.name
+
+    @property
+    def active_enrollments(self):
+        # Filter in Python using list comprehension to preserve prefetch cache and prevent N+1 queries
+        return [e for e in self.enrollment_set.all() if not e.is_completed]
 
     def clean(self):
         super().clean()
@@ -304,111 +334,48 @@ class Notification(models.Model):
         verbose_name_plural = "الإشعارات"
 
 # --- Signals ---
+from core.tasks import (
+    notify_supervisor_new_student_task,
+    notify_teachers_new_student_task,
+    notify_attendance_change_task
+)
 
 @receiver(post_save, sender=Student)
 def notify_supervisor_new_student(sender, instance, created, **kwargs):
     if created and instance.supervisor and instance.supervisor.email:
-        # نستخدم رابطاً ثابتاً أو نجلبه من الإعدادات
-        site_url = "https://vexalearn.cloud"  # أو settings.CSRF_TRUSTED_ORIGINS[0]
-        
-        subject = f'تنبيه: تم إسناد طالب جديد إليك - {instance.name}'
-        message = f"""
-        مرحباً {instance.supervisor.name}،
-        
-        تم تسجيل طالب جديد وإسناده لإشرافك.
-        
-        بيانات الطالب:
-        --------------------------
-        الاسم: {instance.name}
-        السنة الدراسية: {instance.academic_year}
-        --------------------------
-        
-        يرجى متابعة الطالب من خلال لوحة التحكم.
-        رابط المنصة: {site_url}/dashboard
-        """
-        send_mail_async(subject, message, [instance.supervisor.email])
-        print(f"✅ تم جدولة إرسال الإيميل للمشرف: {instance.supervisor.name}")
+        notify_supervisor_new_student_task.delay(instance.id)
+        print(f"✅ تم تحويل إرسال الإيميل للمشرف: {instance.supervisor.name} إلى Celery")
 
-
-# تعديل الدالة الثانية
 @receiver(m2m_changed, sender=Student.teachers.through)
 def notify_teachers_new_student(sender, instance, action, pk_set, **kwargs):
-    if action == "post_add":
-        new_teachers = Teacher.objects.filter(pk__in=pk_set)
-        # نستخدم رابطاً ثابتاً
-        site_url = "https://vexalearn.cloud" 
-
-        for teacher in new_teachers:
-            if teacher.email:
-                subject = f'طالب جديد في مجموعتك - {instance.name}'
-                message = f"""
-                مرحباً أستاذ/ة {teacher.name}،
-                
-                تم إضافة الطالب ({instance.name}) إلى قائمة طلابك.
-                
-                بيانات الطالب:
-                --------------------------
-                الاسم: {instance.name}
-                السنة الدراسية: {instance.academic_year}
-                --------------------------
-                
-                يرجى التواصل معه ومتابعة تقدمه.
-                {site_url}/chat
-                """
-                send_mail_async(subject, message, [teacher.email])
-                print(f"✅ تم جدولة إرسال الإيميل للمعلم: {teacher.name}")
+    if action == "post_add" and pk_set:
+        notify_teachers_new_student_task.delay(instance.id, list(pk_set))
+        print(f"✅ تم تحويل إرسال الإيميلات للمعلمين إلى Celery")
 
 @receiver(post_save, sender=Attendance)
 def notify_attendance_change(sender, instance, created, **kwargs):
     if created:
-        enrollment = instance.enrollment
-        student = enrollment.student
-        course = enrollment.course
-        parent_email = student.parent_email
+        notify_attendance_change_task.delay(instance.id)
+        print(f"✅ تم تحويل إشعار الحضور إلى Celery")
 
-        if parent_email:
-            # 1. الحسابات
-            current_session_number = enrollment.attendances.count()
-            total_sessions = course.sessions_count
-            remaining_sessions = total_sessions - current_session_number
-            if remaining_sessions < 0: remaining_sessions = 0
+# --- User Model Helper Methods ---
+def has_student_profile(self):
+    return hasattr(self, 'student_profile')
 
-            # 2. منطق التنبيه
-            renewal_notice = ""
-            if total_sessions > 0:
-                threshold = total_sessions * 0.25
-                if remaining_sessions <= threshold and remaining_sessions > 0:
-                    renewal_notice = """
-                    🔴 تنبيه هام:
-                    لقد شارف الاشتراك على الانتهاء. يرجى مراجعة الإدارة لتجديد الاشتراك.
-                    """
-                elif remaining_sessions == 0:
-                    renewal_notice = """
-                    🔴 تنبيه هام:
-                    لقد انتهت جميع حصص هذا الكورس. يرجى التجديد فوراً.
-                    """
+def has_teacher_profile(self):
+    return hasattr(self, 'teacher_profile')
 
-            status_text = "حضور ✅" if instance.status == 'present' else "غياب ❌"
+def has_supervisor_profile(self):
+    return hasattr(self, 'supervisor_profile')
 
-            subject = f'تنبيه حصة: {student.name} - كورس {course.name}'
-            message = f"""
-            مرحباً ولي أمر الطالب/ة {student.name}،
-            
-            نود إعلامكم بأنه تم تسجيل "{status_text}" للطالب اليوم في كورس {course.name}.
-            
-            تفاصيل الحصة:
-            --------------------------------------------------
-            الحالة: {status_text}
-            رقم الحصة: {current_session_number} من أصل {total_sessions}
-            المتبقي في الكورس: {remaining_sessions} حصص
-            --------------------------------------------------
-            {renewal_notice}
-            
-            تاريخ التسجيل: {instance.date}
-            
-            إدارة الأكاديمية
-            """
-            send_mail_async(subject, message, [parent_email])
-            print(f"✅ تم جدولة إشعار الحضور لولي الأمر: {parent_email}")
+def has_manager_profile(self):
+    return hasattr(self, 'manager_profile')
+
+User.add_to_class('has_student_profile', has_student_profile)
+User.add_to_class('has_teacher_profile', has_teacher_profile)
+User.add_to_class('has_supervisor_profile', has_supervisor_profile)
+User.add_to_class('has_manager_profile', has_manager_profile)
+
+
 
 
