@@ -1,15 +1,12 @@
 import logging
+import threading
 from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-@shared_task(bind=True, max_retries=5)
-def send_email_task(self, subject, message, recipient_list):
-    """
-    Celery task to send an email with exponential backoff retry mechanism (only active if Celery is running with workers).
-    """
+def _send_email_thread(subject, message, recipient_list):
     try:
         send_mail(
             subject,
@@ -18,15 +15,24 @@ def send_email_task(self, subject, message, recipient_list):
             recipient_list,
             fail_silently=False,
         )
-        logger.info(f"Successfully sent email to {recipient_list}")
+        logger.info(f"Successfully sent email in background to {recipient_list}")
     except Exception as exc:
-        logger.warning(f"Failed to send email to {recipient_list}: {exc}")
-        # Only retry if celery is actually running with workers, not in eager mode
-        if not getattr(settings, 'CELERY_TASK_ALWAYS_EAGER', False):
-            # Exponential backoff: 60s, 120s, 240s, 480s, 960s
-            raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))
-        else:
-            logger.error(f"Synchronous email delivery failed for {recipient_list} due to: {exc}")
+        logger.error(f"Failed to send background email to {recipient_list}: {exc}")
+
+@shared_task(bind=True, max_retries=5)
+def send_email_task(self, subject, message, recipient_list):
+    """
+    Celery task to send an email. Since we run in eager mode without Redis,
+    we spawn a background thread so the main request thread doesn't wait (non-blocking).
+    """
+    # Spawn background thread to send the email concurrently
+    thread = threading.Thread(
+        target=_send_email_thread,
+        args=(subject, message, recipient_list)
+    )
+    thread.daemon = True
+    thread.start()
+    logger.info(f"Spawned background thread to send email to {recipient_list}")
 
 @shared_task
 def notify_supervisor_new_student_task(student_id):
