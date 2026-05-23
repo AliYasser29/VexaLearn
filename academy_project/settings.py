@@ -48,12 +48,14 @@ INSTALLED_APPS = [
 
     # My Apps
     'core',
-    'sslserver',
     'quiz',
     'simple_history',
     'django_filters',
     'import_export',
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append('sslserver')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
