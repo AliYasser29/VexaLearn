@@ -1,0 +1,158 @@
+{% extends "base_rtl.html" %}
+
+{% block title %}تصحيح الاختبار | {{ attempt.quiz.title }}{% endblock %}
+
+{% block header %}تصحيح أسئلة الاختبار{% endblock %}
+
+{% block nav %}
+<a href="{% url 'profile_view' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-primary font-semibold shadow-sm border border-blue-100">
+    <i class="fas fa-arrow-right"></i> إلغاء والتراجع
+</a>
+<a href="{% url 'quiz:quiz_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-all">
+    <i class="fas fa-tasks"></i> لوحة الاختبارات
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8" dir="rtl">
+
+    <!-- Card: Student and Quiz Information -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 text-right">
+            <span class="inline-block bg-amber-50 text-amber-700 text-xxs font-extrabold px-3 py-1 rounded-md border border-amber-200/50">
+                بانتظار تصحيح المقالي
+            </span>
+            <h2 class="text-2xl font-extrabold text-slate-900 leading-tight">تصحيح اختبار: {{ attempt.quiz.title }}</h2>
+            <p class="text-xs text-slate-500 font-bold mt-1">
+                اسم الطالب: <span class="text-primary font-extrabold">{{ attempt.student.name }}</span> | 
+                الكورس: {{ attempt.quiz.course.name }}
+            </p>
+        </div>
+
+        <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 p-5 rounded-2xl">
+            <div class="text-right">
+                <span class="text-xxs text-slate-450 block font-bold">تاريخ التسليم</span>
+                <span class="text-sm font-extrabold text-slate-800 block mt-1">
+                    {{ attempt.completed_at|date:"Y-m-d H:i A" }}
+                </span>
+            </div>
+            
+            <div class="w-px h-10 bg-slate-200"></div>
+
+            <div class="text-right">
+                <span class="text-xxs text-slate-450 block font-bold">إجمالي الأسئلة</span>
+                <span class="text-sm font-extrabold text-slate-800 block mt-1">
+                    {{ attempt.answers.count }} أسئلة
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grading Form -->
+    <form method="POST" id="gradingForm" class="space-y-6">
+        {% csrf_token %}
+        
+        <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+            <i class="fas fa-pen-fancy text-primary"></i> رصد درجات الأسئلة المقالية
+        </h3>
+
+        {% for ans in essay_answers %}
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm relative overflow-hidden">
+            <!-- Side accent indicating attention needed -->
+            <div class="absolute right-0 top-0 bottom-0 w-1.5 bg-amber-400"></div>
+
+            <div class="flex justify-between items-start gap-4 mb-5">
+                <div class="space-y-1 text-right">
+                    <span class="bg-amber-50 text-amber-700 text-[10px] font-extrabold px-2 py-0.5 rounded border border-amber-100">
+                        {{ ans.question.get_question_type_display }}
+                    </span>
+                    <h4 class="text-md font-extrabold text-slate-900 leading-snug mt-1.5">
+                        <span class="text-primary">{{ forloop.counter }}.</span>
+                        {{ ans.question.text }}
+                    </h4>
+                </div>
+
+                <!-- Max Marks -->
+                <div class="text-left shrink-0">
+                    <span class="text-[10px] text-slate-400 block font-bold">الدرجة القصوى</span>
+                    <span class="text-sm font-extrabold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200/40">
+                        {{ ans.question.marks }} درجات
+                    </span>
+                </div>
+            </div>
+
+            <!-- Student Answer display -->
+            <div class="space-y-4">
+                <div class="p-5 bg-slate-50 border border-slate-200/50 rounded-2xl text-right">
+                    <span class="text-xxs text-slate-400 font-extrabold block mb-2"><i class="fas fa-comment-dots text-indigo-500"></i> إجابة الطالب:</span>
+                    <p class="text-sm font-semibold text-slate-800 leading-relaxed whitespace-pre-wrap">{{ ans.essay_answer|default:"(لم يقم الطالب بإدخال أي إجابة لهذا السؤال)" }}</p>
+                </div>
+
+                <!-- Input to grade this question -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-slate-100">
+                    <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <i class="fas fa-clipboard-check text-slate-450"></i> رصد الدرجة المستحقة لهذا السؤال:
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" step="0.5" min="0" max="{{ ans.question.marks }}" 
+                               name="marks_answer_{{ ans.id }}" value="{{ ans.marks_earned }}"
+                               class="w-28 px-4 py-2 border-2 border-slate-200 rounded-xl font-bold text-center text-slate-800 focus:outline-none focus:border-primary focus:ring-2 focus:ring-blue-100 transition-all"
+                               data-max-marks="{{ ans.question.marks }}">
+                        <span class="text-xs font-bold text-slate-400">من أصل {{ ans.question.marks }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Submit actions -->
+        <div class="flex items-center gap-4 pt-4">
+            <button type="submit" class="flex-grow bg-primary hover:bg-blue-800 text-white font-extrabold py-3.5 px-8 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 text-sm">
+                <i class="fas fa-save"></i> حفظ الدرجات واعتماد النتيجة النهائية
+            </button>
+            <a href="{% url 'profile_view' %}" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold py-3.5 px-6 rounded-2xl transition-all text-sm">
+                إلغاء
+            </a>
+        </div>
+    </form>
+
+</div>
+
+<!-- Client-side validations script to prevent invalid input -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('gradingForm');
+        const inputs = form.querySelectorAll('input[type="number"]');
+
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                const maxMarks = parseFloat(this.getAttribute('data-max-marks'));
+                let val = parseFloat(this.value);
+
+                if (isNaN(val) || val < 0) {
+                    this.value = 0.0;
+                } else if (val > maxMarks) {
+                    this.value = maxMarks;
+                    alert(`الدرجة القصوى المتاحة لهذا السؤال هي ${maxMarks} درجات.`);
+                }
+            });
+        });
+
+        form.addEventListener('submit', function(e) {
+            let valid = true;
+            inputs.forEach(input => {
+                const maxMarks = parseFloat(input.getAttribute('data-max-marks'));
+                const val = parseFloat(input.value);
+                if (isNaN(val) || val < 0 || val > maxMarks) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) {
+                e.preventDefault();
+                alert('يرجى التحقق من قيم الدرجات المدخلة (يجب ألا تقل عن 0 ولا تزيد عن الدرجة القصوى للسؤال).');
+            }
+        });
+    });
+</script>
+{% endblock %}

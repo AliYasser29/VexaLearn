@@ -4,25 +4,26 @@ from .models import Quiz, Question, Choice
 class QuizForm(forms.ModelForm):
     class Meta:
         model = Quiz
-        fields = ['title', 'description', 'duration', 'pass_score', 'specific_students']
+        fields = ['title', 'description', 'duration', 'pass_score', 'session_number', 'specific_students']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'duration': forms.NumberInput(attrs={'class': 'form-control'}),
             'pass_score': forms.NumberInput(attrs={'class': 'form-control'}),
+            'session_number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'رقم الحصة (اتركه فارغاً ليكون للكورس كامل)'}),
             
-            'specific_students': forms.SelectMultiple(attrs={
-                'class': 'form-control select2',  
-                'data-placeholder': 'اختر الطلاب (اتركه فارغاً للجميع)'
+            'specific_students': forms.CheckboxSelectMultiple(attrs={
+                'class': 'student-checkbox',  
             }),
         }
 
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ['text', 'marks']
+        fields = ['text', 'question_type', 'marks']
         widgets = {
             'text': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'نص السؤال'}),
+            'question_type': forms.Select(attrs={'class': 'form-control'}),
             'marks': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
@@ -34,6 +35,11 @@ class BaseChoiceFormSet(BaseInlineFormSet):
         super().clean()
         if any(self.errors):
             return
+
+        # Check if this is an essay question
+        question_type = self.data.get('question_type')
+        if question_type == 'essay':
+            return # Skip all choices validations!
 
         valid_choices_count = 0
         correct_choices_count = 0

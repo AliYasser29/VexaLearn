@@ -79,6 +79,19 @@ class DailyReportForm(forms.ModelForm):
             'attachment': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
+    def clean_attachment(self):
+        attachment = self.cleaned_data.get('attachment')
+        if attachment:
+            if attachment.size > 10 * 1024 * 1024:
+                raise forms.ValidationError("حجم المرفق يجب ألا يتجاوز 10 ميجابايت.")
+            
+            allowed_extensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.zip', '.rar', '.jpg', '.jpeg', '.png']
+            import os
+            ext = os.path.splitext(attachment.name)[1].lower()
+            if ext not in allowed_extensions:
+                raise forms.ValidationError("امتداد الملف المرفق غير مدعوم أو غير آمن.")
+        return attachment
+
 # --- 4. فورم المعلم (لإدارة المواد) ---
 class TeacherForm(forms.ModelForm):
     subjects = forms.ModelMultipleChoiceField(
@@ -91,7 +104,7 @@ class TeacherForm(forms.ModelForm):
         model = Teacher
         fields = ['name', 'phone', 'subjects', 'bio'] 
 
-# --- 5. فورم رفع المواد العلمية (للمكتبة) ---
+# --- 5. فورم رفع المواد العلمية (لالمكتبة) ---
 class MaterialForm(forms.ModelForm):
     class Meta:
         model = CourseMaterial
@@ -103,9 +116,21 @@ class MaterialForm(forms.ModelForm):
             'file': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        if file:
+            if file.size > 10 * 1024 * 1024:
+                raise forms.ValidationError("حجم الملف يجب ألا يتجاوز 10 ميجابايت.")
+            
+            allowed_extensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.zip', '.rar', '.jpg', '.jpeg', '.png']
+            import os
+            ext = os.path.splitext(file.name)[1].lower()
+            if ext not in allowed_extensions:
+                raise forms.ValidationError("امتداد الملف غير مدعوم أو غير آمن.")
+        return file
+
     def __init__(self, teacher, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if teacher:
-            # فلترة الكورسات لتظهر فقط كورسات المواد التي يدرسها المعلم
             teacher_subjects = teacher.subjects.all()
             self.fields['course'].queryset = Course.objects.filter(subject__in=teacher_subjects)

@@ -129,6 +129,31 @@
             font-weight: 600;
         }
 
+        /* Home Button */
+        .btn-home-stylish {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--brand-primary, #6366f1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-family: 'Cairo';
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-home-stylish:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
         /* Logout Button */
         .btn-logout-stylish {
             background: rgba(254, 226, 226, 0.7);
@@ -142,12 +167,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: 0.3s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-logout-stylish:hover {
             background: #fee2e2;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
 
         /* Main Container */
@@ -543,6 +569,11 @@
 
     <div class="navbar">
         <div class="nav-left-controls">
+            <a href="{% url 'landing_page' %}" class="btn-home-stylish" title="العودة للرئيسية">
+                <i class="fas fa-home"></i>
+                <span style="font-size: 0.9rem; font-weight: 700;">الرئيسية</span>
+            </a>
+
             <form action="{% url 'logout' %}" method="post" style="margin: 0;">
                 {% csrf_token %}
                 <button type="submit" class="btn-logout-stylish">

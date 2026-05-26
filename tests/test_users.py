@@ -68,7 +68,7 @@ class AdminPanelTests(TestCase):
         messages = list(response.context.get('messages'))
         found_message = False
         for msg in messages:
-            if 'Generated credentials' in str(msg):
+            if 'Credentials:' in str(msg):
                 found_message = True
                 break
                 

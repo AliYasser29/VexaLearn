@@ -1,0 +1,166 @@
+{% extends "base_rtl.html" %}
+
+{% block title %}مراجعة الاختبار | {{ attempt.quiz.title }}{% endblock %}
+
+{% block header %}مراجعة الاختبار{% endblock %}
+
+{% block nav %}
+<a href="{% url 'profile_view' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-primary font-semibold shadow-sm border border-blue-100">
+    <i class="fas fa-arrow-right"></i> العودة للملف الشخصي
+</a>
+<a href="{% url 'quiz:quiz_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-100 transition-all">
+    <i class="fas fa-tasks"></i> لوحة الاختبارات
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8" dir="rtl">
+
+    <!-- Card: Quiz & Attempt Summary -->
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-3 text-right">
+            <span class="inline-block bg-indigo-50 text-indigo-700 text-xxs font-extrabold px-3 py-1 rounded-md border border-indigo-100/50">
+                {{ attempt.quiz.course.name }}
+            </span>
+            <h2 class="text-2xl font-extrabold text-slate-900 leading-tight">مراجعة: {{ attempt.quiz.title }}</h2>
+            <p class="text-xs text-slate-500 font-semibold flex items-center gap-1.5 mt-1">
+                <i class="far fa-calendar-alt"></i> تاريخ التسليم: {{ attempt.completed_at|date:"Y-m-d H:i A" }}
+            </p>
+        </div>
+
+        <div class="flex items-center gap-4 bg-slate-50 border border-slate-100 p-5 rounded-2xl">
+            <div class="text-right">
+                <span class="text-xxs text-slate-450 block font-bold">النتيجة النهائية</span>
+                {% if attempt.status == 'pending' %}
+                <span class="text-lg font-extrabold text-amber-500 flex items-center gap-1.5 mt-1">
+                    <i class="fas fa-hourglass-half"></i> قيد المراجعة
+                </span>
+                {% else %}
+                <span class="text-2xl font-extrabold {% if attempt.passed %}text-emerald-600{% else %}text-red-500{% endif %} block mt-1">
+                    {{ attempt.score|floatformat:1 }}%
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="w-px h-12 bg-slate-200"></div>
+
+            <div class="text-right">
+                <span class="text-xxs text-slate-450 block font-bold">الحالة</span>
+                {% if attempt.status == 'pending' %}
+                <span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xxs font-extrabold px-2.5 py-1 rounded-full border border-amber-200 mt-1">
+                    بانتظار تصحيح المعلم
+                </span>
+                {% elif attempt.passed %}
+                <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xxs font-extrabold px-2.5 py-1 rounded-full border border-emerald-200 mt-1">
+                    <i class="fas fa-check-circle"></i> ناجح (اجتاز)
+                </span>
+                {% else %}
+                <span class="inline-flex items-center gap-1 bg-red-100 text-red-800 text-xxs font-extrabold px-2.5 py-1 rounded-full border border-red-200 mt-1">
+                    <i class="fas fa-times-circle"></i> لم يجتز الاختبار
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions list -->
+    <div class="space-y-6">
+        <h3 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+            <i class="fas fa-list-ol text-primary"></i> تفاصيل إجابات الأسئلة
+        </h3>
+
+        {% for ans in answers %}
+        <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm relative overflow-hidden">
+            <!-- Left border indicator -->
+            {% if ans.question.question_type == 'essay' %}
+                <div class="absolute right-0 top-0 bottom-0 w-1.5 bg-amber-400"></div>
+            {% elif ans.marks_earned == ans.question.marks %}
+                <div class="absolute right-0 top-0 bottom-0 w-1.5 bg-emerald-500"></div>
+            {% else %}
+                <div class="absolute right-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
+            {% endif %}
+
+            <div class="flex justify-between items-start gap-4 mb-5">
+                <div class="space-y-1 text-right">
+                    <span class="bg-slate-100 text-slate-600 text-[10px] font-extrabold px-2 py-0.5 rounded">
+                        {{ ans.question.get_question_type_display }}
+                    </span>
+                    <h4 class="text-md font-extrabold text-slate-900 leading-snug mt-1.5">
+                        <span class="text-primary">{{ forloop.counter }}.</span>
+                        {{ ans.question.text }}
+                    </h4>
+                </div>
+
+                <!-- Marks Badge -->
+                <div class="text-left shrink-0">
+                    <span class="text-[10px] text-slate-400 block font-bold">الدرجة</span>
+                    <span class="text-sm font-extrabold text-slate-800">
+                        {{ ans.marks_earned|floatformat:1 }} / {{ ans.question.marks }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Choice Question Options rendering -->
+            {% if ans.question.question_type != 'essay' %}
+            <div class="grid grid-cols-1 gap-3">
+                {% for choice in ans.question.choices.all %}
+                <div class="flex items-center justify-between p-4 rounded-2xl border text-sm font-bold transition-all
+                    {% if choice.is_correct %}
+                        bg-emerald-50 border-emerald-200 text-emerald-800
+                    {% elif ans.selected_choice == choice and not choice.is_correct %}
+                        bg-red-50 border-red-200 text-red-800
+                    {% else %}
+                        bg-slate-50/50 border-slate-100 text-slate-600
+                    {% endif %}">
+                    
+                    <div class="flex items-center gap-3">
+                        <!-- Icon representation -->
+                        {% if choice.is_correct %}
+                            <i class="fas fa-check-circle text-emerald-600 text-base"></i>
+                        {% elif ans.selected_choice == choice and not choice.is_correct %}
+                            <i class="fas fa-times-circle text-red-600 text-base"></i>
+                        {% else %}
+                            <div class="w-4 h-4 rounded-full border-2 border-slate-300"></div>
+                        {% endif %}
+                        <span>{{ choice.text }}</span>
+                    </div>
+
+                    {% if ans.selected_choice == choice %}
+                    <span class="text-[9px] font-extrabold px-2.5 py-1 rounded bg-white/70 border border-slate-200/40 shadow-xxs">
+                        إجابتك
+                    </span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Essay Question Answer rendering -->
+            {% else %}
+            <div class="space-y-4">
+                <div class="p-5 bg-slate-50 border border-slate-200/50 rounded-2xl text-right">
+                    <span class="text-xxs text-slate-400 font-extrabold block mb-2"><i class="fas fa-pen-nib"></i> إجابتك المكتوبة:</span>
+                    <p class="text-sm font-semibold text-slate-800 leading-relaxed whitespace-pre-wrap">{{ ans.essay_answer|default:"(لا توجد إجابة مسجلة)" }}</p>
+                </div>
+
+                {% if not ans.is_graded %}
+                <div class="flex items-center gap-2 p-3.5 bg-amber-50 text-amber-800 border border-amber-200/60 rounded-xl text-xxs font-bold">
+                    <i class="fas fa-hourglass-half animate-pulse text-xs"></i>
+                    <span>هذا السؤال مقالي وبانتظار تقييم وتصحيح المعلم لوضع الدرجة المستحقة.</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Actions bottom -->
+    <div class="flex justify-center pt-4">
+        <a href="{% url 'profile_view' %}" class="bg-primary hover:bg-blue-800 text-white font-extrabold px-8 py-3.5 rounded-2xl transition-all shadow-md flex items-center gap-2 text-sm">
+            <i class="fas fa-check-double"></i> إكمال المراجعة والعودة للملف الشخصي
+        </a>
+    </div>
+
+</div>
+{% endblock %}

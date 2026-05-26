@@ -6,7 +6,12 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-def _send_email_thread(subject, message, recipient_list):
+@shared_task(bind=True, max_retries=5)
+def send_email_task(self, subject, message, recipient_list):
+    """
+    Celery task to send an email.
+    Uses standard Celery retry and logging.
+    """
     try:
         send_mail(
             subject,
@@ -15,24 +20,10 @@ def _send_email_thread(subject, message, recipient_list):
             recipient_list,
             fail_silently=False,
         )
-        logger.info(f"Successfully sent email in background to {recipient_list}")
+        logger.info(f"Successfully sent email to {recipient_list}")
     except Exception as exc:
-        logger.error(f"Failed to send background email to {recipient_list}: {exc}")
-
-@shared_task(bind=True, max_retries=5)
-def send_email_task(self, subject, message, recipient_list):
-    """
-    Celery task to send an email. Since we run in eager mode without Redis,
-    we spawn a background thread so the main request thread doesn't wait (non-blocking).
-    """
-    # Spawn background thread to send the email concurrently
-    thread = threading.Thread(
-        target=_send_email_thread,
-        args=(subject, message, recipient_list)
-    )
-    thread.daemon = True
-    thread.start()
-    logger.info(f"Spawned background thread to send email to {recipient_list}")
+        logger.error(f"Failed to send email to {recipient_list}: {exc}")
+        raise self.retry(exc=exc, countdown=60)
 
 @shared_task
 def notify_supervisor_new_student_task(student_id):

@@ -166,8 +166,22 @@ class Course(models.Model):
     def __str__(self): return f"{self.name} | {self.price} {self.country.currency}"
     class Meta: verbose_name = "كورس"; verbose_name_plural = "الكورسات"
 
+class StudentQuerySet(models.QuerySet):
+    def active_with_relations(self):
+        return self.filter(is_deleted=False).select_related(
+            'country', 'education_type', 'academic_year'
+        ).prefetch_related('teachers', 'daily_reports__teacher')
+
+class StudentManager(SoftDeleteManager):
+    def get_queryset(self):
+        return StudentQuerySet(self.model, using=self._db).filter(is_deleted=False)
+
+    def active_with_relations(self):
+        return self.get_queryset().active_with_relations()
+
 # 10. الطالب
 class Student(SoftDeleteModel):
+    objects = StudentManager()
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='student_profile', verbose_name="حساب المستخدم")
     name = models.CharField(max_length=150, verbose_name="اسم الطالب")
     age = models.IntegerField(verbose_name="العمر")
@@ -385,6 +399,18 @@ User.add_to_class('has_student_profile', has_student_profile)
 User.add_to_class('has_teacher_profile', has_teacher_profile)
 User.add_to_class('has_supervisor_profile', has_supervisor_profile)
 User.add_to_class('has_manager_profile', has_manager_profile)
+
+
+@receiver(post_delete, sender=Student)
+@receiver(post_delete, sender=Teacher)
+@receiver(post_delete, sender=Supervisor)
+@receiver(post_delete, sender=Manager)
+def disable_deleted_user_account(sender, instance, **kwargs):
+    """تعطيل حساب تسجيل الدخول المرتبط لمنع تسلل المستخدمين الأشباح عند الحذف الفردي أو الجماعي."""
+    if hasattr(instance, 'user') and instance.user:
+        if not instance.user.is_superuser:
+            instance.user.is_active = False
+            instance.user.save()
 
 
 

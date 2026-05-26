@@ -1,465 +1,577 @@
+{% extends "base_rtl.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المراقبة الشاملة | Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% block title %}المراقبة الشاملة للمحادثات والتقارير | VexaLearn{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/global_ux.css' %}">
-    <style>
-        :root {
-            --primary: var(--error);
-            --primary-hover: #b91c1c;
-            --secondary: var(--primary-neon);
-            --text-dark: var(--text-primary);
-            --text-gray: var(--text-secondary);
-        }
+{% block content %}
+<!-- Beautiful Premium Styling overrides -->
+<style>
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(241, 245, 249, 0.5);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
 
-        /* --- Global Reset & Base --- */
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: #ffffff;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            color: var(--text-dark);
-        }
+<!-- Decorative Background Elements (Landing Page Identity) -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <!-- Glowing Orbs -->
+    <div class="absolute top-[10%] left-[5%] w-[45rem] h-[45rem] rounded-full bg-gradient-to-br from-indigo-500/10 to-transparent blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="absolute top-[30%] right-[5%] w-[35rem] h-[35rem] rounded-full bg-gradient-to-br from-violet-500/10 to-transparent blur-[120px] animate-pulse" style="animation-duration: 12s;"></div>
+    
+    <!-- Micro-Dot Tech Grid Pattern -->
+    <div class="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.35]"></div>
+</div>
 
-        h1,
-        h2,
-        h3,
-        h4,
-        p {
-            margin: 0;
-        }
+<!-- Main Landing-Style Dashboard Container -->
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20 space-y-10">
 
-        /* --- Header --- */
-        .top-bar {
-            padding: 24px 48px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 20;
-        }
-
-        .brand {
-            font-weight: 800;
-            font-size: 1.25rem;
-            letter-spacing: -0.02em;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .back-link {
-            text-decoration: none;
-            color: var(--text-gray);
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-        }
-
-        .back-link:hover {
-            color: var(--primary);
-        }
-
-        /* --- Selection Area --- */
-        .selection-container {
-            padding: 0 48px 48px;
-            display: flex;
-            gap: 24px;
-            align-items: flex-end;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-            z-index: 10;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            flex: 1;
-            max-width: 350px;
-        }
-
-        label {
-            font-size: 0.85rem;
-            color: var(--text-gray);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* Select2 Base Overrides */
-        .select2-container--default .select2-selection--single {
-            background-color: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-        }
-
-        .select2-container--default.select2-container--focus .select2-selection--single {
-            border-color: var(--text-gray);
-            outline: none;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            padding-right: 16px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 46px;
-            left: 10px;
-        }
-
-        .swap-icon {
-            font-size: 1.2rem;
-            color: #cbd5e1;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-show {
-            background: var(--text-dark);
-            color: white;
-            border: none;
-            padding: 0 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            height: 48px;
-            transition: background 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-show:hover {
-            background: #334155;
-        }
-
-        /* --- Main Content Area --- */
-        .main-container {
-            flex: 1;
-            display: flex;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-            background: #fff;
-            overflow: hidden;
-            padding: 20px 48px;
-            box-sizing: border-box;
-            gap: 60px;
-        }
-
-        /* --- Chat Section --- */
-        .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            /* allows truncating in flex */
-        }
-
-        .chat-header {
-            padding: 15px 0 30px;
-            color: var(--text-gray);
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-
-        .messages-list {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        /* Textual Chat Log Distillation */
-        .msg {
-            max-width: 100%;
-            padding: 0 0 24px 0;
-            font-size: 1rem;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 1px solid #f8fafc;
-        }
-
-        .msg:last-child {
-            border-bottom: none;
-        }
-
-        .msg-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 6px;
-        }
-
-        .msg-sender {
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
-
-        .msg.user1 .msg-sender {
-            color: var(--primary);
-        }
-
-        .msg.user2 .msg-sender {
-            color: var(--secondary);
-        }
-
-        .msg-time {
-            font-size: 0.75rem;
-            color: var(--text-gray);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .msg-content {
-            white-space: pre-wrap;
-            color: var(--text-dark);
-        }
-
-        /* --- Reports Section --- */
-        .reports-section {
-            width: 380px;
-            display: flex;
-            flex-direction: column;
-            padding-right: 40px;
-            border-right: 1px solid #f1f5f9;
-        }
-
-        .reports-header {
-            padding: 15px 0 30px;
-            font-weight: 700;
-            color: var(--text-dark);
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .reports-list {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .report-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .report-date {
-            font-size: 0.75rem;
-            color: var(--text-gray);
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .report-content {
-            font-size: 0.95rem;
-            color: var(--text-dark);
-            white-space: pre-wrap;
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        .report-attach {
-            font-size: 0.85rem;
-            color: var(--secondary);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .report-attach:hover {
-            color: #4338ca;
-            text-decoration: underline;
-        }
-
-        .empty-reports,
-        .empty-chat {
-            text-align: left;
-            color: var(--text-gray);
-            margin-top: 40px;
-            font-size: 1rem;
-        }
-
-        /* Scrollbar Distillation */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #cbd5e1;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="top-bar">
-        <div class="brand">
-            <i class="fas fa-user-secret" style="color: var(--primary);"></i>
-            لوحة المراقبة الشاملة
+    <!-- Hero-Style Header (Matches landing page style perfectly) -->
+    <header class="flex flex-col items-center text-center space-y-4">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100/60 text-primary text-xs font-bold shadow-sm animate-bounce" style="animation-duration: 4s;">
+            <span>أكاديمية فيكسا التعليمية الذكية</span>
+            <span>🛡️</span>
         </div>
-        <div>
-            <a href="{% url 'landing_page' %}" class="back-link">
-                <i class="fas fa-arrow-right"></i> العودة للرئيسية
-            </a>
+        
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
+            لوحة المراقبة <span class="bg-gradient-to-l from-indigo-600 to-violet-600 bg-clip-text text-transparent">الشاملة للمحادثات</span>
+        </h1>
+        
+        <p class="text-xs md:text-sm text-slate-500 max-w-xl leading-relaxed font-medium">
+            تتيح هذه اللوحة للإدارة والمشرفين مراقبة السجلات الأمنية والرسائل والتقارير المتبادلة بين أطراف المنصة بدقة وخصوصية عالية.
+        </p>
+    </header>
+
+    <!-- Selection Glass Card -->
+    <section class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-slate-200/50 shadow-sm max-w-4xl mx-auto z-40 relative">
+        <form method="get" class="flex flex-col md:flex-row items-stretch md:items-end justify-between gap-6">
+            
+            <!-- User 1 Select Container -->
+            <div class="flex-1 min-w-0 relative" id="select-user1-container">
+                <label for="user1-trigger" class="block text-xs font-bold text-slate-500 mb-2 mr-1">
+                    <i class="fas fa-user-circle text-indigo-500 ml-1"></i> الطرف الأول
+                </label>
+                
+                <!-- Hidden input for Form submit -->
+                <input type="hidden" name="user1" id="user1" value="{{ user1_id|default:'' }}" required>
+                
+                <!-- Custom Trigger Button -->
+                <button type="button" onclick="toggleDropdown('user1')" id="user1-trigger" class="w-full flex items-center justify-between bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-2xl h-[52px] px-4 hover:border-indigo-500 hover:shadow-md transition-all text-right focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                    <span id="user1-selected-text" class="font-semibold text-slate-800 text-xs sm:text-sm truncate">
+                        {% if user1_obj %}
+                            {{ user1_obj.student_profile.name|default:user1_obj.teacher_profile.name|default:user1_obj.username }}
+                            ({% if user1_obj.student_profile %}طالب{% elif user1_obj.teacher_profile %}معلم{% elif user1_obj.supervisor_profile %}مشرف{% else %}مستخدم{% endif %})
+                        {% else %}
+                            اختر الطرف الأول...
+                        {% endif %}
+                    </span>
+                    <i class="fas fa-chevron-down text-slate-400 text-xs transition-transform duration-300 mr-2 shrink-0" id="user1-arrow"></i>
+                </button>
+                
+                <!-- Custom Dropdown Option List -->
+                <div id="user1-dropdown" class="hidden absolute right-0 left-0 mt-2 bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col max-h-[320px] transition-all">
+                    <!-- Search box -->
+                    <div class="p-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50">
+                        <i class="fas fa-search text-slate-400 text-[10px] mr-1"></i>
+                        <input type="text" id="user1-search" oninput="filterDropdownOptions('user1')" placeholder="ابحث بالاسم أو الدور الدراسي..." class="w-full bg-transparent border-none outline-none text-xs text-slate-700 font-semibold text-right placeholder-slate-400">
+                    </div>
+                    <!-- Options -->
+                    <div class="flex-grow overflow-y-auto custom-scrollbar py-1" id="user1-options-list">
+                        {% for u in users_data %}
+                        <button type="button" onclick="selectUserOption('user1', '{{ u.id }}', '{{ u.name }} ({{ u.role }})')" data-search="{{ u.name|lower }} {{ u.role|lower }} {{ u.username|lower }}" class="w-full text-right px-4 py-3 text-xs hover:bg-indigo-50 hover:text-indigo-600 font-semibold text-slate-700 transition-colors flex items-center justify-between border-b border-slate-50/40 last:border-none">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black flex items-center justify-center shrink-0">
+                                    {{ u.username|slice:":1"|upper }}
+                                </span>
+                                <span>{{ u.name }}</span>
+                            </div>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-md {% if u.role == 'طالب' %}bg-indigo-50 text-indigo-600{% elif u.role == 'معلم' %}bg-violet-50 text-violet-600{% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ u.role }}
+                            </span>
+                        </button>
+                        {% endfor %}
+                        <div id="user1-no-results" class="hidden text-center py-6 text-xs text-slate-400 font-semibold">
+                            لا توجد نتائج مطابقة
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Swap Icon (Dynamic JS Touch Button) -->
+            <div class="flex items-center justify-center self-center md:pb-1 shrink-0">
+                <button type="button" onclick="swapUsers()" class="w-12 h-12 rounded-full bg-slate-100/80 hover:bg-indigo-50 border border-slate-200/60 hover:border-indigo-200 text-slate-500 hover:text-indigo-600 shadow-sm flex items-center justify-center transition-all duration-300 transform hover:scale-115 active:scale-90 focus:outline-none" title="تبديل الأطراف">
+                    <i class="fas fa-exchange-alt text-base md:rotate-0 rotate-90"></i>
+                </button>
+            </div>
+
+            <!-- User 2 Select Container -->
+            <div class="flex-1 min-w-0 relative" id="select-user2-container">
+                <label for="user2-trigger" class="block text-xs font-bold text-slate-500 mb-2 mr-1">
+                    <i class="fas fa-user-circle text-violet-500 ml-1"></i> الطرف الثاني
+                </label>
+                
+                <!-- Hidden input for Form submit -->
+                <input type="hidden" name="user2" id="user2" value="{{ user2_id|default:'' }}" required>
+                
+                <!-- Custom Trigger Button -->
+                <button type="button" onclick="toggleDropdown('user2')" id="user2-trigger" class="w-full flex items-center justify-between bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-2xl h-[52px] px-4 hover:border-indigo-500 hover:shadow-md transition-all text-right focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                    <span id="user2-selected-text" class="font-semibold text-slate-800 text-xs sm:text-sm truncate">
+                        {% if user2_obj %}
+                            {{ user2_obj.student_profile.name|default:user2_obj.teacher_profile.name|default:user2_obj.username }}
+                            ({% if user2_obj.student_profile %}طالب{% elif user2_obj.teacher_profile %}معلم{% elif user2_obj.supervisor_profile %}مشرف{% else %}مستخدم{% endif %})
+                        {% else %}
+                            اختر الطرف الثاني...
+                        {% endif %}
+                    </span>
+                    <i class="fas fa-chevron-down text-slate-400 text-xs transition-transform duration-300 mr-2 shrink-0" id="user2-arrow"></i>
+                </button>
+                
+                <!-- Custom Dropdown Option List -->
+                <div id="user2-dropdown" class="hidden absolute right-0 left-0 mt-2 bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-2xl shadow-xl z-50 overflow-hidden flex flex-col max-h-[320px] transition-all">
+                    <!-- Search box -->
+                    <div class="p-3 border-b border-slate-100 flex items-center gap-2 bg-slate-50/50">
+                        <i class="fas fa-search text-slate-400 text-[10px] mr-1"></i>
+                        <input type="text" id="user2-search" oninput="filterDropdownOptions('user2')" placeholder="ابحث بالاسم أو الدور الدراسي..." class="w-full bg-transparent border-none outline-none text-xs text-slate-700 font-semibold text-right placeholder-slate-400">
+                    </div>
+                    <!-- Options -->
+                    <div class="flex-grow overflow-y-auto custom-scrollbar py-1" id="user2-options-list">
+                        {% for u in users_data %}
+                        <button type="button" onclick="selectUserOption('user2', '{{ u.id }}', '{{ u.name }} ({{ u.role }})')" data-search="{{ u.name|lower }} {{ u.role|lower }} {{ u.username|lower }}" class="w-full text-right px-4 py-3 text-xs hover:bg-indigo-50 hover:text-indigo-600 font-semibold text-slate-700 transition-colors flex items-center justify-between border-b border-slate-50/40 last:border-none">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black flex items-center justify-center shrink-0">
+                                    {{ u.username|slice:":1"|upper }}
+                                </span>
+                                <span>{{ u.name }}</span>
+                            </div>
+                            <span class="text-[9px] font-bold px-2 py-0.5 rounded-md {% if u.role == 'طالب' %}bg-indigo-50 text-indigo-600{% elif u.role == 'معلم' %}bg-violet-50 text-violet-600{% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ u.role }}
+                            </span>
+                        </button>
+                        {% endfor %}
+                        <div id="user2-no-results" class="hidden text-center py-6 text-xs text-slate-400 font-semibold">
+                            لا توجد نتائج مطابقة
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="md:shrink-0 w-full md:w-auto">
+                <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-8 rounded-2xl text-sm shadow-md transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap min-h-[52px] flex items-center justify-center gap-2 outline-none focus:ring-2 focus:ring-indigo-500">
+                    <span>عرض السجلات</span>
+                    <i class="fas fa-search text-xs"></i>
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Main View Section -->
+    {% if not user1_obj or not user2_obj %}
+        <!-- Premium Minimal Empty State -->
+        <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-12 text-center shadow-sm border border-slate-200/50 max-w-xl mx-auto animate-pulse-slow z-10 relative">
+            <div class="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner border border-indigo-100">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h3 class="text-lg font-black text-slate-800">بانتظار تحديد أطراف المحادثة</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed mt-2.5">
+                يرجى اختيار أطراف المحادثة من حقول البحث بالأعلى، ثم اضغط على زر "عرض السجلات" للبدء في تصفح سجلات الشات والتقارير اليومية مباشرة.
+            </p>
         </div>
-    </div>
-
-    <form method="get" class="selection-container">
-        <div class="form-group">
-            <label for="user1">الطرف الأول</label>
-            <select name="user1" id="user1" class="select-users" required>
-                <option value=""></option>
-                {% for u in users_data %}
-                <option value="{{ u.id }}" {% if user1_id == u.id %}selected{% endif %}>
-                    {{ u.name }} ({{ u.role }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="swap-icon"><i class="fas fa-exchange-alt"></i></div>
-
-        <div class="form-group">
-            <label for="user2">الطرف الثاني</label>
-            <select name="user2" id="user2" class="select-users" required>
-                <option value=""></option>
-                {% for u in users_data %}
-                <option value="{{ u.id }}" {% if user2_id == u.id %}selected{% endif %}>
-                    {{ u.name }} ({{ u.role }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <button type="submit" class="btn-show">
-            عرض السجلات <i class="fas fa-search"></i>
-        </button>
-    </form>
-
-    <div class="main-container">
-
+    {% else %}
+        
         {% if show_reports_panel %}
-        <div class="reports-section">
-            <div class="reports-header">
-                سجل التقارير اليومية
-            </div>
-            <div class="reports-list">
-                {% for report in daily_reports %}
-                <div class="report-item">
-                    <span class="report-date">{{ report.date|date:"Y-m-d" }}</span>
-                    <div class="report-content">{{ report.content }}</div>
-                    {% if report.attachment %}
-                    <a href="{{ report.attachment.url }}" target="_blank" class="report-attach">
-                        <i class="fas fa-paperclip"></i> عرض المرفق
-                    </a>
-                    {% endif %}
+            <!-- Desktop Layout with side-by-side or mobile tab view -->
+            <div class="space-y-6 lg:space-y-0 z-10 relative">
+                
+                <!-- Mobile & Tablet Dynamic Tabs Switcher (Visible only below lg screens) -->
+                <div class="lg:hidden bg-white/70 backdrop-blur-xl rounded-2xl p-1.5 border border-slate-200/50 shadow-sm flex items-center gap-1.5 w-full">
+                    <button onclick="switchMobileTab('chat')" id="mobile-tab-chat" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow">
+                        <i class="fas fa-comments"></i> سجل المحادثات
+                    </button>
+                    <button onclick="switchMobileTab('reports')" id="mobile-tab-reports" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-white/60">
+                        <i class="fas fa-file-invoice"></i> التقارير اليومية
+                    </button>
                 </div>
-                {% empty %}
-                <div class="empty-reports">
-                    <p>لا توجد تقارير مسجلة لهذا الطالب من هذا المعلم.</p>
+                
+                <!-- Bento Grid Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                    
+                    <!-- Chat Container (Takes 2 columns on desktop) -->
+                    <div id="mobile-chat-panel" class="lg:col-span-2 block space-y-4">
+                        <!-- Chat Box -->
+                        <div class="bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 shadow-sm overflow-hidden flex flex-col h-[520px] md:h-[620px]">
+                            <!-- Chat Box Header -->
+                            <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-200/40 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-sm shadow-inner">
+                                        <i class="fas fa-comments"></i>
+                                    </span>
+                                    <div class="text-right">
+                                        <h3 class="text-xs font-bold text-slate-800">سجل المحادثة الآمنة</h3>
+                                        <div class="text-[10px] text-slate-400 font-semibold mt-0.5 flex flex-wrap items-center gap-1">
+                                            <span>بين:</span>
+                                            <span class="text-indigo-600 font-bold">{{ user1_obj.student_profile.name|default:user1_obj.teacher_profile.name|default:user1_obj.username }}</span>
+                                            <span class="text-slate-300">|</span>
+                                            <span class="text-violet-600 font-bold">{{ user2_obj.student_profile.name|default:user2_obj.teacher_profile.name|default:user2_obj.username }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-3 py-1.5 rounded-full flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> مراقبة نشطة
+                                </span>
+                            </div>
+                            
+                            <!-- Messages scroll list -->
+                            <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar" id="msgList" style="background-image: radial-gradient(#6366f1_0.5px, transparent 0.5px); background-size: 20px 20px; opacity: 0.98;">
+                                {% for msg in chat_messages %}
+                                    {% if msg.sender.id == user1_id %}
+                                    <!-- User 1 Message Bubble (Right aligned) -->
+                                    <div class="flex items-start justify-start gap-3 max-w-[85%] sm:max-w-[75%] mr-0 ml-auto">
+                                        <div class="flex flex-col space-y-1 w-full items-end">
+                                            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                                                <span class="text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md text-[9px]">
+                                                    {% if user1_obj.student_profile %}طالب{% elif user1_obj.teacher_profile %}معلم{% elif user1_obj.supervisor_profile %}مشرف{% else %}مستخدم{% endif %}
+                                                </span>
+                                                <span class="font-extrabold text-slate-500">{{ user1_obj.student_profile.name|default:user1_obj.teacher_profile.name|default:user1_obj.username }}</span>
+                                            </div>
+                                            <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm text-xs leading-relaxed text-right break-words w-full">
+                                                {{ msg.content }}
+                                            </div>
+                                            <span class="text-[9px] text-slate-400 font-semibold tracking-wider mt-1">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                                        </div>
+                                        <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-600 font-black text-xs flex items-center justify-center shrink-0">
+                                            {{ user1_obj.username|slice:":1"|upper }}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <!-- User 2 Message Bubble (Left aligned) -->
+                                    <div class="flex items-start gap-3 max-w-[85%] sm:max-w-[75%] ml-0 mr-auto flex-row-reverse">
+                                        <div class="flex flex-col space-y-1 w-full items-start">
+                                            <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                                                <span class="font-extrabold text-slate-500">{{ user2_obj.student_profile.name|default:user2_obj.teacher_profile.name|default:user2_obj.username }}</span>
+                                                <span class="text-violet-600 bg-violet-50 border border-violet-100 px-2 py-0.5 rounded-md text-[9px]">
+                                                    {% if user2_obj.student_profile %}طالب{% elif user2_obj.teacher_profile %}معلم{% elif user2_obj.supervisor_profile %}مشرف{% else %}مستخدم{% endif %}
+                                                </span>
+                                            </div>
+                                            <div class="bg-white text-slate-700 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-slate-200/60 text-xs leading-relaxed text-right break-words w-full">
+                                                {{ msg.content }}
+                                            </div>
+                                            <span class="text-[9px] text-slate-400 font-semibold tracking-wider mt-1">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                                        </div>
+                                        <div class="w-8 h-8 rounded-full bg-violet-100 border border-violet-200 text-violet-600 font-black text-xs flex items-center justify-center shrink-0">
+                                            {{ user2_obj.username|slice:":1"|upper }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                {% empty %}
+                                    <div class="h-full flex flex-col items-center justify-center text-center p-8">
+                                        <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-slate-200">
+                                            <i class="far fa-comments"></i>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-slate-700">سجل رسائل فارغ</h4>
+                                        <p class="text-xs text-slate-400 max-w-xs mx-auto mt-1">
+                                            لا توجد رسائل سابقة متبادلة في هذا السجل الخاص بين الطرفين حتى الآن.
+                                        </p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reports Container (Takes 1 column on desktop, hidden on mobile by default) -->
+                    <div id="mobile-reports-panel" class="lg:col-span-1 hidden lg:block space-y-4">
+                        <!-- Reports Box -->
+                        <div class="bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 shadow-sm overflow-hidden flex flex-col h-[520px] md:h-[620px]">
+                            <!-- Reports Header -->
+                            <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-200/40 flex items-center gap-3">
+                                <span class="w-10 h-10 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center text-sm shadow-inner">
+                                    <i class="fas fa-file-invoice animate-pulse"></i>
+                                </span>
+                                <div class="text-right">
+                                    <h3 class="text-xs font-bold text-slate-800">سجل التقارير اليومية</h3>
+                                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">التقارير الخاصة بالطالب والمعلم المحددين</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Reports List scroll view -->
+                            <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar" id="reportsList">
+                                {% for report in daily_reports %}
+                                <div class="relative pl-6 border-r-2 border-indigo-100 pb-2">
+                                    <div class="absolute top-1.5 -right-[7px] w-3 h-3 rounded-full bg-indigo-500 border-2 border-white ring-4 ring-indigo-50"></div>
+                                    
+                                    <div class="space-y-2 text-right">
+                                        <span class="inline-flex bg-indigo-50 text-indigo-700 text-[10px] font-black px-2.5 py-1 rounded-md uppercase border border-indigo-100">
+                                            {{ report.date|date:"Y-m-d" }}
+                                        </span>
+                                        <div class="bg-slate-50/60 border border-slate-100 rounded-2xl p-4 text-xs text-slate-600 leading-relaxed break-words whitespace-pre-wrap">
+                                            {{ report.content }}
+                                        </div>
+                                        {% if report.attachment %}
+                                        <a href="{{ report.attachment.url }}" target="_blank" class="inline-flex items-center gap-1.5 text-[10px] text-indigo-600 hover:text-indigo-700 font-bold bg-indigo-50/40 border border-indigo-100/40 px-3 py-1.5 rounded-xl transition-all hover:-translate-y-0.5">
+                                            <i class="fas fa-paperclip"></i>
+                                            <span>عرض المرفق</span>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="h-full flex flex-col items-center justify-center text-center p-8">
+                                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-slate-200">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-slate-700">لا توجد تقارير</h4>
+                                    <p class="text-xs text-slate-400 max-w-xs mx-auto mt-1">
+                                        لم يتم رفع أي تقارير يومية لهذا الطالب بواسطة هذا المعلم.
+                                    </p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-                {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <!-- Chat Only Layout -->
+            <div class="max-w-4xl mx-auto space-y-4 z-10 relative">
+                <div class="bg-white/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 shadow-sm overflow-hidden flex flex-col h-[520px] md:h-[620px]">
+                    <!-- Chat Header -->
+                    <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-200/40 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-sm shadow-inner">
+                                <i class="fas fa-comments"></i>
+                            </span>
+                            <div class="text-right">
+                                <h3 class="text-xs font-bold text-slate-800">سجل المحادثة الآمنة</h3>
+                                <div class="text-[10px] text-slate-400 font-semibold mt-0.5 flex flex-wrap items-center gap-1">
+                                    <span>بين:</span>
+                                    <span class="text-indigo-600 font-bold">{{ user1_obj.student_profile.name|default:user1_obj.teacher_profile.name|default:user1_obj.username }}</span>
+                                    <span class="text-slate-300">|</span>
+                                    <span class="text-violet-600 font-bold">{{ user2_obj.student_profile.name|default:user2_obj.teacher_profile.name|default:user2_obj.username }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200/60 px-3 py-1.5 rounded-full flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> مراقبة نشطة
+                        </span>
+                    </div>
+                    
+                    <!-- Chat Content scroll area -->
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar" id="msgList" style="background-image: radial-gradient(#6366f1_0.5px, transparent 0.5px); background-size: 20px 20px; opacity: 0.98;">
+                        {% for msg in chat_messages %}
+                            {% if msg.sender.id == user1_id %}
+                            <!-- User 1 Message Bubble (Right aligned) -->
+                            <div class="flex items-start justify-start gap-3 max-w-[85%] sm:max-w-[75%] mr-0 ml-auto">
+                                <div class="flex flex-col space-y-1 w-full items-end">
+                                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                                        <span class="text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md text-[9px]">
+                                            {% if user1_obj.student_profile %}طالب{% elif user1_obj.teacher_profile %}معلم{% elif user1_obj.supervisor_profile %}مشرف{% else %}مستخدم{% endif %}
+                                        </span>
+                                        <span class="font-extrabold text-slate-500">{{ user1_obj.student_profile.name|default:user1_obj.teacher_profile.name|default:user1_obj.username }}</span>
+                                    </div>
+                                    <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-3 shadow-sm text-xs leading-relaxed text-right break-words w-full">
+                                        {{ msg.content }}
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-semibold tracking-wider mt-1">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 border border-indigo-200 text-indigo-600 font-black text-xs flex items-center justify-center shrink-0">
+                                    {{ user1_obj.username|slice:":1"|upper }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <!-- User 2 Message Bubble (Left aligned) -->
+                            <div class="flex items-start gap-3 max-w-[85%] sm:max-w-[75%] ml-0 mr-auto flex-row-reverse">
+                                <div class="flex flex-col space-y-1 w-full items-start">
+                                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                                        <span class="font-extrabold text-slate-500">{{ user2_obj.student_profile.name|default:user2_obj.teacher_profile.name|default:user2_obj.username }}</span>
+                                        <span class="text-violet-600 bg-violet-50 border border-violet-100 px-2 py-0.5 rounded-md text-[9px]">
+                                            {% if user2_obj.student_profile %}طالب{% elif user2_obj.teacher_profile %}معلم{% elif user2_obj.supervisor_profile %}مشرف{% else %}مستخدم{% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="bg-white text-slate-700 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm border border-slate-200/60 text-xs leading-relaxed text-right break-words w-full">
+                                        {{ msg.content }}
+                                    </div>
+                                    <span class="text-[9px] text-slate-400 font-semibold tracking-wider mt-1">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-violet-100 border border-violet-200 text-violet-600 font-black text-xs flex items-center justify-center shrink-0">
+                                    {{ user2_obj.username|slice:":1"|upper }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% empty %}
+                            <div class="h-full flex flex-col items-center justify-center text-center p-8">
+                                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-slate-200">
+                                    <i class="far fa-comments"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-700">سجل رسائل فارغ</h4>
+                                <p class="text-xs text-slate-400 max-w-xs mx-auto mt-1">
+                                    لا توجد رسائل سابقة متبادلة في هذا السجل الخاص بين الطرفين حتى الآن.
+                                </p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         {% endif %}
 
-        <div class="chat-section">
-            {% if user1_obj and user2_obj %}
-            <div class="chat-header">
-                محادثة <span style="color: var(--primary);">{{ user1_obj.display_name|default:user1_obj.username
-                    }}</span>
-                و <span style="color: var(--secondary);">{{ user2_obj.display_name|default:user2_obj.username }}</span>
-            </div>
+    {% endif %}
 
-            <div class="messages-list" id="msgList">
-                {% for msg in chat_messages %}
-                {% if msg.sender.id == user1_id %}
-                <div class="msg user1">
-                    <div class="msg-header">
-                        <span class="msg-sender">{{ user1_obj.display_name|default:user1_obj.username }}</span>
-                        <span class="msg-time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
-                    </div>
-                    <div class="msg-content">{{ msg.content }}</div>
-                </div>
-                {% else %}
-                <div class="msg user2">
-                    <div class="msg-header">
-                        <span class="msg-sender">{{ user2_obj.display_name|default:user2_obj.username }}</span>
-                        <span class="msg-time">{{ msg.timestamp|date:"d/m/Y h:i A" }}</span>
-                    </div>
-                    <div class="msg-content">{{ msg.content }}</div>
-                </div>
-                {% endif %}
-                {% empty %}
-                <div class="empty-chat">
-                    <p>لا توجد رسائل سابقة في هذا السجل.</p>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-chat">
-                <p>يرجى اختيار الأطراف من الأعلى لعرض السجلات.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.select-users').select2({
-                dir: "rtl",
-                placeholder: "ابحث عن مستخدم...",
-                allowClear: true,
-                width: '100%'
-            });
+<!-- Vanilla JS Custom Searchable Select implementation -->
+<script>
+    // Toggle custom dropdown visibility
+    function toggleDropdown(userId) {
+        const dropdown = document.getElementById(userId + '-dropdown');
+        const arrow = document.getElementById(userId + '-arrow');
+        
+        // Close other dropdown if open
+        const otherId = userId === 'user1' ? 'user2' : 'user1';
+        const otherDropdown = document.getElementById(otherId + '-dropdown');
+        const otherArrow = document.getElementById(otherId + '-arrow');
+        if (otherDropdown) {
+            otherDropdown.classList.add('hidden');
+            otherArrow.classList.remove('rotate-180');
+        }
+        
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+            
+            // Focus search input when opening
+            if (!dropdown.classList.contains('hidden')) {
+                const searchInput = document.getElementById(userId + '-search');
+                if (searchInput) {
+                    searchInput.value = '';
+                    filterDropdownOptions(userId); // Reset filters
+                    setTimeout(() => searchInput.focus(), 50);
+                }
+            }
+        }
+    }
 
-            var msgList = document.getElementById("msgList");
-            if (msgList) { msgList.scrollTop = msgList.scrollHeight; }
+    // Select an option from custom dropdown
+    function selectUserOption(userId, value, text) {
+        const hiddenInput = document.getElementById(userId);
+        const selectedText = document.getElementById(userId + '-selected-text');
+        const dropdown = document.getElementById(userId + '-dropdown');
+        const arrow = document.getElementById(userId + '-arrow');
+        
+        if (hiddenInput && selectedText && dropdown) {
+            hiddenInput.value = value;
+            selectedText.textContent = text;
+            dropdown.classList.add('hidden');
+            arrow.classList.remove('rotate-180');
+        }
+    }
+
+    // Filter options inside dropdown based on search input
+    function filterDropdownOptions(userId) {
+        const searchVal = document.getElementById(userId + '-search').value.toLowerCase().trim();
+        const optionsList = document.getElementById(userId + '-options-list');
+        const options = optionsList.querySelectorAll('button[type="button"]');
+        const noResults = document.getElementById(userId + '-no-results');
+        
+        let foundAny = false;
+        options.forEach(opt => {
+            const searchTerms = opt.getAttribute('data-search');
+            if (searchTerms.includes(searchVal)) {
+                opt.style.display = 'flex';
+                foundAny = true;
+            } else {
+                opt.style.display = 'none';
+            }
         });
-    </script>
-</body>
+        
+        if (foundAny) {
+            noResults.classList.add('hidden');
+        } else {
+            noResults.classList.remove('hidden');
+        }
+    }
 
-</html>
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        const u1Container = document.getElementById('select-user1-container');
+        const u2Container = document.getElementById('select-user2-container');
+        
+        if (u1Container && !u1Container.contains(event.target)) {
+            document.getElementById('user1-dropdown').classList.add('hidden');
+            document.getElementById('user1-arrow').classList.remove('rotate-180');
+        }
+        if (u2Container && !u2Container.contains(event.target)) {
+            document.getElementById('user2-dropdown').classList.add('hidden');
+            document.getElementById('user2-arrow').classList.remove('rotate-180');
+        }
+    });
+
+    // Swap selection values and text dynamic swap
+    function swapUsers() {
+        const hidden1 = document.getElementById('user1');
+        const text1 = document.getElementById('user1-selected-text');
+        const val1 = hidden1.value;
+        const txt1 = text1.textContent;
+        
+        const hidden2 = document.getElementById('user2');
+        const text2 = document.getElementById('user2-selected-text');
+        const val2 = hidden2.value;
+        const txt2 = text2.textContent;
+        
+        // Swap values
+        hidden1.value = val2;
+        text1.textContent = val2 ? txt2 : 'اختر الطرف الأول...';
+        
+        hidden2.value = val1;
+        text2.textContent = val1 ? txt1 : 'اختر الطرف الثاني...';
+    }
+
+    // Auto-scroll chat container to the bottom
+    document.addEventListener('DOMContentLoaded', function () {
+        var msgList = document.getElementById("msgList");
+        if (msgList) { 
+            msgList.scrollTop = msgList.scrollHeight; 
+        }
+    });
+
+    // Dynamic Mobile/Tablet Tab Switcher
+    function switchMobileTab(tab) {
+        const chatPanel = document.getElementById('mobile-chat-panel');
+        const reportsPanel = document.getElementById('mobile-reports-panel');
+        const chatBtn = document.getElementById('mobile-tab-chat');
+        const reportsBtn = document.getElementById('mobile-tab-reports');
+        
+        if (tab === 'chat') {
+            chatPanel.classList.remove('hidden');
+            chatPanel.classList.add('block');
+            reportsPanel.classList.add('hidden');
+            reportsPanel.classList.remove('block');
+            
+            chatBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow";
+            reportsBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-white/60";
+            
+            // Re-scroll to bottom of chat when switched to it
+            setTimeout(function() {
+                var msgList = document.getElementById("msgList");
+                if (msgList) { msgList.scrollTop = msgList.scrollHeight; }
+            }, 100);
+        } else {
+            reportsPanel.classList.remove('hidden');
+            reportsPanel.classList.add('block');
+            chatPanel.classList.add('hidden');
+            chatPanel.classList.remove('block');
+            
+            reportsBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow";
+            chatBtn.className = "flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 text-slate-600 hover:bg-white/60";
+        }
+    }
+</script>
+{% endblock %}

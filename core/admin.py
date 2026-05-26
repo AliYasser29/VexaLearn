@@ -42,15 +42,26 @@ class BaseRoleAdmin(ImportExportModelAdmin, SimpleHistoryAdmin, ModelAdmin):
                 # --- أ) إنشاء المستخدم والباسوورد ---
                 password = generate_random_password()
                 
+                import re
                 # جلب رقم الهاتف والبريد المناسب بناءً على نوع الكائن
                 if isinstance(obj, Student):
-                    raw_phone = obj.parent_phone
+                    raw_phone = obj.parent_phone or ''
                     target_email = obj.parent_email
+                    role_prefix = 'student'
                 else:
-                    raw_phone = obj.phone
+                    raw_phone = obj.phone or ''
                     target_email = obj.email if hasattr(obj, 'email') else None
+                    if isinstance(obj, Teacher):
+                        role_prefix = 'teacher'
+                    elif isinstance(obj, Supervisor):
+                        role_prefix = 'supervisor'
+                    else:
+                        role_prefix = 'manager'
 
-                username = raw_phone.replace(" ", "").replace("-", "").strip()
+                # تنظيف رقم الهاتف وإبقاء الحروف اللاتينية والأرقام فقط لتجنب مشاكل تشفير أسماء المستخدمين
+                username = re.sub(r'[^a-zA-Z0-9]', '', raw_phone)
+                if not username:
+                    username = f"{role_prefix}_{secrets.token_hex(4)}"
                 
                 # حل مشكلة تكرار اسم المستخدم
                 if User.objects.filter(username=username).exists():

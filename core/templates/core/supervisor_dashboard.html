@@ -83,6 +83,7 @@
                         <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">المسار الأكاديمي</th>
                         <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الدولة</th>
                         <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الكورسات والاشتراكات</th>
+                        <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الاختبارات والتقييمات</th>
                         <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">المعلمون</th>
                         <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الملاحظات والتقارير اليومية</th>
                         <th scope="col" class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">ولي الأمر</th>
@@ -211,6 +212,66 @@
                             </div>
                         </td>
 
+                        <!-- Quizzes & Evaluations Cell (جديد بمتابعة المشرف) -->
+                        <td class="px-6 py-5 min-w-[280px]">
+                            <div class="space-y-4">
+                                <!-- 1. Taken Attempts -->
+                                {% if student.taken_attempts %}
+                                    <div class="space-y-2">
+                                        <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider">الاختبارات التي تم حلها:</span>
+                                        <div class="space-y-2 flex flex-col">
+                                            {% for attempt in student.taken_attempts %}
+                                                <div class="flex items-center justify-between p-2.5 bg-slate-50/70 border border-slate-100 rounded-xl hover:border-slate-200 transition-colors">
+                                                    <div class="space-y-0.5">
+                                                        <div class="text-xs font-bold text-slate-800 leading-snug">{{ attempt.quiz.title }}</div>
+                                                        <div class="text-[9px] text-slate-400 font-bold mt-0.5">{{ attempt.quiz.course.name }}</div>
+                                                    </div>
+                                                    
+                                                    {% if attempt.status == 'pending' %}
+                                                        <span class="bg-amber-50 text-amber-700 border border-amber-200/60 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
+                                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> قيد المراجعة
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="inline-flex items-center gap-1 text-[10px] font-black {% if attempt.passed %}text-emerald-600 bg-emerald-50 border border-emerald-100/60{% else %}text-rose-600 bg-rose-50 border border-rose-100/60{% endif %} px-2.5 py-0.5 rounded-md shadow-xs">
+                                                            {{ attempt.score|floatformat:1 }}%
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- 2. Unsolved Quizzes -->
+                                {% if student.unsolved_quizzes %}
+                                    <div class="space-y-2">
+                                        <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider">اختبارات بانتظار الحل:</span>
+                                        <div class="space-y-2 flex flex-col">
+                                            {% for quiz in student.unsolved_quizzes %}
+                                                <div class="flex items-center justify-between p-2.5 bg-indigo-50/30 border border-indigo-100/30 rounded-xl hover:border-indigo-200/30 transition-colors">
+                                                    <div class="space-y-0.5">
+                                                        <div class="text-xs font-bold text-slate-800 leading-snug">{{ quiz.title }}</div>
+                                                        <div class="text-[9px] text-slate-400 font-bold mt-0.5">{{ quiz.course.name }}</div>
+                                                    </div>
+                                                    <span class="bg-indigo-50 text-indigo-700 border border-indigo-200/60 text-[9px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span> لم يدخل بعد
+                                                    </span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Empty State -->
+                                {% if not student.taken_attempts and not student.unsolved_quizzes %}
+                                    <div class="inline-flex items-center gap-1.5 bg-slate-50 border border-dashed border-slate-200 text-slate-450 text-xxs font-bold p-3 rounded-xl w-full justify-center">
+                                        <i class="fas fa-file-signature text-sm opacity-60"></i>
+                                        <span>لا توجد اختبارات مسندة حالياً</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
                         <!-- Teachers Cell -->
                         <td class="px-6 py-5 whitespace-nowrap">
                             <div class="flex flex-wrap gap-1.5 max-w-[150px]">
@@ -261,7 +322,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="px-6 py-16 text-center">
+                        <td colspan="8" class="px-6 py-16 text-center">
                             <div class="table-empty max-w-sm mx-auto space-y-3">
                                 <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-350 shadow-xs border border-slate-150">
                                     <i class="fas fa-users-slash text-2xl"></i>

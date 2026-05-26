@@ -54,7 +54,7 @@ class MediaCacheMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         if request.path.startswith(getattr(settings, 'MEDIA_URL', '/media/')):
-            response['Cache-Control'] = 'public, max-age=31536000' # Cache for 1 year
+            response['Cache-Control'] = 'public, max-age=86400' # Cache for 1 day
         return response
 
 from django.shortcuts import redirect

@@ -3,30 +3,30 @@ from . import dashboard
 
 NAV_CONFIG = {
     'STUDENT': [
-        {'label': 'الملف الشخصي', 'url_name': 'core:profile_view', 'icon': 'fas fa-user-circle'},
-        {'label': 'كورساتي', 'url_name': 'core:landing_page', 'icon': 'fas fa-graduation-cap'},
-        {'label': 'المكتبة', 'url_name': 'core:academy_details', 'icon': 'fas fa-book-reader'},
+        {'label': 'الملف الشخصي', 'url_name': 'profile_view', 'icon': 'fas fa-user-circle'},
+        {'label': 'كورساتي', 'url_name': 'landing_page', 'icon': 'fas fa-graduation-cap'},
+        {'label': 'المكتبة', 'url_name': 'academy_details', 'icon': 'fas fa-book-reader'},
         {'label': 'الاختبارات', 'url_name': 'quiz:quiz_dashboard', 'icon': 'fas fa-tasks'},
-        {'label': 'الدردشة', 'url_name': 'core:chat_home', 'icon': 'fas fa-comments'},
-        {'label': 'حصص الفيديو', 'url_name': 'core:video_call', 'icon': 'fas fa-video'},
+        {'label': 'الدردشة', 'url_name': 'chat_home', 'icon': 'fas fa-comments'},
+        {'label': 'حصص الفيديو', 'url_name': 'video_call', 'icon': 'fas fa-video'},
     ],
     'TEACHER': [
-        {'label': 'لوحة تحكم المعلم', 'url_name': 'core:landing_page', 'icon': 'fas fa-chalkboard-teacher'},
-        {'label': 'رفع المواد', 'url_name': 'core:upload_material', 'icon': 'fas fa-file-upload'},
+        {'label': 'لوحة تحكم المعلم', 'url_name': 'landing_page', 'icon': 'fas fa-chalkboard-teacher'},
+        {'label': 'رفع المواد', 'url_name': 'upload_material', 'icon': 'fas fa-file-upload'},
         {'label': 'الاختبارات', 'url_name': 'quiz:quiz_dashboard', 'icon': 'fas fa-plus-square'},
-        {'label': 'التقارير اليومية', 'url_name': 'core:submit_daily_report', 'icon': 'fas fa-clipboard-list'},
-        {'label': 'الدردشة', 'url_name': 'core:chat_home', 'icon': 'fas fa-comments'},
+        {'label': 'التقارير اليومية', 'url_name': 'submit_daily_report', 'icon': 'fas fa-clipboard-list'},
+        {'label': 'الدردشة', 'url_name': 'chat_home', 'icon': 'fas fa-comments'},
     ],
     'SUPERVISOR': [
-        {'label': 'لوحة المشرف', 'url_name': 'core:supervisor_dashboard', 'icon': 'fas fa-user-shield'},
-        {'label': 'متابعة الحضور', 'url_name': 'core:supervisor_dashboard', 'icon': 'fas fa-user-check'},
-        {'label': 'إدارة الطلاب', 'url_name': 'core:admin_panel', 'icon': 'fas fa-users-cog'},
-        {'label': 'الدردشة', 'url_name': 'core:chat_home', 'icon': 'fas fa-comments'},
+        {'label': 'لوحة المشرف', 'url_name': 'supervisor_dashboard', 'icon': 'fas fa-user-shield'},
+        {'label': 'متابعة الحضور', 'url_name': 'supervisor_dashboard', 'icon': 'fas fa-user-check'},
+        {'label': 'إدارة الطلاب', 'url_name': 'admin_panel', 'icon': 'fas fa-users-cog'},
+        {'label': 'الدردشة', 'url_name': 'chat_home', 'icon': 'fas fa-comments'},
     ],
     'MANAGER': [
         {'label': 'لوحة الإدارة', 'url_name': 'admin:index', 'icon': 'fas fa-cogs'},
-        {'label': 'الإحصائيات', 'url_name': 'core:admin_panel', 'icon': 'fas fa-chart-line'},
-        {'label': 'الدردشة', 'url_name': 'core:chat_home', 'icon': 'fas fa-comments'},
+        {'label': 'الإحصائيات', 'url_name': 'admin_panel', 'icon': 'fas fa-chart-line'},
+        {'label': 'الدردشة', 'url_name': 'chat_home', 'icon': 'fas fa-comments'},
     ]
 }
 
@@ -62,9 +62,9 @@ def nav_items(request):
                 })
             except NoReverseMatch:
                 # Handle special cases with arguments if needed
-                if config_item['url_name'] == 'core:video_call':
+                if config_item['url_name'] == 'video_call':
                     try:
-                        url = reverse('core:video_call', args=['general'])
+                        url = reverse('video_call', args=['general'])
                         items.append({
                             'label': config_item['label'],
                             'url': url,

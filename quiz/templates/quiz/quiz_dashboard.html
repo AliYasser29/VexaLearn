@@ -1,288 +1,523 @@
-{% extends "base.html" %}
+{% extends "base_rtl.html" %}
+{% load static %}
 
-{% block title %}لوحة الاختبارات | VexaLearn{% endblock %}
+{% block title %}لوحة الاختبارات والتقييمات | VexaLearn{% endblock %}
 
-{% block inner_content %}
-<div class="space-y-8 animate-fade-in" dir="rtl">
+{% block content %}
+<!-- Decorative Background Elements (Landing Page Identity) -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <!-- Glowing Orbs -->
+    <div class="absolute top-[10%] left-[5%] w-[45rem] h-[45rem] rounded-full bg-gradient-to-br from-indigo-500/10 to-transparent blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="absolute top-[30%] right-[5%] w-[35rem] h-[35rem] rounded-full bg-gradient-to-br from-violet-500/10 to-transparent blur-[120px] animate-pulse" style="animation-duration: 12s;"></div>
+    
+    <!-- Micro-Dot Tech Grid Pattern -->
+    <div class="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.35]"></div>
+</div>
 
-    <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-5">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
-                <span class="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100">
-                    <i class="fas fa-tasks"></i>
-                </span>
-                لوحة الاختبارات والتقييمات
-            </h1>
-            <p class="text-sm text-gray-500 mt-2">
-                {% if role == 'student' %}
-                    تابع أداءك الدراسي واجتاز الاختبارات المحددة لك بنجاح.
-                {% elif role == 'teacher' %}
-                    قم بإدارة وتعديل الاختبارات ومتابعة أداء الطلاب ومستواهم.
-                {% else %}
-                    مرحباً بك في قسم إدارة الاختبارات.
-                {% endif %}
-            </p>
+<!-- Main Landing-Style Dashboard Container -->
+<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24 space-y-12">
+
+    <!-- Hero-Style Header (Matches landing page style perfectly) -->
+    <header class="flex flex-col items-center text-center space-y-4 my-6">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-100/60 text-primary text-xs font-bold mb-2 shadow-sm animate-bounce" style="animation-duration: 4s;">
+            <span>أكاديمية فيكسا التعليمية الذكية</span>
+            <span>🎓</span>
         </div>
+        
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight tracking-tight">
+            لوحة الاختبارات <span class="bg-gradient-to-l from-indigo-600 to-violet-600 bg-clip-text text-transparent">والتقييمات</span>
+        </h1>
+        
+        <p class="text-sm md:text-base text-slate-500 max-w-2xl leading-relaxed font-medium">
+            {% if role == 'student' %}
+                تابع إنجازاتك الدراسية، واجتاز الكويزات المحددة لك، وراجع درجاتك مباشرةً بلمسة ذكية.
+            {% elif role == 'teacher' %}
+                أداة شاملة لتصميم التقييمات، متابعة أداء الطلاب، ورصد الدرجات التحريرية والمقالية.
+            {% else %}
+                مرحباً بك في نظام التقييم التفاعلي لـ VexaLearn.
+            {% endif %}
+        </p>
+    </header>
 
-        {% if role == 'teacher' %}
-        <!-- Teacher Create Quick Action -->
-        <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm">
-            <form action="" method="GET" id="quickQuizForm" class="flex items-center gap-3">
-                <select name="course_select" id="course_select" class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="" disabled selected>اختر الكورس...</option>
-                    {% for course in courses %}
-                        <option value="{{ course.id }}">{{ course.name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" onclick="navigateToCreateQuiz()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-xl text-sm shadow-sm transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
-                    <i class="fas fa-plus ml-1.5"></i> إنشاء اختبار
-                </button>
-            </form>
+    <!-- Contextual Creator Control for Teachers -->
+    {% if role == 'teacher' %}
+    <section class="max-w-3xl mx-auto bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 animate-pulse-slow">
+        <div class="flex items-center gap-3">
+            <span class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-md shadow-inner">
+                <i class="fas fa-magic"></i>
+            </span>
+            <div class="text-right">
+                <h4 class="text-xs font-bold text-slate-800">إعداد تقييم سريع</h4>
+                <p class="text-[10px] text-slate-400 font-semibold mt-0.5">صمم ونشط اختباراً لحصصك الدراسية</p>
+            </div>
         </div>
-        {% endif %}
-    </div>
+        
+        <form action="" method="GET" id="quickQuizForm" class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <select name="course_select" id="course_select" class="w-full sm:w-48 px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-black text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer min-h-[44px] transition-all">
+                <option value="" disabled selected>اختر الكورس المستهدف...</option>
+                {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" onclick="navigateToCreateQuiz()" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-2.5 px-6 rounded-xl text-xs shadow-md transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap min-h-[44px] flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+                <i class="fas fa-plus"></i> تصميم اختبار
+            </button>
+        </form>
+    </section>
+    {% endif %}
 
-    <!-- Main Content Roles Grid -->
+    <!-- Bento Grid Section -->
     {% if role == 'student' %}
-        <!-- Student Statistics Summary -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <div>
-                    <span class="text-xs text-gray-400 font-bold block">إجمالي الاختبارات المتاحة</span>
-                    <span class="text-xl font-extrabold text-gray-800">{{ quizzes|length }}</span>
-                </div>
-            </div>
+        <!-- ================= STUDENT BENTO VIEW ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg">
-                    <i class="fas fa-check-double"></i>
-                </div>
-                <div>
-                    <span class="text-xs text-gray-400 font-bold block">الاختبارات المكتملة</span>
-                    <span class="text-xl font-extrabold text-gray-800">
-                        {{ completed_count|default:0 }}
-                    </span>
-                </div>
-            </div>
+            <!-- Sidebar Bento Column (Progress & Achievement Metrics) -->
+            <div class="space-y-6">
+                <!-- Radial Progress Wheel Bento Tile -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-slate-200/50 shadow-sm flex flex-col items-center justify-between text-center min-h-[320px] group hover:border-indigo-300/30 transition-all duration-300">
+                    <div class="w-full text-right">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-indigo-500"></i> معدل إنجاز الاختبارات
+                        </h3>
+                        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">نسبة ما تم حله واجتيازه بالنجاح</p>
+                    </div>
 
-            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-lg">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div>
-                    <span class="text-xs text-gray-400 font-bold block">انتظار الحل</span>
-                    <span class="text-xl font-extrabold text-gray-800">
-                        {{ pending_count|default:0 }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Student Quizzes Cards Grid -->
-        <h2 class="text-lg font-extrabold text-gray-800 mt-6 mb-4 flex items-center gap-2">
-            <i class="fas fa-graduation-cap text-indigo-500"></i> اختباراتي الحالية
-        </h2>
-
-        {% if quizzes %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for quiz in quizzes %}
-                    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col relative {% if quiz.user_attempt %}opacity-80{% endif %}">
-                        
-                        <!-- Header Status Badge -->
-                        <div class="absolute top-4 left-4 z-10">
-                            {% if quiz.user_attempt %}
-                                {% if quiz.user_attempt.passed %}
-                                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                                        <i class="fas fa-check-circle"></i> ناجح
-                                    </span>
-                                {% else %}
-                                    <span class="bg-red-50 text-red-700 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                                        <i class="fas fa-times-circle"></i> غير مجتاز
-                                    </span>
-                                {% endif %}
-                            {% else %}
-                                <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                                    <i class="fas fa-play-circle"></i> جاهز للبدء
-                                </span>
-                            {% endif %}
+                    <!-- Glowing Radial Progress SVG -->
+                    <div class="relative flex items-center justify-center my-6">
+                        <svg class="w-36 h-36">
+                            <!-- Background Track -->
+                            <circle class="text-slate-100" stroke-width="8" stroke="currentColor" fill="transparent" r="58" cx="72" cy="72"/>
+                            <!-- Active Arc -->
+                            <circle class="text-indigo-600 transition-all duration-1000 ease-out" 
+                                    id="completionCircle" stroke-width="8" stroke-dasharray="364.4" stroke-dashoffset="364.4" stroke-linecap="round" stroke="currentColor" fill="transparent" r="58" cx="72" cy="72" style="transform: rotate(-90deg); transform-origin: 50% 50%;"/>
+                        </svg>
+                        <div class="absolute flex flex-col items-center justify-center">
+                            <span class="text-2xl font-black text-slate-800" id="progressPercentage">0%</span>
+                            <span class="text-[9px] text-slate-400 font-black tracking-wider uppercase mt-0.5">مكتمل</span>
                         </div>
+                    </div>
 
-                        <div class="p-6 flex-grow">
-                            <!-- Course Badge -->
-                            <span class="bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider block w-fit mb-3">
-                                {{ quiz.course.name }}
-                            </span>
+                    <!-- Performance statistics mini-grid -->
+                    <div class="w-full bg-slate-50/50 border border-slate-200/40 p-3 rounded-2xl flex justify-around text-center text-xs font-black">
+                        <div>
+                            <span class="text-slate-400 text-[9px] block">المجموع</span>
+                            <span class="text-slate-700 text-sm mt-0.5 block" id="totalQuizzesVal">{{ quizzes|length }}</span>
+                        </div>
+                        <div class="w-px bg-slate-200"></div>
+                        <div>
+                            <span class="text-slate-400 text-[9px] block">تم حلها</span>
+                            <span class="text-indigo-600 text-sm mt-0.5 block" id="completedQuizzesVal">{{ completed_count|default:0 }}</span>
+                        </div>
+                        <div class="w-px bg-slate-200"></div>
+                        <div>
+                            <span class="text-slate-400 text-[9px] block">انتظار الحل</span>
+                            <span class="text-amber-500 text-sm mt-0.5 block" id="pendingQuizzesVal">{{ pending_count|default:0 }}</span>
+                        </div>
+                    </div>
+                </div>
 
-                            <h3 class="text-lg font-extrabold text-gray-900 line-clamp-2 min-h-[3.5rem] mt-2 mb-2 leading-relaxed">
-                                {{ quiz.title }}
-                            </h3>
+                <!-- Guided Advice Card -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 shadow-sm flex items-start gap-4">
+                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-lg shrink-0">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800">توجيه ذكي</h4>
+                        <p class="text-[10px] text-slate-500 leading-relaxed font-semibold mt-1">
+                            تساعدك الاختبارات على تقييم مدى استيعابك للمقررات. احرص على حل الواجبات والاخبتارات بمجرد استلام الرابط في المحادثات.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-                            <p class="text-xs text-gray-400 line-clamp-3 mb-6 min-h-[2.5rem]">
-                                {{ quiz.description|default:"لا يوجد وصف متوفر لهذا التقييم الدراسي." }}
-                            </p>
+            <!-- Content Bento Column (Grid List & Live Sliding Filters) -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Filter Tab Bar Widget (Sliding UI) -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-3 border border-slate-200/50 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl shadow-inner border border-slate-200/50 w-full sm:w-auto">
+                        <button onclick="filterStudentQuizzes('all')" id="tab-all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all w-full sm:w-auto justify-center flex items-center bg-indigo-600 text-white shadow">
+                            كافة الاختبارات
+                        </button>
+                        <button onclick="filterStudentQuizzes('pending')" id="tab-pending" class="px-4 py-2 rounded-xl text-xs font-bold transition-all w-full sm:w-auto justify-center flex items-center text-slate-600 hover:bg-white/60">
+                            بانتظار حلها
+                        </button>
+                        <button onclick="filterStudentQuizzes('completed')" id="tab-completed" class="px-4 py-2 rounded-xl text-xs font-bold transition-all w-full sm:w-auto justify-center flex items-center text-slate-600 hover:bg-white/60">
+                            الاختبارات المحلولة
+                        </button>
+                    </div>
+                    
+                    <span class="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-sm hidden sm:inline-block">
+                        تصفية آلية
+                    </span>
+                </div>
 
-                            <!-- Details Table -->
-                            <div class="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 text-xs font-bold text-gray-500">
-                                <div class="flex items-center gap-2">
-                                    <i class="far fa-clock text-gray-400"></i>
-                                    <span>{{ quiz.duration }} دقيقة</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-percentage text-gray-400"></i>
-                                    <span>درجة النجاح: {{ quiz.pass_score }}%</span>
+                <!-- Quizzes Active Area -->
+                {% if quizzes %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="studentQuizzesGrid">
+                        {% for quiz in quizzes %}
+                            <div class="quiz-card-wrapper transition-all duration-300 {% if quiz.user_attempt %}status-completed{% else %}status-pending{% endif %}" data-status="{% if quiz.user_attempt %}completed{% else %}pending{% endif %}">
+                                <div class="bg-white/75 backdrop-blur-xl rounded-3xl border border-slate-200/50 hover:border-indigo-300/40 hover:shadow-premium hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full min-h-[300px] overflow-hidden relative">
+                                    
+                                    <!-- Corner Status Tag -->
+                                    <div class="absolute top-4 left-4 z-10">
+                                        {% if quiz.user_attempt %}
+                                            {% if quiz.user_attempt.passed %}
+                                                <span class="bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-md shadow-sm">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> مجتاز
+                                                </span>
+                                            {% else %}
+                                                <span class="bg-rose-50 text-rose-700 border border-rose-200/60 text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-md shadow-sm">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> غير مجتاز
+                                                </span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200/60 text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 backdrop-blur-md shadow-sm">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span> غير محلول
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Top gradient border decoration -->
+                                    <div class="h-1.5 w-full bg-gradient-to-r {% if quiz.user_attempt %}{% if quiz.user_attempt.passed %}from-emerald-400 to-teal-500{% else %}from-rose-400 to-amber-500{% endif %}{% else %}from-indigo-500 to-violet-500{% endif %}"></div>
+
+                                    <div class="p-6 flex-grow flex flex-col justify-between">
+                                        <div class="space-y-3">
+                                            <!-- Course Badge -->
+                                            <span class="inline-flex bg-slate-100 text-slate-700 text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider border border-slate-200/40">
+                                                {{ quiz.course.name }}
+                                            </span>
+
+                                            <h3 class="text-base font-black text-slate-800 line-clamp-2 leading-relaxed">
+                                                {{ quiz.title }}
+                                            </h3>
+
+                                            <p class="text-xs text-slate-400 line-clamp-3 leading-relaxed">
+                                                {{ quiz.description|default:"لا يوجد وصف متوفر لهذا التقييم المحدد حالياً." }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Interactive metrics layout -->
+                                        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-6 text-[11px] font-black text-slate-500">
+                                            <div class="flex items-center gap-2">
+                                                <i class="far fa-clock text-indigo-500 text-sm"></i>
+                                                <span>{{ quiz.duration }} دقيقة</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-bullseye text-violet-500 text-sm"></i>
+                                                <span>النجاح: {{ quiz.pass_score }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bottom interactive button bar -->
+                                    <div class="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between rounded-b-3xl mt-auto">
+                                        {% if quiz.user_attempt %}
+                                            <div class="text-right flex flex-col">
+                                                <span class="text-[9px] text-slate-400 block font-black uppercase">الدرجة المحققة</span>
+                                                <span class="text-base font-black {% if quiz.user_attempt.passed %}text-emerald-600{% else %}text-rose-500{% endif %} mt-0.5">
+                                                    {{ quiz.user_attempt.score|floatformat:1 }}%
+                                                </span>
+                                            </div>
+                                            <button disabled class="bg-slate-200 text-slate-400 border border-slate-300/40 font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-2 cursor-not-allowed">
+                                                <i class="fas fa-check-circle"></i> مكتمل
+                                            </button>
+                                        {% else %}
+                                            <div class="text-right flex flex-col">
+                                                <span class="text-[9px] text-slate-400 block font-black uppercase">عدد الأسئلة</span>
+                                                <span class="text-base font-black text-slate-700 mt-0.5">{{ quiz.questions.count }}</span>
+                                            </div>
+                                            <a href="{% url 'quiz:take_quiz' quiz.id %}" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-2 px-5 rounded-xl text-xs flex items-center gap-2 transition-all shadow shadow-indigo-150 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+                                                ابدأ التقييم <i class="fas fa-arrow-left"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Footer Action Area -->
-                        <div class="p-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                            {% if quiz.user_attempt %}
-                                <div class="text-right">
-                                    <span class="text-[10px] text-gray-400 block font-bold">الدرجة المحققة</span>
-                                    <span class="text-base font-extrabold {% if quiz.user_attempt.passed %}text-emerald-600{% else %}text-red-500{% endif %}">
-                                        {{ quiz.user_attempt.score|floatformat:1 }}%
-                                    </span>
-                                </div>
-                                <button disabled class="bg-gray-200 text-gray-400 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-2 cursor-not-allowed">
-                                    <i class="fas fa-check"></i> مكتمل
-                                </button>
-                            {% else %}
-                                <div class="text-right">
-                                    <span class="text-[10px] text-gray-400 block font-bold">عدد الأسئلة</span>
-                                    <span class="text-base font-extrabold text-gray-700">{{ quiz.questions.count }}</span>
-                                </div>
-                                <a href="{% url 'quiz:take_quiz' quiz.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-sm">
-                                    ابدأ الاختبار <i class="fas fa-arrow-left"></i>
-                                </a>
-                            {% endif %}
-                        </div>
-
+                        {% endfor %}
                     </div>
-                {% endfor %}
+                {% else %}
+                    <!-- Beautiful Minimal Empty State -->
+                    <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-16 text-center shadow-sm border border-slate-200/50 max-w-lg mx-auto">
+                        <div class="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner border border-indigo-100 animate-bounce" style="animation-duration: 4s;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-800">صندوق الاختبارات فارغ</h3>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed mt-2">
+                            أنت ممتاز! لا توجد اختبارات معلقة تتطلب حلاً فورياً في الوقت الحالي. سنقوم بإعلامك فور صدور أي كويز جديد.
+                        </p>
+                    </div>
+                {% endif %}
             </div>
-        {% else %}
-            <!-- Student Empty State -->
-            <div class="bg-white rounded-3xl border border-gray-200 p-16 text-center shadow-sm">
-                <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
-                    <i class="fas fa-ghost"></i>
-                </div>
-                <h3 class="text-xl font-extrabold text-gray-900 mb-2">لا يوجد اختبارات حالية</h3>
-                <p class="text-sm text-gray-400 max-w-md mx-auto">أنت غير مسجل في اختبارات نشطة بالوقت الحالي. سيقوم المعلم بتخصيص اختبارات جديدة لك قريباً.</p>
-            </div>
-        {% endif %}
+        </div>
 
     {% elif role == 'teacher' %}
-        <!-- Teacher View Statistics -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
-                    <i class="fas fa-folder-open"></i>
+        <!-- ================= TEACHER BENTO VIEW ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Info Panel (Statistics & Actions) -->
+            <div class="space-y-6">
+                <!-- Statistics Card widget -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-chart-line text-indigo-500"></i> مؤشرات الأداء والإحصائيات
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3.5 bg-indigo-50/50 border border-indigo-100/40 rounded-2xl">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-xs">
+                                    <i class="fas fa-folder-open"></i>
+                                </span>
+                                <span class="text-xs font-bold text-slate-600">الكورسات المتاحة</span>
+                            </div>
+                            <span class="text-sm font-black text-slate-800">{{ courses|length }}</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3.5 bg-violet-50/50 border border-violet-100/40 rounded-2xl">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 bg-violet-100 text-violet-600 rounded-lg flex items-center justify-center text-xs">
+                                    <i class="fas fa-copy"></i>
+                                </span>
+                                <span class="text-xs font-bold text-slate-600">إجمالي الاختبارات المنشأة</span>
+                            </div>
+                            <span class="text-sm font-black text-slate-800">{{ quizzes|length }}</span>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <span class="text-xs text-gray-400 font-bold block">إجمالي الكورسات المتاحة</span>
-                    <span class="text-xl font-extrabold text-gray-800">{{ courses|length }}</span>
+
+                <!-- Guided info layout -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/50 shadow-sm flex items-start gap-4">
+                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-lg shrink-0">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800">إرشادات مفيدة</h4>
+                        <p class="text-[10px] text-slate-500 leading-relaxed font-semibold mt-1">
+                            يمكنك من هنا تصميم كويز واختيار الكورس لتنشيطه، ليقوم النظام آلياً بإرسال شارات ورابط دخول فوري للطلاب المسجلين في هذا المقرر الدراسي.
+                        </p>
+                    </div>
                 </div>
             </div>
-            
-            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-violet-50 text-violet-600 rounded-xl flex items-center justify-center text-lg">
-                    <i class="fas fa-copy"></i>
+
+            <!-- Right Content Panel (Active Quizzes List & Live Filters) -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Filter bar for courses -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-3 border border-slate-200/50 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl shadow-inner border border-slate-200/50 w-full sm:w-auto">
+                        <button onclick="filterTeacherQuizzes('all')" id="teacher-tab-all" class="px-4 py-2 rounded-xl text-xs font-bold transition-all w-full sm:w-auto justify-center flex items-center bg-indigo-600 text-white shadow">
+                            كافة المقررات
+                        </button>
+                        {% for course in courses|slice:":2" %}
+                            <button onclick="filterTeacherQuizzes('{{ course.id }}')" id="teacher-tab-{{ course.id }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all w-full sm:w-auto justify-center flex items-center text-slate-600 hover:bg-white/60">
+                                {{ course.name|slice:":12" }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    
+                    <span class="text-[10px] font-black text-slate-400 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-sm hidden sm:inline-block">
+                        لوحة تحكم المحاضر
+                    </span>
                 </div>
-                <div>
-                    <span class="text-xs text-gray-400 font-bold block">إجمالي الاختبارات المنشأة</span>
-                    <span class="text-xl font-extrabold text-gray-800">{{ quizzes|length }}</span>
-                </div>
+
+                <!-- Quizzes Grid -->
+                {% if quizzes %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="teacherQuizzesGrid">
+                        {% for quiz in quizzes %}
+                            <div class="quiz-card-wrapper transition-all duration-300" data-course-id="{{ quiz.course.id }}">
+                                <div class="bg-white/75 backdrop-blur-xl rounded-3xl border border-slate-200/50 hover:border-indigo-300/40 hover:shadow-premium hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full min-h-[300px] overflow-hidden relative">
+                                    
+                                    <!-- Decorative Top Accent Line inside Card -->
+                                    <div class="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500"></div>
+
+                                    <div class="p-6 flex-grow flex flex-col justify-between">
+                                        <div class="space-y-3">
+                                            <!-- Course Badge -->
+                                            <span class="inline-flex bg-indigo-50 text-indigo-700 text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider border border-indigo-100">
+                                                {{ quiz.course.name }}
+                                            </span>
+
+                                            <h3 class="text-base font-black text-slate-800 line-clamp-2 leading-relaxed">
+                                                {{ quiz.title }}
+                                            </h3>
+
+                                            <p class="text-xs text-slate-400 line-clamp-3 leading-relaxed">
+                                                {{ quiz.description|default:"لا يوجد وصف متوفر لهذا التقييم الدراسي المنشأ." }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Details Table Layout -->
+                                        <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 mt-6 text-[11px] font-black text-slate-500">
+                                            <div class="flex items-center gap-2">
+                                                <i class="far fa-clock text-indigo-500 text-sm"></i>
+                                                <span>المدة: {{ quiz.duration }} دقيقة</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-percentage text-violet-500 text-sm"></i>
+                                                <span>درجة النجاح: {{ quiz.pass_score }}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Footer Action Area -->
+                                    <div class="p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between rounded-b-3xl">
+                                        <div class="text-right flex flex-col">
+                                            <span class="text-[9px] text-slate-400 block font-black uppercase">الأسئلة الحالية</span>
+                                            <span class="text-base font-black text-slate-700 mt-0.5 block">{{ quiz.questions.count }}</span>
+                                        </div>
+                                        <a href="{% url 'quiz:add_question' quiz.id %}" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow shadow-indigo-150 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+                                            <i class="fas fa-plus"></i> إضافة أسئلة
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <!-- Beautiful Minimal Empty State -->
+                    <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-16 text-center shadow-sm border border-slate-200/50 max-w-lg mx-auto">
+                        <div class="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner border border-indigo-100">
+                            <i class="fas fa-plus-square"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-800">لا يوجد اختبارات مصممة بعد</h3>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed mt-2">
+                            لم تقم بتصميم اختبارات بعد لمقرراتك الحالية. استخدم شريط إعداد تقييم سريع بالأعلى لتشغيل أول كويز لطلابك ومتابعة مستواهم.
+                        </p>
+                    </div>
+                {% endif %}
             </div>
         </div>
-
-        <!-- Teacher Quizzes Cards Grid -->
-        <h2 class="text-lg font-extrabold text-gray-800 mt-6 mb-4 flex items-center gap-2">
-            <i class="fas fa-clipboard-list text-indigo-500"></i> الاختبارات النشطة
-        </h2>
-
-        {% if quizzes %}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for quiz in quizzes %}
-                    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col relative">
-                        
-                        <div class="p-6 flex-grow">
-                            <!-- Course Badge -->
-                            <span class="bg-indigo-50 text-indigo-700 text-[10px] font-extrabold px-2.5 py-1 rounded-md block w-fit mb-3">
-                                {{ quiz.course.name }}
-                            </span>
-
-                            <h3 class="text-lg font-extrabold text-gray-900 line-clamp-2 min-h-[3.5rem] mt-2 mb-2 leading-relaxed">
-                                {{ quiz.title }}
-                            </h3>
-
-                            <p class="text-xs text-gray-400 line-clamp-3 mb-6 min-h-[2.5rem]">
-                                {{ quiz.description|default:"لا يوجد وصف متوفر لهذا التقييم الدراسي." }}
-                            </p>
-
-                            <!-- Details Table -->
-                            <div class="grid grid-cols-2 gap-4 border-t border-gray-100 pt-4 text-xs font-bold text-gray-500">
-                                <div class="flex items-center gap-2">
-                                    <i class="far fa-clock text-gray-400"></i>
-                                    <span>المدة: {{ quiz.duration }} دقيقة</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <i class="fas fa-percentage text-gray-400"></i>
-                                    <span>درجة النجاح: {{ quiz.pass_score }}%</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Action Area -->
-                        <div class="p-6 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                            <div class="text-right">
-                                <span class="text-[10px] text-gray-400 block font-bold">عدد الأسئلة المضافة</span>
-                                <span class="text-base font-extrabold text-gray-700">{{ quiz.questions.count }}</span>
-                            </div>
-                            <a href="{% url 'quiz:add_question' quiz.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 transition-colors shadow-sm">
-                                <i class="fas fa-plus"></i> إضافة أسئلة
-                            </a>
-                        </div>
-
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <!-- Teacher Empty State -->
-            <div class="bg-white rounded-3xl border border-gray-200 p-16 text-center shadow-sm">
-                <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
-                    <i class="fas fa-plus-square"></i>
-                </div>
-                <h3 class="text-xl font-extrabold text-gray-900 mb-2">لا يوجد اختبارات مضافة حالياً</h3>
-                <p class="text-sm text-gray-400 max-w-md mx-auto mb-6">لم تقم بإنشاء أي اختبارات بعد. اختر كورس من القائمة المنسدلة في الأعلى لإنشاء أول اختبار لك.</p>
-            </div>
-        {% endif %}
 
     {% else %}
         <!-- Generic / Other Profiles -->
-        <div class="bg-white rounded-3xl border border-gray-200 p-16 text-center shadow-sm">
-            <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">
+        <div class="bg-white/70 backdrop-blur-xl rounded-3xl p-16 text-center shadow-sm border border-slate-200/50 max-w-lg mx-auto">
+            <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner border border-rose-100">
                 <i class="fas fa-exclamation-triangle"></i>
             </div>
-            <h3 class="text-xl font-extrabold text-gray-900 mb-2">خاصية غير مدعومة لدورك الحالي</h3>
-            <p class="text-sm text-gray-400 max-w-md mx-auto">يرجى تبديل دورك للـ Student أو Teacher للتمكن من رؤية واستخدام لوحة الاختبارات.</p>
+            <h3 class="text-lg font-black text-slate-800">دور غير معترف به في التقييمات</h3>
+            <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed mt-2">
+                يرجى تبديل الواجهة للدور الدراسي للـ Student أو المعلم للتمكن من البدء والمشاهدة.
+            </p>
         </div>
     {% endif %}
 
 </div>
 
-<!-- Helper Script for Dropdown Actions -->
+<!-- Interactive Client-side filter and Dynamic Arc Calculation Script -->
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize dynamic radial progress circle if role == student
+        {% if role == 'student' %}
+        const total = parseFloat("{{ quizzes|length|default:0 }}");
+        const completed = parseFloat("{{ completed_count|default:0 }}");
+        
+        if (total > 0) {
+            const percentage = Math.round((completed / total) * 100);
+            
+            // Update Text
+            const textVal = document.getElementById('progressPercentage');
+            if (textVal) {
+                textVal.textContent = percentage + '%';
+            }
+            
+            // Calculate Circle Arc Dashoffset (Radius is 58, Circumference is 2 * PI * 58 = 364.42)
+            const circle = document.getElementById('completionCircle');
+            if (circle) {
+                const circumference = 364.42;
+                const offset = circumference - (percentage / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+            }
+        }
+        {% endif %}
+    });
+
+    // Student Filter Logic
+    function filterStudentQuizzes(status) {
+        // Active Tab Visual State
+        const tabs = ['all', 'pending', 'completed'];
+        tabs.forEach(t => {
+            const tabBtn = document.getElementById('tab-' + t);
+            if (tabBtn) {
+                tabBtn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+                tabBtn.classList.add('text-slate-600', 'hover:bg-white/60');
+            }
+        });
+        
+        const activeBtn = document.getElementById('tab-' + status);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-white/60');
+        }
+
+        // Card Visibility with Beautiful Fade Scale transition
+        const cards = document.querySelectorAll('#studentQuizzesGrid .quiz-card-wrapper');
+        cards.forEach(card => {
+            const cardStatus = card.getAttribute('data-status');
+            if (status === 'all' || cardStatus === status) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                }, 50);
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.style.display = 'none';
+                }, 300);
+            }
+        });
+    }
+
+    // Teacher Filter Logic
+    function filterTeacherQuizzes(courseId) {
+        // Active Tab Visual State
+        const tabs = ['all'];
+        document.querySelectorAll("[id^='teacher-tab-']").forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+            btn.classList.add('text-slate-600', 'hover:bg-white/60');
+        });
+        
+        const activeBtn = document.getElementById('teacher-tab-' + courseId);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+            activeBtn.classList.remove('text-slate-600', 'hover:bg-white/60');
+        }
+
+        // Card Visibility
+        const cards = document.querySelectorAll('#teacherQuizzesGrid .quiz-card-wrapper');
+        cards.forEach(card => {
+            const cardCourse = card.getAttribute('data-course-id');
+            if (courseId === 'all' || cardCourse === courseId) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                }, 50);
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.style.display = 'none';
+                }, 300);
+            }
+        });
+    }
+
+    // Teacher Bento Navigation
     function navigateToCreateQuiz() {
         const select = document.getElementById('course_select');
         const courseId = select.value;
         if (courseId) {
             window.location.href = `/quiz/create/${courseId}/`;
         } else {
-            alert('يرجى اختيار كورس أولاً لبدء إنشاء الاختبار.');
+            if (window.uxToast) {
+                window.uxToast.error('يرجى اختيار الكورس أولاً لبدء إنشاء الاختبار.');
+            } else {
+                alert('يرجى اختيار الكورس أولاً لبدء إنشاء الاختبار.');
+            }
         }
     }
 </script>

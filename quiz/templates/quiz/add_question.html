@@ -230,9 +230,15 @@
                         <label class="form-label">نص السؤال</label>
                         {{ form.text }} </div>
                     
-                    <div class="form-group" style="max-width: 150px;">
-                        <label class="form-label">الدرجة</label>
-                        {{ form.marks }}
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                        <div class="form-group">
+                            <label class="form-label">نوع السؤال</label>
+                            {{ form.question_type }}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الدرجة</label>
+                            {{ form.marks }}
+                        </div>
                     </div>
 
                     <div class="section-divider">
@@ -293,6 +299,32 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            // --- كود إخفاء/إظهار الخيارات بناءً على نوع السؤال (جديد) ---
+            const typeSelect = document.getElementById('id_question_type');
+            const choicesDivider = document.querySelector('.section-divider');
+            const choicesHelp = document.querySelector('.section-divider + p');
+            const choicesContainer = document.getElementById('formset-container');
+            const addChoiceBtn = document.getElementById('add-choice-btn');
+
+            function toggleChoices() {
+                if (typeSelect && typeSelect.value === 'essay') {
+                    if (choicesDivider) choicesDivider.style.display = 'none';
+                    if (choicesHelp) choicesHelp.style.display = 'none';
+                    if (choicesContainer) choicesContainer.style.display = 'none';
+                    if (addChoiceBtn) addChoiceBtn.style.display = 'none';
+                } else {
+                    if (choicesDivider) choicesDivider.style.display = 'flex';
+                    if (choicesHelp) choicesHelp.style.display = 'block';
+                    if (choicesContainer) choicesContainer.style.display = 'block';
+                    if (addChoiceBtn) addChoiceBtn.style.display = 'inline-flex';
+                }
+            }
+
+            if (typeSelect) {
+                typeSelect.addEventListener('change', toggleChoices);
+                toggleChoices(); // تشغيل عند التحميل لأول مرة
+            }
+
             const addBtn = document.getElementById('add-choice-btn');
             const container = document.getElementById('formset-container');
             const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;

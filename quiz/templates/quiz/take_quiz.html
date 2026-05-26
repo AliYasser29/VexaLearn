@@ -1,354 +1,217 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+{% extends "base_rtl.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ quiz.title }} | VexaLearn</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0f172a;
-            --text-main: #334155;
-            --text-light: #64748b;
-            --bg-light: #f8fafc;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            --success: oklch(0.68 0.16 150);
-            /* Emerald */
-            --danger: oklch(0.55 0.22 15);
-            /* Ruby */
-            --galactic-purple: oklch(0.45 0.25 300);
-            --galactic-purple-dark: oklch(0.35 0.20 300);
-            --warning: #f59e0b;
-            --radius: 16px;
-        }
+{% block title %}{{ quiz.title }} | VexaLearn{% endblock %}
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            /* منع النسخ للحماية */
-            padding-bottom: 80px;
-            /* مساحة للزر العائم */
-            overflow-x: hidden;
-        }
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Scope typography for exams */
+    .take-quiz-container {
+        font-family: 'Cairo', sans-serif !important;
+        user-select: none; /* Disable copying for anti-cheating compliance */
+    }
 
-        /* --- Sticky Timer Header --- */
-        .timer-header {
-            position: sticky;
-            top: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 20;
-            border-bottom: 1px solid var(--border);
-        }
+    .take-font-display {
+        font-family: 'Poppins', 'Cairo', sans-serif !important;
+    }
 
-        .quiz-info h1 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: var(--secondary);
-            font-weight: 800;
-        }
+    /* Floating Timer Header Glassmorphism */
+    .glass-timer-bar {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.05), 0 8px 10px -6px rgba(99, 102, 241, 0.02);
+    }
 
-        .quiz-info p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
+    /* Glowing Pulsing Timer Badge */
+    .timer-badge-neon {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        box-shadow: 0 0 15px -3px rgba(239, 68, 68, 0.15);
+    }
 
-        .timer-badge {
-            background: color-mix(in oklch, var(--danger) 10%, transparent);
-            color: var(--danger);
-            padding: 8px 20px;
-            border-radius: 50px;
-            font-weight: 800;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid color-mix(in oklch, var(--danger) 30%, transparent);
-            box-shadow: 0 4px 10px color-mix(in oklch, var(--danger) 20%, transparent);
-        }
+    /* Question Glass Card */
+    .question-glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.02);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .timer-badge i {
-            animation: pulse 2s infinite;
-        }
+    .question-glass-card:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.06);
+    }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
+    /* Custom radio styling for inputs */
+    .choice-label-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px 20px;
+        background: rgba(248, 250, 252, 0.6);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-            50% {
-                transform: scale(1.2);
-            }
+    .choice-label-item:hover {
+        background: rgba(226, 232, 240, 0.6);
+    }
 
-            100% {
-                transform: scale(1);
-            }
-        }
+    .choice-label-item:has(.choice-radio:checked) {
+        background: #f5f3ff !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12) !important;
+    }
 
-        /* --- Container --- */
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+    .choice-radio {
+        appearance: none;
+        width: 22px;
+        height: 22px;
+        border: 2px solid #cbd5e1;
+        border-radius: 50%;
+        display: grid;
+        place-content: center;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
 
-        /* --- Animations --- */
-        @keyframes staggerFadeUp {
-            0% {
-                opacity: 0;
-                transform: translateY(40px);
-            }
+    .choice-radio::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: transform 0.3s ease;
+        box-shadow: inset 1em 1em #6366f1;
+    }
 
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .choice-radio:checked {
+        border-color: #6366f1;
+        background: white;
+    }
 
-        /* --- Question Card --- */
-        .question-card {
-            background: var(--white);
-            border-radius: var(--radius);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border);
-            padding: 30px;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            animation: staggerFadeUp 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            animation-delay: calc(var(--stagger-idx, 0) * 100ms);
-        }
+    .choice-radio:checked::before {
+        transform: scale(1);
+    }
 
-        /* شريط جانبي ملون للبطاقة */
-        .question-card::before {
-            content: "";
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 5px;
-            background: var(--primary);
-        }
+    .essay-textarea {
+        width: 100%;
+        padding: 15px;
+        border-radius: 12px;
+        border: 2px solid rgba(226, 232, 240, 0.9);
+        background: rgba(248, 250, 252, 0.6);
+        font-family: 'Cairo', sans-serif;
+        font-size: 0.95rem;
+        outline: none;
+        resize: vertical;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
 
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
+    .essay-textarea:focus {
+        border-color: #6366f1;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+    }
+</style>
+{% endblock %}
 
-        .question-text {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--secondary);
-            line-height: 1.5;
-            margin: 0;
-        }
+{% block content %}
+<!-- Decorative Background Elements (Landing Page Identity) -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <!-- Glowing Orbs -->
+    <div class="absolute top-[10%] left-[5%] w-[45rem] h-[45rem] rounded-full bg-gradient-to-br from-indigo-500/10 to-transparent blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="absolute top-[30%] right-[5%] w-[35rem] h-[35rem] rounded-full bg-gradient-to-br from-violet-500/10 to-transparent blur-[120px] animate-pulse" style="animation-duration: 12s;"></div>
+    
+    <!-- Micro-Dot Tech Grid Pattern -->
+    <div class="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.35]"></div>
+</div>
 
-        .question-marks {
-            background: #eff6ff;
-            color: var(--primary);
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            white-space: nowrap;
-            margin-right: 0;
-        }
-
-        @media (max-width: 768px) {
-            .timer-header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-
-            .container {
-                margin-top: 24px;
-                padding: 0 14px;
-            }
-
-            .question-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-
-        /* --- Choices (Radio Options) --- */
-        .choices-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .choice-label {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            background: var(--bg-light);
-            border: 2px solid transparent;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .choice-label:hover {
-            background: #e2e8f0;
-        }
-
-        /* تنسيق خاص عند اختيار العنصر */
-        .choice-radio:checked+.choice-text-wrapper {
-            /* يتم تطبيق التنسيق عبر الـ Parent باستخدام JS أو :has في المتصفحات الحديثة */
-        }
-
-        /* دعم المتصفحات الحديثة لتلوين الحاوية عند التحديد */
-        .choice-label:has(.choice-radio:checked) {
-            background: #eff6ff;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-        }
-
-        /* Custom Radio */
-        .choice-radio {
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            border: 2px solid #cbd5e1;
-            border-radius: 50%;
-            display: grid;
-            place-content: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            flex-shrink: 0;
-        }
-
-        .choice-radio::before {
-            content: "";
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            transform: scale(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: inset 1em 1em var(--primary);
-        }
-
-        .choice-radio:checked {
-            border-color: var(--primary);
-            background: white;
-        }
-
-        .choice-radio:checked::before {
-            transform: scale(1);
-        }
-
-        .choice-text {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        /* --- Submit Button --- */
-        .submit-container {
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        .btn-submit {
-            background: var(--galactic-purple);
-            color: white;
-            padding: 15px 50px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 10px 20px color-mix(in oklch, var(--galactic-purple) 30%, transparent);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            max-width: 400px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-submit:hover {
-            background: var(--galactic-purple-dark);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px color-mix(in oklch, var(--galactic-purple-dark) 40%, transparent);
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="timer-header">
-        <div class="quiz-info">
-            <h1><i class="fas fa-file-alt" style="color: var(--primary);"></i> {{ quiz.title }}</h1>
-            <p>{{ quiz.questions.count }} أسئلة | الدرجة النهائية: {{ quiz.questions.count|add:quiz.questions.count }}
-                (مثال)</p>
+<!-- Sticky Floating Timer Header -->
+<div class="glass-timer-bar sticky top-20 z-40 w-full mb-8">
+    <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+            <span class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-md shadow-inner">
+                <i class="fas fa-file-alt"></i>
+            </span>
+            <div class="text-right">
+                <h1 class="text-sm md:text-base font-black text-slate-800 leading-none">{{ quiz.title }}</h1>
+                <p class="text-[10px] text-slate-400 font-bold mt-1.5">{{ quiz.questions.count }} أسئلة | زمن الاختبار: {{ quiz.duration }} دقيقة</p>
+            </div>
         </div>
-        <div id="timer" class="timer-badge">
-            <span id="time-left">00:00</span> <i class="fas fa-hourglass-half"></i>
+        
+        <!-- Live Countdown Timer Badge -->
+        <div id="timer" class="timer-badge-neon px-4 py-2 rounded-full font-black text-base flex items-center gap-2 transition-all duration-300">
+            <span id="time-left" class="take-font-display">00:00</span>
+            <i class="fas fa-hourglass-half"></i>
         </div>
     </div>
+</div>
 
-    <div class="container">
+<!-- Main Exam Form Container -->
+<div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 take-quiz-container">
 
-        <form method="post" id="quizForm">
-            {% csrf_token %}
+    <form method="post" id="quizForm" class="space-y-8">
+        {% csrf_token %}
 
-            {% for question in questions %}
-            <div class="question-card" style="--stagger-idx: {{ forloop.counter0 }};">
-                <div class="question-header">
-                    <h3 class="question-text">
-                        <span style="color: var(--primary);">{{ forloop.counter }}.</span>
+        {% for question in questions %}
+        <div class="question-glass-card rounded-3xl overflow-hidden relative">
+            <!-- Colored Indigo side accent border inside Card -->
+            <div class="absolute top-0 right-0 bottom-0 w-1.5 bg-indigo-600"></div>
+
+            <div class="p-6 sm:p-8 space-y-6">
+                <!-- Question Header -->
+                <div class="flex items-start justify-between gap-4">
+                    <h3 class="text-base font-black text-slate-800 leading-relaxed">
+                        <span class="text-indigo-600 ml-1.5">{{ forloop.counter }}.</span>
                         {{ question.text }}
                     </h3>
-                    <span class="question-marks">{{ question.marks }} درجات</span>
+                    <span class="inline-flex bg-indigo-50 text-indigo-600 text-[10px] font-black px-3 py-1.5 rounded-lg border border-indigo-100/50 shrink-0">
+                        {{ question.marks }} درجات
+                    </span>
                 </div>
 
-                <div class="choices-list">
-                    {% for choice in question.choices.all %}
-                    <label class="choice-label">
-                        <input class="choice-radio" type="radio" name="question_{{ question.id }}"
-                            value="{{ choice.id }}">
-                        <span class="choice-text">{{ choice.text }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
+                <!-- Choices / Essay Answer Form Area -->
+                {% if question.question_type == 'essay' %}
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wide">الإجابة المقالية النصية:</label>
+                        <textarea name="question_{{ question.id }}" rows="5" class="essay-textarea" placeholder="اكتب إجابتك التحريرية بالتفصيل هنا..." required></textarea>
+                    </div>
+                {% else %}
+                    <div class="flex flex-col gap-3">
+                        {% for choice in question.choices.all %}
+                        <label class="choice-label-item">
+                            <input class="choice-radio" type="radio" name="question_{{ question.id }}" value="{{ choice.id }}">
+                            <span class="text-xs font-bold text-slate-700">{{ choice.text }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
 
-            <div class="submit-container">
-                <button type="submit" class="btn-submit">
-                    تسليم الإجابات وإنهاء الاختبار <i class="fas fa-check-circle"></i>
-                </button>
-            </div>
-        </form>
+        <!-- Floating Submit Button -->
+        <div class="text-center pt-8 border-t border-slate-200/50">
+            <button type="submit" class="w-full sm:w-80 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black py-4 px-8 rounded-full text-sm shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-1 hover:shadow-indigo-500/35 flex items-center justify-center gap-2 mx-auto outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+                تسليم الإجابات وإنهاء الاختبار <i class="fas fa-check-circle text-md"></i>
+            </button>
+        </div>
+    </form>
 
-    </div>
+</div>
 
-    <script>
-        // --- كود العداد التنازلي ---
+<!-- Countdown timer and auto-submit script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
         let durationMinutes = {{ quiz.duration }};
         let time = durationMinutes * 60;
         const timerElement = document.getElementById('time-left');
@@ -362,11 +225,12 @@
 
             timerElement.innerHTML = `${minutes}:${seconds}`;
 
-            // تغيير لون العداد عند اقتراب الوقت من الانتهاء (أقل من دقيقة)
+            // Warn student when 1 minute is left (glowing red badge)
             if (time < 60) {
-                timerBadge.style.backgroundColor = 'var(--danger)';
-                timerBadge.style.color = 'white';
-                timerBadge.style.borderColor = 'var(--danger)';
+                timerBadge.style.backgroundColor = '#ef4444';
+                timerBadge.style.color = '#ffffff';
+                timerBadge.style.borderColor = '#ef4444';
+                timerBadge.classList.add('animate-pulse');
             }
 
             time--;
@@ -378,25 +242,28 @@
             }
         }, 1000);
 
-        // --- كود إضافي لتحسين التفاعل (للمتصفحات القديمة التي لا تدعم :has) ---
+        // Dynamic click handler for radio choice background coloring (fallback for older browsers)
         const radios = document.querySelectorAll('.choice-radio');
         radios.forEach(radio => {
             radio.addEventListener('change', function () {
-                // إزالة التحديد عن كل الخيارات في نفس السؤال
                 const name = this.name;
                 document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
-                    input.parentElement.style.borderColor = 'transparent';
-                    input.parentElement.style.backgroundColor = 'var(--bg-light)';
+                    const label = input.closest('.choice-label-item');
+                    if (label) {
+                        label.style.borderColor = 'transparent';
+                        label.style.backgroundColor = 'rgba(248, 250, 252, 0.6)';
+                    }
                 });
 
-                // تحديد الخيار المختار
                 if (this.checked) {
-                    this.parentElement.style.borderColor = 'var(--primary)';
-                    this.parentElement.style.backgroundColor = '#eff6ff';
+                    const activeLabel = this.closest('.choice-label-item');
+                    if (activeLabel) {
+                        activeLabel.style.borderColor = '#6366f1';
+                        activeLabel.style.backgroundColor = '#f5f3ff';
+                    }
                 }
             });
         });
-    </script>
-</body>
-
-</html>
+    });
+</script>
+{% endblock %}

@@ -119,6 +119,89 @@
             </div>
             {% endfor %}
         </div>
+
+        <!-- قسم الاختبارات والتقييمات للطالب (جديد) -->
+        <div class="border-t border-slate-200/60 pt-6 space-y-6">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100/60 text-primary flex items-center justify-center text-xl shadow-xs">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-extrabold text-slate-900">أداء الاختبارات والتقييمات الدراسية</h3>
+                    <p class="text-xs text-slate-500 font-semibold">متابعة درجات الاختبارات التي تم حلها، وحل التقييمات المعلقة فوراً.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 1. الاختبارات التي لم تُحل بعد -->
+                <div class="bg-slate-50/50 border border-slate-200/40 rounded-2xl p-6">
+                    <h4 class="text-sm font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-clock text-amber-500"></i> اختبارات بانتظار الحل
+                    </h4>
+                    <div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+                        {% for quiz in unsolved_quizzes %}
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white rounded-xl border border-slate-100 hover:border-slate-200 transition-all">
+                            <div>
+                                <span class="bg-indigo-50 text-indigo-700 text-[9px] font-extrabold px-2 py-0.5 rounded block w-fit mb-1.5">{{ quiz.course.name }}</span>
+                                <h5 class="text-xs font-extrabold text-slate-800">{{ quiz.title }}</h5>
+                                <p class="text-[10px] text-slate-450 mt-1">
+                                    المدة: {{ quiz.duration }} دقيقة | 
+                                    {% if quiz.session_number %}رقم الحصة: {{ quiz.session_number }}{% else %}كامل الكورس{% endif %}
+                                </p>
+                            </div>
+                            <a href="{% url 'quiz:take_quiz' quiz.id %}" class="text-xxs font-extrabold bg-primary text-white hover:bg-blue-800 px-3.5 py-2.5 rounded-xl transition-all shadow-xs text-center flex items-center justify-center gap-1">
+                                ابدأ الحل <i class="fas fa-play text-[8px]"></i>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <p class="text-xxs text-slate-400 italic text-center py-6">🎉 ممتاز! لا توجد اختبارات معلقة لديك حالياً.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 2. نتائج الاختبارات المكتملة -->
+                <div class="bg-slate-50/50 border border-slate-200/40 rounded-2xl p-6">
+                    <h4 class="text-sm font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-check-circle text-emerald-500"></i> اختبارات تم حلها
+                    </h4>
+                    <div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
+                        {% for attempt in taken_attempts %}
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white rounded-xl border border-slate-100 hover:border-slate-200 transition-all">
+                            <div>
+                                <span class="bg-slate-100 text-slate-700 text-[9px] font-extrabold px-2 py-0.5 rounded block w-fit mb-1.5">{{ attempt.quiz.course.name }}</span>
+                                <h5 class="text-xs font-extrabold text-slate-800">{{ attempt.quiz.title }}</h5>
+                                <p class="text-[10px] text-slate-450 mt-1">
+                                    تاريخ التسليم: {{ attempt.completed_at|date:"Y-m-d" }}
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-3 justify-between sm:justify-start">
+                                {% if attempt.status == 'pending' %}
+                                <span class="bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-extrabold px-2 py-1.5 rounded-full">
+                                    <i class="fas fa-hourglass-half"></i> قيد المراجعة
+                                </span>
+                                {% else %}
+                                    {% if attempt.passed %}
+                                    <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-extrabold px-2 py-1.5 rounded-full">
+                                        {{ attempt.score|floatformat:1 }}% (ناجح)
+                                    </span>
+                                    {% else %}
+                                    <span class="bg-red-50 text-red-700 border border-red-200 text-[9px] font-extrabold px-2 py-1.5 rounded-full">
+                                        {{ attempt.score|floatformat:1 }}% (غير مجتاز)
+                                    </span>
+                                    {% endif %}
+                                {% endif %}
+                                <a href="{% url 'quiz:review_quiz' attempt.id %}" class="text-xxs font-extrabold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-2.5 py-2 rounded-lg transition-all flex items-center justify-center gap-1">
+                                    <i class="fas fa-eye"></i> مراجعة
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-xxs text-slate-400 italic text-center py-6">لم تقم بتأدية أي اختبارات بعد.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 
@@ -142,7 +225,9 @@
                         <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الطالب</th>
                         <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الكورس المشترك به</th>
                         <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الحضور الفعلي</th>
-                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">رقم ولي الأمر</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الصف الدراسي</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الدولة</th>
+                        <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">الأكاديمية</th>
                         <th class="px-6 py-4.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">سجل الاختبارات والتسليمات</th>
                     </tr>
                 </thead>
@@ -160,8 +245,25 @@
                                 {{ item.attended }}/{{ item.total }} حصة
                             </span>
                         </td>
+                        <!-- الصف الدراسي -->
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="text-xs font-semibold text-slate-500"><i class="fas fa-phone opacity-60 ml-1.5"></i> {{ item.phone }}</span>
+                            <span class="text-xs font-extrabold text-slate-700">{{ item.academic_year }}</span>
+                        </td>
+
+                        <!-- الدولة -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1 bg-slate-50 border border-slate-200 text-slate-700 text-xxs font-extrabold px-2.5 py-1 rounded-full">
+                                <i class="fas fa-globe-americas opacity-60"></i>
+                                <span>{{ item.country }}</span>
+                            </span>
+                        </td>
+
+                        <!-- الأكاديمية المشترك فيها -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1 bg-indigo-50 border border-indigo-100 text-indigo-700 text-xxs font-extrabold px-2.5 py-1 rounded-full">
+                                <i class="fas fa-school opacity-60"></i>
+                                <span>{{ item.academy }}</span>
+                            </span>
                         </td>
                         <td class="px-6 py-4">
                             <div class="space-y-1.5 max-h-24 overflow-y-auto custom-scrollbar">
@@ -178,7 +280,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-450">
+                        <td colspan="7" class="px-6 py-12 text-center text-slate-450">
                             <i class="fas fa-users-slash text-3xl mb-2 opacity-50 block"></i>
                             لا يوجد طلاب نشطين مسندين إليك حالياً.
                         </td>
@@ -186,6 +288,85 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <!-- قسم اختبارات بانتظار تصحيح المعلم (جديد) -->
+        <div class="border-t border-slate-100 pt-6 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-lg">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div>
+                    <h4 class="text-md font-bold text-slate-900">تقييمات واختبارات بانتظار تصحيحك</h4>
+                    <p class="text-xxs text-slate-500 font-semibold">صحّح الإجابات المقالية لطلابك ورصد الدرجات النهائية لهم.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for attempt in pending_grade_attempts %}
+                <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200/50 flex items-center justify-between hover:border-amber-200 transition-colors">
+                    <div>
+                        <span class="inline-block text-[9px] font-extrabold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-100/50">بانتظار رصد الدرجة</span>
+                        <h5 class="text-xs font-extrabold text-slate-800 mt-2">{{ attempt.quiz.title }}</h5>
+                        <p class="text-[10px] text-slate-500 mt-1">
+                            الطالب: <b>{{ attempt.student.name }}</b> | 
+                            الكورس: {{ attempt.quiz.course.name }}
+                        </p>
+                    </div>
+                    <a href="{% url 'quiz:grade_quiz' attempt.id %}" class="text-xxs font-extrabold bg-primary hover:bg-blue-800 text-white px-3 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5">
+                        <i class="fas fa-edit"></i> ابدأ التصحيح
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-span-2 text-center py-6 text-slate-450 border border-dashed border-slate-200 rounded-2xl bg-slate-50/20">
+                    <p class="text-xs font-semibold text-slate-400 italic">🟢 رائع جداً! لا توجد اختبارات معلقة تحتاج للتصحيح حالياً.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- إدارة الكورسات وإنشاء الاختبارات (جديد للمعلم) -->
+        <div class="border-t border-slate-100 pt-6 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 text-primary flex items-center justify-center text-lg">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div>
+                    <h4 class="text-md font-bold text-slate-900">إدارة المقررات وإنشاء الاختبارات</h4>
+                    <p class="text-xxs text-slate-500 font-semibold">أنشئ اختبارات كويز مخصصة أو عامة للطلاب المشتركين في الكورسات التي تدرسها.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for course in teacher_courses %}
+                <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200/50 flex flex-col justify-between hover:border-indigo-200 transition-colors">
+                    <div class="flex justify-between items-start gap-4">
+                        <div>
+                            <h5 class="text-sm font-extrabold text-slate-800 leading-snug">{{ course.name }}</h5>
+                            <span class="inline-block mt-1 text-xxs font-extrabold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100/50">
+                                {{ course.subject.name }}
+                            </span>
+                        </div>
+                        <span class="text-xxs font-bold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-md shadow-xs">
+                            {{ course.country.name }}
+                        </span>
+                    </div>
+
+                    <div class="mt-4 flex gap-2">
+                        <a href="{% url 'quiz:create_quiz' course.id %}" class="flex-1 text-center text-xxs font-extrabold bg-primary hover:bg-blue-800 text-white px-3 py-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5">
+                            <i class="fas fa-plus"></i> أنشئ اختباراً جديداً
+                        </a>
+                        <a href="{% url 'course_materials' course.id %}" class="text-center text-xxs font-extrabold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                            <i class="fas fa-folder-open"></i> المواد التعليمية
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-2 text-center py-6 text-slate-450 border border-dashed border-slate-200 rounded-2xl bg-slate-50/20">
+                    <p class="text-xs font-semibold">لا توجد كورسات مرتبطة بالمواد التي تدرسها حالياً.</p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endif %}
@@ -267,7 +448,7 @@
                     <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
                         <i class="fas fa-cogs"></i>
                     </div>
-                    <h4 class="font-bold text-lg text-slate-800">Django Admin</h4>
+                    <h4 class="font-bold text-lg text-slate-800">التحكم الرئيسي</h4>
                 </div>
                 <p class="text-sm text-slate-500">لوحة تحكم جانغو الرئيسية للوصول الكامل إلى قاعدة البيانات والنظام.</p>
             </a>
@@ -326,6 +507,16 @@
                     <h4 class="font-bold text-lg text-slate-800">رفع المواد التعليمية</h4>
                 </div>
                 <p class="text-sm text-slate-500">مشاركة الملفات، الكورسات، والمحتوى التعليمي مع الطلاب.</p>
+            </a>
+
+            <a href="{% url 'quiz:quiz_dashboard' %}" class="block bg-white shadow-lg rounded-xl p-6 border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <h4 class="font-bold text-lg text-slate-800">منصة الاختبارات</h4>
+                </div>
+                <p class="text-sm text-slate-500">إدارة وعرض لوحة التحكم الشاملة للاختبارات التي أنشأتها وتتبع نتائج الطلاب.</p>
             </a>
             {% endif %}
 

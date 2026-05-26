@@ -1,280 +1,253 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء اختبار جديد | VexaLearn</title>
+{% extends "base_rtl.html" %}
+{% load static %}
+
+{% block title %}إنشاء اختبار جديد | VexaLearn{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Scope cairo typography */
+    .create-quiz-container {
+        font-family: 'Cairo', sans-serif !important;
+    }
+
+    /* Mobile-friendly large tap-target checkbox list */
+    #id_specific_students {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 250px;
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    #id_specific_students li {
+        position: relative;
+    }
+
+    #id_specific_students li label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #ffffff;
+        border: 2px solid rgba(226, 232, 240, 0.8);
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+        min-height: 48px; /* High mobile accessibility touch target */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #id_specific_students li label:hover {
+        background: #f8fafc;
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    #id_specific_students li input[type="checkbox"] {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #cbd5e1;
+        border-radius: 6px;
+        display: grid;
+        place-content: center;
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    #id_specific_students li input[type="checkbox"]::before {
+        content: "\f00c";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 0.65rem;
+        color: white;
+        transform: scale(0);
+        transition: transform 0.2s ease;
+    }
+
+    #id_specific_students li input[type="checkbox"]:checked {
+        border-color: #6366f1;
+        background: #6366f1;
+    }
+
+    #id_specific_students li input[type="checkbox"]:checked::before {
+        transform: scale(1);
+    }
+
+    #id_specific_students li:has(input[type="checkbox"]:checked) label {
+        background: #f5f3ff;
+        border-color: #6366f1;
+        color: #6366f1;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+    }
+
+    /* custom scrollbar for students selection */
+    #id_specific_students::-webkit-scrollbar {
+        width: 5px;
+    }
+    #id_specific_students::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    #id_specific_students::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Decorative Background Elements (Landing Page Identity) -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+    <!-- Glowing Orbs -->
+    <div class="absolute top-[10%] left-[5%] w-[45rem] h-[45rem] rounded-full bg-gradient-to-br from-indigo-500/10 to-transparent blur-[140px] animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="absolute top-[30%] right-[5%] w-[35rem] h-[35rem] rounded-full bg-gradient-to-br from-violet-500/10 to-transparent blur-[120px] animate-pulse" style="animation-duration: 12s;"></div>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Micro-Dot Tech Grid Pattern -->
+    <div class="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.35]"></div>
+</div>
 
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0f172a;
-            --text-main: #334155;
-            --text-light: #64748b;
-            --bg-light: #f8fafc;
-            --white: #ffffff;
-            --border: #e2e8f0;
-            --radius: 16px;
-        }
+<!-- Main Form Container -->
+<div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24 create-quiz-container">
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-main);
-            margin: 0;
-            padding: 40px 20px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 700px;
-            width: 100%;
-        }
-
-        .card,
-        .card-body,
-        form {
-            min-width: 0;
-        }
-
-        /* Card Design */
-        .card {
-            background: var(--white);
-            border-radius: var(--radius);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--secondary) 0%, #1e293b 100%);
-            padding: 30px;
-            color: white;
-            text-align: center;
-        }
-
-        .card-header h2 { margin: 0 0 10px; font-size: 1.5rem; font-weight: 800; }
-        .card-header .course-badge {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: #e2e8f0;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .card-body { padding: 40px; }
-
-        /* Form Styling */
-        .form-group { margin-bottom: 20px; }
-        .form-label {
-            display: block; margin-bottom: 8px; font-weight: 700; color: var(--secondary);
-            font-size: 0.95rem;
-        }
-
-        input[type="text"], 
-        input[type="number"], 
-        select, 
-        textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: 0.3s ease;
-            background-color: #fcfcfc;
-            color: var(--text-main);
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: var(--white);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        textarea { resize: vertical; min-height: 100px; }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .form-row { grid-template-columns: 1fr; }
-        }
-
-        .help-text {
-            display: block; margin-top: 5px; font-size: 0.85rem; color: var(--text-light);
-        }
-
-        /* تخصيص Select2 ليتناسب مع الثيم */
-        .select2-container--default .select2-selection--multiple {
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            min-height: 48px;
-            padding: 5px;
-            background-color: #fcfcfc;
-        }
-        .select2-container--default.select2-container--focus .select2-selection--multiple {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-            background-color: var(--white);
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.9rem;
-            margin-top: 4px;
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            color: white;
-            margin-right: 5px;
-            border-right: 1px solid rgba(255,255,255,0.3);
-            padding-right: 5px;
-        }
-        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-            color: #e2e8f0;
-            background: transparent;
-        }
-
-        /* Buttons */
-        .btn-group { display: flex; gap: 15px; margin-top: 30px; }
-
-        @media (max-width: 600px) {
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn-secondary,
-            .btn-primary {
-                width: 100%;
-            }
-        }
+    <!-- Card Structure -->
+    <div class="bg-white/70 backdrop-blur-xl rounded-3xl border border-slate-200/50 shadow-premium overflow-hidden transition-all duration-300 hover:border-indigo-300/30">
         
-        .btn {
-            width: 100%; padding: 14px; border: none; border-radius: 12px;
-            font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary); color: white;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-        }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
-
-        .btn-secondary {
-            background: white; color: var(--text-light); border: 2px solid var(--border);
-            width: auto; padding: 14px 25px;
-        }
-        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: #f8fafc; }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-file-signature"></i> إنشاء اختبار جديد</h2>
-                <div class="course-badge">
+        <!-- Header Banner (Matches Landing Style Panel) -->
+        <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-8 relative overflow-hidden text-center border-b border-slate-800">
+            <!-- Glowing accent in card header -->
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/15 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10 space-y-3">
+                <h2 class="text-xl md:text-2xl font-black flex items-center justify-center gap-2.5">
+                    <span class="p-2 bg-white/5 rounded-xl border border-white/10 text-indigo-400">
+                        <i class="fas fa-file-signature"></i>
+                    </span>
+                    إنشاء اختبار دراسي جديد
+                </h2>
+                
+                <span class="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 text-xs font-bold px-3 py-1.5 rounded-full border border-indigo-500/30">
                     <i class="fas fa-book"></i> الكورس: {{ course.name }}
-                </div>
-            </div>
-
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="form-group">
-                        <label class="form-label">عنوان الاختبار</label>
-                        {{ form.title }}
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">الوصف والتعليمات</label>
-                        {{ form.description }}
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label"><i class="far fa-clock"></i> المدة (دقائق)</label>
-                            {{ form.duration }}
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-percent"></i> درجة النجاح</label>
-                            {{ form.pass_score }}
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="background: #f1f5f9; padding: 20px; border-radius: 12px; border: 1px dashed var(--border);">
-                        <label class="form-label">
-                            <i class="fas fa-users-cog" style="color: var(--primary);"></i> تخصيص لطلاب محددين (اختياري)
-                        </label>
-                        
-                        {{ form.specific_students }}
-
-                        <span class="help-text">
-                            <i class="fas fa-info-circle"></i> يمكنك اختيار أكثر من طالب. اترك الحقل فارغاً ليظهر الاختبار <b>لجميع</b> طلاب الكورس.
-                        </span>
-                    </div>
-
-                    <div class="btn-group">
-                        <a href="{% url 'profile_view' %}" class="btn btn-secondary">
-                            إلغاء
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            التالي: إضافة الأسئلة <i class="fas fa-arrow-left"></i>
-                        </button>
-                    </div>
-                </form>
+                </span>
             </div>
         </div>
+
+        <!-- Card Body Form Area -->
+        <div class="p-8 sm:p-10">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Title Field -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">عنوان الاختبار والتقييم</label>
+                    {{ form.title }}
+                </div>
+
+                <!-- Description Field -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">الوصف والتعليمات للطلاب</label>
+                    {{ form.description }}
+                </div>
+
+                <!-- Duration & Pass Score Row -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                            <i class="far fa-clock text-indigo-500 ml-1"></i> المدة الزمنية (دقائق)
+                        </label>
+                        {{ form.duration }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                            <i class="fas fa-bullseye text-violet-500 ml-1"></i> النسبة المئوية للنجاح
+                        </label>
+                        {{ form.pass_score }}
+                    </div>
+                </div>
+
+                <!-- Session Number (Optional) -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                        <i class="fas fa-hashtag text-indigo-500 ml-1"></i> رقم الحصة الدراسية (اختياري)
+                    </label>
+                    {{ form.session_number }}
+                    <span class="block text-[10px] text-slate-400 font-semibold leading-relaxed">
+                        <i class="fas fa-info-circle"></i> حدد رقم الحصة في حال كان الاختبار تابعاً لحصة معينة. اتركه فارغاً ليعبر عن الكورس بأكمله.
+                    </span>
+                </div>
+
+                <!-- Specific Students Custom Box (Optional) -->
+                <div class="bg-indigo-50/50 border border-indigo-100/60 p-5 rounded-2xl border-dashed space-y-4">
+                    <label class="block text-xs font-black text-indigo-900 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fas fa-users-cog text-indigo-500"></i> تخصيص لطلاب محددين (اختياري)
+                    </label>
+                    
+                    <!-- Mobile-friendly student filter search box -->
+                    <div class="relative">
+                        <i class="fas fa-search absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-students" placeholder="ابحث باسم الطالب للتحديد السريع..." class="w-full pr-9 pl-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500" style="box-shadow: none;">
+                    </div>
+                    
+                    <div class="pt-2">
+                        {{ form.specific_students }}
+                    </div>
+
+                    <span class="block text-[10px] text-indigo-800/60 font-semibold leading-relaxed">
+                        <i class="fas fa-info-circle"></i> يمكنك تحديد طالب أو مجموعة طلاب بالضغط مباشرة على أسمائهم. اترك الحقل فارغاً ليتم توجيه ونشر التقييم <b>لجميع</b> طلاب الكورس آلياً.
+                    </span>
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-slate-100">
+                    <a href="{% url 'quiz:quiz_dashboard' %}" class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 border border-slate-200 hover:border-indigo-300 rounded-xl text-xs flex items-center justify-center gap-2 transition-all">
+                        إلغاء وتراجع
+                    </a>
+                    
+                    <button type="submit" class="w-full sm:flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3 px-6 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-indigo-500/20 transition-all transform hover:-translate-y-0.5 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
+                        التالي: إضافة وتصميم الأسئلة <i class="fas fa-arrow-left"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</div>
 
-    <script>
-        $(document).ready(function() {
-            // تفعيل Select2
-            $('.select2').select2({
-                dir: "rtl",
-                width: '100%',
-                placeholder: "اضغط هنا لاختيار الطلاب...",
-                allowClear: true,
-                language: {
-                    noResults: function() {
-                        return "لا يوجد طلاب بهذا الاسم";
-                    }
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Student search filter logic (Fast, responsive & lightweight)
+        $('#search-students').on('input', function() {
+            const query = $(this).val().toLowerCase().trim();
+            $('#id_specific_students li').each(function() {
+                const textName = $(this).text().toLowerCase().trim();
+                if (textName.includes(query)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
                 }
             });
-
-            // تحسينات إضافية لحقول العنوان والوصف
-            $('input[name="title"]').attr('placeholder', 'مثال: اختبار الوحدة الأولى...');
-            $('textarea[name="description"]').attr('placeholder', 'اكتب تعليمات الاختبار هنا...');
         });
-    </script>
 
-</body>
-</html>
+        // Set modern responsive inputs styling programmatically
+        $('input[type="text"], input[type="number"], select, textarea').not('#search-students').addClass(
+            'w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+        );
+
+        $('input[name="title"]').attr('placeholder', 'مثال: اختبار الوحدة الأولى المقررة...');
+        $('textarea[name="description"]').attr('placeholder', 'اكتب هنا تعليمات الاختبار وشروط تسليمه للطلاب...');
+    });
+</script>
+{% endblock %}
