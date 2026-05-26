@@ -73,3 +73,34 @@ class AdminPanelTests(TestCase):
                 break
                 
         self.assertTrue(found_message)
+
+class EmailConversionTests(TestCase):
+    def test_convert_plain_text_to_html_formatting(self):
+        from core.tasks import convert_plain_text_to_html
+        
+        subject = "مرحباً بك في الأكاديمية"
+        message = """مرحباً أحمد،
+        
+        تم تسجيل حساب الطالب بنجاح في المنصة.
+        
+        بيانات الدخول:
+        اسم المستخدم: student_user
+        كلمة المرور: pass_secure
+        
+        رابط المنصة: https://vexalearn.cloud/dashboard
+        """
+        
+        html_content = convert_plain_text_to_html(subject, message)
+        
+        # Verify subject is present
+        self.assertIn("مرحباً بك في الأكاديمية", html_content)
+        # Verify greeting is styled
+        self.assertIn("مرحباً أحمد", html_content)
+        # Verify credential formatting wraps in code tags
+        self.assertIn("student_user", html_content)
+        self.assertIn("pass_secure", html_content)
+        self.assertIn("code style=", html_content)
+        # Verify action button is generated for URL
+        self.assertIn("https://vexalearn.cloud/dashboard", html_content)
+        # Verify RTL layout direction is present
+        self.assertIn('dir="rtl"', html_content)
